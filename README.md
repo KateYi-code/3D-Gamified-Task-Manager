@@ -1,12 +1,17 @@
-# CS732 project - Team $GROUPNAME
+# CS732 project - Team VirtualDOMinated
 
 Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.
 
 Your team members are:
-$TEAMMEMBERS
+- Alexander Bao _(ybao421@aucklanduni.ac.nz)_
+- Yingrao YI _(yyi977@aucklanduni.ac.nz)_
+- Jiaheng Li _(jil783@aucklanduni.ac.nz)_
+- Boyu Lyu _(blyu438@aucklanduni.ac.nz)_
+- Kui Yuan _(kyua005@aucklanduni.ac.nz)_
+- Yifeng Pan _(ypan179@aucklanduni.ac.nz)_
 
 You have complete control over how you run this repo. All your members will have admin access. The only thing setup by default is branch protections on `main`, requiring a PR with at least one code reviewer to modify `main` rather than direct pushes.
 
 Please use good version control practices, such as feature branching, both to make it easier for markers to see your group's history and to lower the chances of you tripping over each other during development
 
-$IMAGE
+![](./VirtualDOMinated.png)
