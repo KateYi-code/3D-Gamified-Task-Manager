@@ -9,6 +9,33 @@ Here are the complete steps from git clone to starting the project:
 git clone <repository-url>
 cd prototype
 
+### Set Up Node.js with NVM
+
+This project uses Node.js v22.14.0 as specified in the `.nvmrc` file.
+
+#### Install NVM (Node Version Manager)
+
+If you don't have NVM installed:
+
+- On macOS/Linux:
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+```
+
+- On Windows:
+  - Install [nvm-windows](https://github.com/coreybutler/nvm-windows/releases)
+
+Follow the installation instructions and restart your terminal.
+
+#### Use the Correct Node.js Version
+
+Once NVM is installed, navigate to the project directory and run:
+
+```bash
+nvm install    # Installs the Node.js version specified in .nvmrc
+nvm use        # Switches to the version specified in .nvmrc
+```
+
 ### Install Dependencies
 
 npm install
