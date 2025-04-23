@@ -6,8 +6,10 @@ Here are the complete steps from git clone to starting the project:
 
 ### Clone the Repository
 
-git clone <repository-url>
-cd prototype
+```bash
+git clone git@github.com:UOA-CS732-S1-2025/group-project-virtualdominated.git
+cd group-project-virtualdominated
+```
 
 ### Set Up Node.js with NVM
 
@@ -38,44 +40,18 @@ nvm use        # Switches to the version specified in .nvmrc
 
 ### Install Dependencies
 
-npm install
-
-### Set Up PostgreSQL Database (Using Docker)
-
-### Start the PostgreSQL container
-
 ```bash
-docker-compose up -d postgres
+npm install
 ```
-
-This will start a PostgreSQL container using the docker-compose.yml configuration in the project, with the following
-settings:
-
-- Username: `postgres`
-- Password: `postgres`
-- Database Name: `prototype`
-- Port: `5432`
 
 ### Configure Environment Variables
 
 Create a `.env` file and set the database connection string, or copy the example provided: .env.sample
 
-```bash
-echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/prototype\"" > .env
-```
-
-### Initialize the Database
-
 #### Generate the Prisma client
 
 ```
 npm run prisma:generate
-```
-
-#### Run database migrations
-
-```
-npm run prisma:migrate
 ```
 
 ### Start the Development Server
@@ -87,35 +63,6 @@ npm run dev
 ### Access the Application
 
 Open your browser and go to http://localhost:3000 to view the application.
-
-## Database and Migrations
-
-This project uses Prisma ORM to manage database operations and migrations.
-
-### Generating a New SQL Migration
-
-To generate a new SQL migration after making changes to the Prisma schema:
-
-1. Make your changes to the schema in `prisma/schema.prisma`
-2. Run the following command to generate a new migration:
-
-```bash
-npm run prisma:migrate -- dev --name your_migration_name
-```
-
-Replace `your_migration_name` with a descriptive name for your migration (use snake_case).
-
-3. The migration will be created in the `prisma/migrations` directory with a timestamp prefix
-4. Apply the migration to your development database automatically
-
-### Deploying Migrations to Production
-
-For production environments, use the deployment command which applies migrations without generating development
-artifacts:
-
-```bash
-npm run prisma:deploy
-```
 
 ### Other Database Commands
 

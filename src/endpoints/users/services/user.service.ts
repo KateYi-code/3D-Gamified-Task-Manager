@@ -3,7 +3,11 @@ import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
 export const getUsers = async () => {
-  return prisma.user.findMany({});
+  return prisma.user.findMany({
+    include: {
+      sessions: true,
+    }
+  });
 };
 
 export const getUserById = async (id: string) => {
