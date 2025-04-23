@@ -1,4 +1,4 @@
-# Next.js + Prisma + PostgreSQL Prototype
+# Next.js + Prisma + MongoDB
 
 ## Getting Started
 
