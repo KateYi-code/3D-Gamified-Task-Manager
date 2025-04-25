@@ -1,15 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { client } from "@/endpoints/client";
+import { useQuery } from "@/hooks/useQuery";
 
 export const UserList = () => {
-  const { data: users } = useQuery({
-    queryFn: async () => {
-      return client.call("unauth/user/list");
-    },
-    queryKey: ["user/list"],
-  });
+  const { data: users } = useQuery("unauth/user/list");
   return (
     <ul>
       {users?.map((user) => (
