@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { endpointClient } from "@/endpoints/client";
+import { client } from "@/endpoints/client";
 
 export const UserList = () => {
   const { data: users } = useQuery({
     queryFn: async () => {
-      return endpointClient.call("user/list");
+      return client.call("unauth/user/list");
     },
     queryKey: ["user/list"],
   });

@@ -12,4 +12,6 @@ export const prisma =
     log: ["query"],
   });
 
+export const db = prisma;
+
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

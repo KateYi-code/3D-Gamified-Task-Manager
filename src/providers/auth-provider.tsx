@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { client } from "@/endpoints/client";
 
 type User = {
   id: string;
@@ -26,13 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is logged in on initial load
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
+        const user = await client.call("auth/user/me");
+        if (user) setUser(user);
       } catch (error) {
-        console.error("Failed to fetch user:", error);
+        console.info("Failed to fetch user:", error);
       } finally {
         setLoading(false);
       }
@@ -44,21 +42,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to login");
-      }
-
-      const data = await response.json();
-      setUser(data.user);
+      const user = await client.call("unauth/user/login", email, password);
+      setUser(user);
     } finally {
       setLoading(false);
     }
@@ -67,18 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to register");
-      }
+      await client.call("unauth/user/register", name, email, password);
 
       // Auto login after registration
       await login(email, password);
@@ -90,9 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
+      await client.call("unauth/user/logout");
       setUser(null);
     } finally {
       setLoading(false);

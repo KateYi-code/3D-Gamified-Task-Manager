@@ -35,15 +35,11 @@ export class EndpointClient<T extends APIs> {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to call endpoint");
+      throw new Error((await res.json()).details ?? "Unknown error");
     }
     const superJsonResult = await res.json();
     return superjson.deserialize<Awaited<ReturnType<T[K]>>>(superJsonResult);
   }
 }
 
-export const endpointClient = new EndpointClient<Endpoints>("/api/endpoints");
-
-// endpointClient.call("user/get", "123");
-// endpointClient.call("user/list");
-// endpointClient.call("user/create", "John Doe", "yuankui@email.com");
+export const client = new EndpointClient<Endpoints>("/api/endpoints");
