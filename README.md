@@ -104,3 +104,13 @@ from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
 more details.
+
+## FAQ
+
+### How do I add a new third party component?
+
+We are using the ui.shadcn.com. To add a new component, you can follow these steps:
+1. Go to the [ui.shadcn.com](https://ui.shadcn.com/docs/components/accordion) website.
+2. Find the component you want to add.
+3. install the component using the command provided in the website.
+   4. `npx shadcn@latest add progress`

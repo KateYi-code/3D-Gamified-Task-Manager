@@ -3,8 +3,8 @@
 import { UserList } from "@/components/UserList";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/providers/auth-provider";
-import styles from "@/styles/layout.module.css";
 
+const styles = {} as any;
 export default function Home() {
   const { user, loading } = useAuth();
 
