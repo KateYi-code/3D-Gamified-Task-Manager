@@ -114,3 +114,23 @@ We are using the ui.shadcn.com. To add a new component, you can follow these ste
 2. Find the component you want to add.
 3. install the component using the command provided in the website.
    4. `npx shadcn@latest add progress`
+
+### How to add a API/Service
+
+In this repo, We have a `client` object which makes the API calls to the backend in a transparent way. You can add a new API by
+
+1. Goto file `src/endpoints/index.ts`
+2. Consider whether the API requires authentication.
+3. If it does, add the service function to `authEndpoints`
+4. If it doesn't, add the service function to `unauthEndpoints`
+5. Now you can call the API in your component using the `client` object.
+```typescript
+import { client } from "@/endpoints/client";
+// ...
+
+const getUsers = async () => {
+    return client.getUsers();
+}
+```
+
+Under the hood, the `client` object will call the API in http POST and deserialize the reponse body into objects
