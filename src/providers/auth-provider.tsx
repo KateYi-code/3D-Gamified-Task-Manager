@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is logged in on initial load
     const checkAuth = async () => {
       try {
-        const user = await client.call("auth/user/me");
+        const user = await client.authed.getMe();
         if (user) setUser(user);
       } catch (error) {
         console.info("Failed to fetch user:", error);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const user = await client.call("unauth/user/login", email, password);
+      const user = await client.unauth.userLogin(email, password);
       setUser(user);
     } finally {
       setLoading(false);
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
-      await client.call("unauth/user/register", name, email, password);
+      await client.unauth.userRegister(name, email, password);
 
       // Auto login after registration
       await login(email, password);
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      await client.call("unauth/user/logout");
+      await client.authed.userLogout();
       setUser(null);
     } finally {
       setLoading(false);

@@ -1,29 +1,14 @@
 import superjson from "superjson";
+import { authEndpoints, unauthEndpoints } from "@/endpoints/index";
 
-import type { APIs } from "./types.ts";
-import { Endpoints } from "@/endpoints/index";
+export type Client = {
+  authed: typeof authEndpoints;
+  unauth: typeof unauthEndpoints;
+};
 
-export class EndpointClient<T extends APIs> {
-  constructor(private url: string) {}
-
-  /**
-   * Example:
-   * POST localhost:3000/api/endpoints
-   * Content-Type: application/json
-   *
-   * {
-   *   "endpoint": "endpoints/directories/list",
-   *   "params": {}
-   * }
-   *
-   * @param endpoint
-   * @param params
-   */
-  async call<K extends keyof T>(
-    endpoint: K,
-    ...params: Parameters<T[K]>
-  ): Promise<Awaited<ReturnType<T[K]>>> {
-    const res = await fetch(this.url, {
+const createClient = (url: string): Client => {
+  const callRemoteMethod = async (endpoint: string, params: any[]) => {
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,8 +23,26 @@ export class EndpointClient<T extends APIs> {
       throw new Error((await res.json()).details ?? "Unknown error");
     }
     const superJsonResult = await res.json();
-    return superjson.deserialize<Awaited<ReturnType<T[K]>>>(superJsonResult);
-  }
-}
+    return superjson.deserialize(superJsonResult);
+  };
+  const createProxy = () =>
+    new Proxy(
+      {},
+      {
+        get(target, p) {
+          return function () {
+            // eslint-disable-next-line prefer-rest-params
+            return callRemoteMethod(p as string, [...arguments]);
+          };
+        },
+      },
+    );
+  const authed = createProxy() as typeof authEndpoints;
+  const unauth = createProxy() as typeof unauthEndpoints;
+  return {
+    authed,
+    unauth,
+  };
+};
 
-export const client = new EndpointClient<Endpoints>("/api/endpoints");
+export const client = createClient("/api/endpoints");

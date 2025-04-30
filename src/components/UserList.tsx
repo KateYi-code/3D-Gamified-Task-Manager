@@ -3,7 +3,7 @@
 import { useQuery } from "@/hooks/useQuery";
 
 export const UserList = () => {
-  const { data: users } = useQuery("unauth/user/list");
+  const { data: users } = useQuery("getUsers");
   return (
     <ul>
       {users?.map((user) => (
