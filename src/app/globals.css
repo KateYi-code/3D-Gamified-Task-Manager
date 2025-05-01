@@ -140,3 +140,15 @@ a {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .h-screen-minus-nav {
+    height: calc(100vh - 64px);
+  }
+  
+  @media (max-width: 768px) {
+    .h-screen-minus-nav {
+      height: calc(100vh - 56px - 64px); /* Account for top and bottom nav on mobile */
+    }
+  }
+}

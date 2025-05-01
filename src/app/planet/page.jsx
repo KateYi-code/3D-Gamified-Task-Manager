@@ -147,8 +147,11 @@ const Planet = () => {
   }, [])
 
   return (
-    <>
-      <div ref={containerRef} style={{ width: '100vw', height: '100vh', backgroundColor: '#000' }} />
+    <div className="h-screen-minus-nav">
+      <div 
+        ref={containerRef} 
+        className="w-full h-screen-minus-nav bg-black -mt-8"
+      />
       {!placed && (
         <div style={{
           position: 'absolute',
@@ -177,7 +180,7 @@ const Planet = () => {
           </button>
         </div>
       )}
-    </>
+    </div>
   )
 }
 export default Planet
