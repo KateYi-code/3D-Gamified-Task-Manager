@@ -134,3 +134,7 @@ const getUsers = async () => {
 ```
 
 Under the hood, the `client` object will call the API in http POST and deserialize the reponse body into objects
+
+## Helpful resources
+
+- [Prisma ER diagram](https://prisma-erd.simonknott.de/)

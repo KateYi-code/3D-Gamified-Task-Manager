@@ -8,7 +8,7 @@ export const UserList = () => {
     <ul>
       {users?.map((user) => (
         <li key={user.id}>
-          {user.name} - {user.email}, sessions: {user.sessions.length}
+          {user.name} - {user.email}, sessions: {user.sessions.length}, userId: {user.id}
         </li>
       )) ?? <li>No users found</li>}
     </ul>

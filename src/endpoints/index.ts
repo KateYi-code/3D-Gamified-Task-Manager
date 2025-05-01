@@ -1,8 +1,11 @@
 import { APIs } from "./types";
 import { shaped } from "@/common/shaped";
 import {
+  addFollowing,
   createUser,
   getMe,
+  getMyFollowers,
+  getMyFollowings,
   getUserById,
   getUsers,
   userLogin,
@@ -13,6 +16,9 @@ import {
 export const authEndpoints = shaped<APIs>()({
   getMe,
   userLogout,
+  addFollowing,
+  getMyFollowings,
+  getMyFollowers,
 });
 
 export const unauthEndpoints = shaped<APIs>()({

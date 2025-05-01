@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// user table
 model User {
   id        String   @id @default(cuid()) @map("_id")
   email     String   @unique
@@ -18,9 +19,69 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions Session[]
-  targets  Target[]
-  tasks    Task[]
+  sessions  Session[]
+  targets   Target[]
+  tasks     Task[]
+  following Follow[]     @relation("Follow-User")
+  followers Follow[]     @relation("Follow-Followed")
+  posts     Post[]
+  likes     PostLike[]
+  credits   UserCredit[]
+}
+
+enum UserCreditReason {
+  TASK_COMPLETED
+  PLANET_BUILD
+}
+
+model UserCredit {
+  id        String           @id @default(cuid()) @map("_id")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  userId    String
+  reason    UserCreditReason
+  credit    Int              @default(0) // negative means comsumption, positive means earning
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// userid -> followedId
+model Follow {
+  id         String   @id @default(cuid()) @map("_id")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  followedId String
+
+  followed User @relation("Follow-Followed", fields: [followedId], references: [id], onDelete: Cascade)
+  user     User @relation("Follow-User", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, followedId])
+}
+
+model Post {
+  id        String   @id @default(cuid()) @map("_id")
+  text      String
+  images    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes PostLike[]
+}
+
+model PostLike {
+  id        String   @id @default(cuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  postId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
 }
 
 model Session {

@@ -2,7 +2,7 @@ POST localhost:3000/api/endpoints
 Content-Type: application/json
 
 {
-  "endpoint": "user/list",
+  "endpoint": "getUsers",
   "params": []
 }
 

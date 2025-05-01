@@ -130,3 +130,53 @@ export const deleteSession = async (sessionToken: string) => {
     where: { sessionToken },
   });
 };
+
+export const addFollowing = async (followId: string) => {
+  const user = getSession().user;
+  if (!user) {
+    throw new Error("login required");
+  }
+  return prisma.follow.upsert({
+    where: {
+      userId_followedId: {
+        userId: user.id,
+        followedId: followId,
+      },
+    },
+    create: {
+      userId: user.id,
+      followedId: followId,
+    },
+    update: {},
+  });
+};
+
+export const getMyFollowings = async () => {
+  const user = getSession().user;
+  if (!user) {
+    throw new Error("login required");
+  }
+  return prisma.follow
+    .findMany({
+      where: { userId: user.id },
+      include: {
+        followed: true,
+      },
+    })
+    .then((f) => f.map((f) => f.followed));
+};
+
+export const getMyFollowers = async () => {
+  const user = getSession().user;
+  if (!user) {
+    throw new Error("login required");
+  }
+  return prisma.follow
+    .findMany({
+      where: { followedId: user.id },
+      include: {
+        user: true,
+      },
+    })
+    .then((f) => f.map((f) => f.user));
+};
