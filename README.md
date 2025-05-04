@@ -132,8 +132,16 @@ const getUsers = async () => {
     return client.getUsers();
 }
 ```
-
 Under the hood, the `client` object will call the API in http POST and deserialize the reponse body into objects
+
+
+### How to add icons?
+we use `react-icons` in this project, you can add icons by following these steps:
+1. Go to the [react-icons](https://react-icons.github.io/react-icons/) website.
+2. Find the icon you want to add.
+3. Click the icon to see the import statement.
+4. Copy the import statement and paste it into your component file.
+
 
 ## Helpful resources
 
