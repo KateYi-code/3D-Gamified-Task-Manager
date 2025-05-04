@@ -1,5 +1,5 @@
 import { prisma } from "@/db";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { getSession } from "@/endpoints/handler";
 import { cookies } from "next/headers";
