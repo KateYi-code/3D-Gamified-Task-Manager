@@ -58,7 +58,7 @@ export const TargetCreateModal: FC<Props> = ({ open, onOpenChange }) => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Your Goal Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Input your goal" {...field} />
                   </FormControl>
