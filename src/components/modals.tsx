@@ -1,5 +1,7 @@
 import { TargetCreateModal } from "@/components/target/TargetCreateModal";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
+import { TargetEditModal } from "@/components/target/TargetEditModal";
+import { Confirm } from "@/components/target/confirm";
 
 export interface ModalProps {
   open: boolean;
@@ -8,6 +10,8 @@ export interface ModalProps {
 
 export const modals = {
   TargetCreateModal,
+  TargetEditModal,
+  Confirm,
 };
 
 export type Modals = typeof modals;

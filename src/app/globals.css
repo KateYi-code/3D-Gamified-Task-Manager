@@ -14,11 +14,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -151,4 +146,13 @@ a {
       height: calc(100vh - 56px - 64px); /* Account for top and bottom nav on mobile */
     }
   }
+}
+
+.target-item-menu-button {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.target-item:hover .target-item-menu-button {
+  opacity: 1;
 }

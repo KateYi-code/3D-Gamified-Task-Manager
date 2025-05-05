@@ -1,6 +1,9 @@
 import { Target, Task } from "@prisma/client";
 import { FC } from "react";
 import { TaskItem } from "@/components/calendar/TaskItem";
+import { FaRegEdit } from "react-icons/fa";
+
+import { useModal } from "@/components/modals";
 
 interface Props {
   target: Target;
@@ -23,14 +26,28 @@ interface Props {
  * @returns {JSX.Element} A styled component displaying the target and relevant tasks.
  */
 export const TargetItem: FC<Props> = ({ target, tasks }) => {
+  const { modal: editModal, openModal } = useModal("TargetEditModal");
   return (
-    <div key={target.id} className="rounded-lg overflow-hidden">
-      <div className={`p-4 text-center font-medium bg-gray-200 `}>{target.title}</div>
+    <div key={target.id} className="rounded-lg overflow-hidden target-item">
+      <div className={`p-4 text-center font-medium bg-gray-200 flex items-center justify-between `}>
+        <span>{target.title}</span>
+        <button
+          onClick={() => {
+            openModal({
+              targetId: target.id,
+            });
+          }}
+          className="text-gray-500 hover:text-gray-700 hover:bg-gray-300 target-item-menu-button p-1 rounded cursor-pointer"
+        >
+          <FaRegEdit size={20} />
+        </button>
+      </div>
       <div className={`p-4 space-y-3 flex flex-col items-stretch`}>
         {tasks.map((task) => (
           <TaskItem key={task.id} task={task} />
         ))}
       </div>
+      {editModal}
     </div>
   );
 };

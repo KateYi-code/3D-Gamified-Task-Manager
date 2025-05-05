@@ -12,7 +12,13 @@ import {
   userLogout,
   userRegister,
 } from "@/endpoints/users/services/user.service";
-import { createMyTarget, getMyTargets } from "@/endpoints/targets/services/target.service";
+import {
+  createMyTarget,
+  deleteMyTarget,
+  getMyTargetById,
+  getMyTargets,
+  updateMyTarget,
+} from "@/endpoints/targets/services/target.service";
 
 export const authEndpoints = shaped<APIs>()({
   getMe,
@@ -22,6 +28,9 @@ export const authEndpoints = shaped<APIs>()({
   getMyFollowers,
   getMyTargets,
   createMyTarget,
+  getMyTargetById,
+  updateMyTarget,
+  deleteMyTarget,
 });
 
 export const unauthEndpoints = shaped<APIs>()({

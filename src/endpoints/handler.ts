@@ -1,4 +1,4 @@
-import { EndpointKey, endpoints } from ".";
+import { EndpointKey, endpoints } from "./endpoints";
 import superjson from "superjson";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";

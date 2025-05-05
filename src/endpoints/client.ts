@@ -1,5 +1,5 @@
 import superjson from "superjson";
-import { authEndpoints, unauthEndpoints } from "@/endpoints/index";
+import { authEndpoints, unauthEndpoints } from "@/endpoints/endpoints";
 
 export type Client = {
   authed: typeof authEndpoints;

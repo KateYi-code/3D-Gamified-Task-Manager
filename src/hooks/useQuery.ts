@@ -1,4 +1,4 @@
-import { Endpoints, ReturnOfEndpoint } from "@/endpoints";
+import { Endpoints, ReturnOfEndpoint } from "@/endpoints/endpoints";
 import * as hooks from "@tanstack/react-query";
 import { client } from "@/endpoints/client";
 import { useQueryClient } from "@tanstack/react-query";
