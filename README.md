@@ -112,8 +112,9 @@ more details.
 We are using the ui.shadcn.com. To add a new component, you can follow these steps:
 1. Go to the [ui.shadcn.com](https://ui.shadcn.com/docs/components/accordion) website.
 2. Find the component you want to add.
-3. install the component using the command provided in the website.
-   4. `npx shadcn@latest add progress`
+3. Install the component using the command provided in the website.
+   1. `npx shadcn@latest add progress`
+4. The component will be added to the `src/components/ui` folder.
 
 ### How to add a API/Service
 
@@ -142,6 +143,16 @@ we use `react-icons` in this project, you can add icons by following these steps
 3. Click the icon to see the import statement.
 4. Copy the import statement and paste it into your component file.
 
+
+### How to add a modal?
+1. Create a new component in which has a base prop of `ModalProps`, which is `isOpen: boolean, onClose: () => void`
+2. Add the component to `src/components/modals.tsx`
+3. Call `useModal` in your component to `openModal`, `modal`, `closeModal`
+   1. `openModal` will open the modal, which you can call when you want to open the modal(with props)
+   2. `modal` will return the modal component, which you should place it anywhere in your component
+   3. `closeModal` will close the modal
+
+Please refer to `src/components/target/TargetCreateModal.tsx` before you get started.
 
 ## Helpful resources
 

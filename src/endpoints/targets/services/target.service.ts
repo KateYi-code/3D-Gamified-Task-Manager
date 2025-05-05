@@ -13,3 +13,16 @@ export const getMyTargets = async () => {
     },
   });
 };
+
+export const createMyTarget = async (title: string) => {
+  const user = getSession().user;
+  if (!user) {
+    throw new Error("login required");
+  }
+  return prisma.target.create({
+    data: {
+      title,
+      userId: user.id,
+    },
+  });
+};

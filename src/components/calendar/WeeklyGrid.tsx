@@ -4,6 +4,7 @@ import { FC, useCallback, useMemo } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { useQuery } from "@/hooks/useQuery";
 import { TargetItem } from "@/components/calendar/TargetItem";
+import { useModal } from "@/components/modals";
 
 interface Props {
   currentDate: Date;
@@ -19,6 +20,8 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
   const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate, getWeekDays]);
 
   const { data: targets } = useQuery("getMyTargets");
+
+  const { openModal, modal } = useModal("TargetCreateModal");
 
   return (
     <div className="grid grid-cols-1 gap-1 md:grid-cols-3 xl:grid-cols-7 rounded-t-md">
@@ -46,15 +49,17 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
                 ))}
               </div>
 
-              {/* Add Task Button */}
+              {/* Add Target Button */}
               <Button
                 variant="default"
                 size="sm"
+                onClick={() => openModal({})}
                 className="w-full text-sm mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               >
                 <FaPlus className="mr-1" />
                 New Target
               </Button>
+              {modal}
             </div>
           </div>
         );
