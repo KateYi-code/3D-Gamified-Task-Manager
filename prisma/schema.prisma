@@ -95,7 +95,7 @@ model Session {
 
 model Target {
   id        String   @id @default(cuid()) @map("_id")
-  name      String
+  title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
@@ -104,7 +104,7 @@ model Target {
   tasks  Task[]
   planet Planet?
 
-  @@unique([userId, name])
+  @@unique([userId, title])
 }
 
 model Planet {
@@ -129,11 +129,12 @@ enum TaskStatus {
 
 model Task {
   id          String     @id @default(cuid()) @map("_id")
-  name        String
+  title       String
   description String     @default("")
   status      TaskStatus @default(PENDING)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  completedAt DateTime?
   targetId    String
   userId      String
 
