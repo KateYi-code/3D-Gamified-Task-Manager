@@ -8,7 +8,13 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "Planet App",
   description: "Interactive planet visualization application",
-};
+  generator: "Next.js",
+  manifest: "/pwa/manifest.json",
+  // themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
+  // authors: [{ name: "David" }],
+  viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
+  icons: [{ rel: "icon", url: "pwa/favicon.png" }],
+}
 
 export default function RootLayout({
   children,
@@ -17,6 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="manifest" href="/pwa/manifest.json" />
       <body className="min-h-screen bg-gray-50">
         <QueryProvider>
           <AuthProvider>
