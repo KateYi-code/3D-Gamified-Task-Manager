@@ -1,4 +1,5 @@
 import React from 'react'
+import clsx from "clsx"
 
 // import UI components
 import {
@@ -13,7 +14,7 @@ import { Description } from '@radix-ui/react-dialog'
 // import icons
 import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
-export default function singlePost() {
+export default function singlePost(props) {
     var user = {
         name: "David Jones",
         taskID: "111111111",
@@ -21,7 +22,10 @@ export default function singlePost() {
         images: [1, 2, 3, 4, 5]
     }
     return (
-        <Card className='w-[400px]'>
+        <Card onClick={props.onClick}
+            className={clsx(
+                "w-[350px] transition-shadow duration-150 ease-in-out",
+                props.className)}>
             <CardHeader>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "Top", gap: "10px" }}>
