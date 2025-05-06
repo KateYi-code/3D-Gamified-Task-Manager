@@ -4,8 +4,6 @@ import {
   addFollowing,
   createUser,
   getMe,
-  getMyFollowers,
-  getMyFollowings,
   getUserById,
   getUsers,
   userLogin,
@@ -19,6 +17,19 @@ import {
   getMyTargets,
   updateMyTarget,
 } from "@/endpoints/targets/services/target.service";
+import {
+  followUser,
+  unfollowUser,
+  getMyFollowings,
+  getMyFollowers,
+  removeMyFollowing,
+  getFollowingsNumber,
+  getFollowersNumber,
+  isFollowing,
+  getMyFollowingsNumber,
+  getMyFollowersNumber,
+  getProfile,
+} from "@/endpoints/friends/services/friends.service";
 
 export const authEndpoints = shaped<APIs>()({
   getMe,
@@ -31,6 +42,10 @@ export const authEndpoints = shaped<APIs>()({
   getMyTargetById,
   updateMyTarget,
   deleteMyTarget,
+  followUser,
+  unfollowUser,
+  removeMyFollowing,
+  isFollowing,
 });
 
 export const unauthEndpoints = shaped<APIs>()({
@@ -39,6 +54,11 @@ export const unauthEndpoints = shaped<APIs>()({
   createUser,
   userLogin,
   userRegister,
+  getFollowingsNumber,
+  getFollowersNumber,
+  getMyFollowingsNumber,
+  getMyFollowersNumber,
+  getProfile,
 });
 
 export const endpoints = shaped<APIs>()({
