@@ -42,3 +42,5 @@ yarn.lock
 *.tsbuildinfo
 next-env.d.ts
 /.idea/
+
+public/pwa
