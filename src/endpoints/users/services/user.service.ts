@@ -180,3 +180,34 @@ export const getMyFollowers = async () => {
     })
     .then((f) => f.map((f) => f.user));
 };
+
+export const getMyFollowingMoments = async () => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+
+  // 1) Load all the “followed” users, along with their posts
+  const follows = await prisma.follow.findMany({
+    where: { userId: user.id },
+    include: {
+      followed: {
+        include: {
+          posts: {
+            include: {
+              user: true,    // author info
+              likes: true,   // who liked it
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+      },
+    },
+  });
+  console.log("this is my following moment", follows);
+  // 2) Flatten into a single Post[]
+  return follows.map((f) => ({
+    user: f.followed,
+    posts: f.followed.posts,
+  }));
+};

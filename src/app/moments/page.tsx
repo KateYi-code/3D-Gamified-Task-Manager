@@ -2,16 +2,23 @@
 
 import { useAuth } from "@/providers/auth-provider";
 import SinglePost from "@/components/moment/singlePost";
+import { useQuery } from "@/hooks/useQuery";
+
+import { useEffect } from "react";
 
 export default function MomentsPage() {
   const { user, loading } = useAuth();
+  
+  const { data: targets } = useQuery("getMyFollowingMoments");
+  console.log("targets", targets);
 
   // sample data — replace with your real posts
-  const posts = [
-    { id: 1, date: "1 Jan 2025", time: "10:33" },
-    { id: 2, date: "2 Jan 2025", time: "14:45" },
-    { id: 3, date: "3 Jan 2025", time: "09:12" },
-  ];
+  // const posts = [
+  //   { id: 1, date: "1 Jan 2025", time: "10:33" },
+  //   { id: 2, date: "2 Jan 2025", time: "14:45" },
+  //   { id: 3, date: "3 Jan 2025", time: "09:12" },
+  // ];
+  var userPosts = targets
 
   if (loading) {
     return (
@@ -39,29 +46,30 @@ export default function MomentsPage() {
       <div className="w-1/3 pr-4">
         {/* 1) border-l creates the vertical line */}
       <ul className="relative border-l-2 border-gray-300">
-        {posts.map(({ id, date, time }) => (
-          // 2) pl-12 pushes this item right of the line; mb-12 gives vertical spacing
-          <li key={id} className="relative pl-2 mb-2">
-            {/* 
-              3) absolute “dot + time” box: 
-                 - “-left-2” shifts it 0.5rem left so the 1rem-wide dot is centered on the 2px border
-                 - “top-0” aligns it to the top of the li
-            */}
-            <div className="absolute -left-2 top-0 flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
-              <time className="text-xs text-gray-500">
-                {date} {time}
-              </time>
-            </div>
+  {userPosts?.map((entry, idx) =>
+    entry.posts.map((post, i) => (
+      <li key={`${idx}-${i}`} className="relative pl-2 mb-2">
+        <div className="absolute -left-2 top-0 flex items-center space-x-2">
+          <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
+          <span className="text-xs text-gray-500">
+            {new Date(post.createdAt).toLocaleString()}
+          </span>
+        </div>
 
-            {/* 4) your card sits below the timestamp/dot */}
-            <div className="mt-8 pt-6">
-              <SinglePost onClick={() => alert("clicked!")}
-  className="hover:bg-gray-100 cursor-pointer"/>
-            </div>
-          </li>
-        ))}
-      </ul>
+        <div className="mt-8 pt-6">
+          <SinglePost
+            onClick={() => alert("clicked!")}
+            className="hover:bg-gray-100 cursor-pointer"
+            post={{
+              ...post,
+              user: entry.user, // ensure SinglePost sees author info
+            }}
+          />
+        </div>
+      </li>
+    ))
+  )}
+</ul>
       </div>
       <div className="w-2/3">
       </div>
