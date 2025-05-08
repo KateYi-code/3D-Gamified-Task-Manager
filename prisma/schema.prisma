@@ -67,7 +67,9 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
+  taskId    String?
 
+  task  Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   likes PostLike[]
 }
@@ -140,4 +142,5 @@ model Task {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   target Target @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  posts  Post[]
 }

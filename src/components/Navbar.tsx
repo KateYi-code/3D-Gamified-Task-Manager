@@ -69,7 +69,7 @@ export function Navbar() {
                     <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                       <div className="py-1" role="menu" aria-orientation="vertical">
                         <Link
-                          href="/profile"
+                          href={`/profile/${user.id}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           role="menuitem"
                           onClick={() => setProfileOpen(false)}
@@ -129,7 +129,7 @@ export function Navbar() {
               <div className="origin-top-right absolute right-4 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                 <div className="py-1" role="menu" aria-orientation="vertical">
                   <Link
-                    href="/profile"
+                    href={`/profile/${user.id}`}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     role="menuitem"
                     onClick={() => setProfileOpen(false)}
