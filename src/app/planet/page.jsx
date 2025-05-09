@@ -1,10 +1,15 @@
 "use client"
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { canvasResize, createTransparentPreview, initThree, modelLoader, } from "./components/utils.jsx";
+import {
+  canvasResize,
+  createGradientBackground, createStarField,
+  createTransparentPreview,
+  initThree,
+  modelLoader,
+} from "./components/utils.jsx";
 let pi = Math.PI
 import { gsap } from "gsap"
-import { CSSRulePlugin } from "gsap/CSSRulePlugin"
 
 const Planet = () => {
   const containerRef = useRef()
@@ -17,7 +22,9 @@ const Planet = () => {
   const planetGroupRef = useRef()
   const previewRef = useRef()
   const placedRef = useRef(false)
+  const hasLoadedRef = useRef(false)
 
+  const [planetReady, setPlanetReady] = useState(false)
 
   const [placed, setPlaced] = useState(false)
 
@@ -26,6 +33,9 @@ const Planet = () => {
   const lastMouse = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
+    if (hasLoadedRef.current) return
+    hasLoadedRef.current = true
+
     const { renderer, camera, scene, controls } = initThree(containerRef)
     sceneRef.current = scene
     cameraRef.current = camera
@@ -55,8 +65,15 @@ const Planet = () => {
       planetRef.current = model
     })
 
+    const stars = createStarField()
+    scene.add(stars)
+    const { backgroundScene, backgroundCamera } = createGradientBackground(containerRef)
+
     const animate = () => {
       requestAnimationFrame(animate)
+      renderer.autoClear = false
+      renderer.clear()
+      renderer.render(backgroundScene, backgroundCamera)
       renderer.render(scene, camera)
       updatePreviewPosition()
     }
