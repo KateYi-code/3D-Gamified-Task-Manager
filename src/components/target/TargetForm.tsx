@@ -13,6 +13,11 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { TaskComponent } from "../task/TaskComponent";
+import { Task } from "@prisma/client";
+import { TaskDraft } from "../task/TaskDraft";
+import { TaskStatus } from "../task/TaskDraft";
+import { client } from "@/endpoints/client";
 
 const FormSchema = z.object({
   title: z.string().min(1, {
@@ -22,12 +27,69 @@ const FormSchema = z.object({
 
 export type TargetFormType = z.infer<typeof FormSchema>;
 
+
 type Props = {
   initialValues: TargetFormType;
   onSubmit: (data: TargetFormType) => Promise<void>;
+  Tasks: Task[];
+  onAdd: (targetid: string,title: string) => Promise<void>;
+  onDelete: (taskId: string) => Promise<void>;
+  onUpdateTitle: (taskId: string, title: string) => Promise<void>;
+  onUpdateStatus: (taskId: string, status: TaskStatus) => Promise<void>;
+  onfinal: () => Promise<void>;
+  targetDate?: Date;
+  Id?: string;
 };
 
-export const TargetForm: FC<Props> = ({ onSubmit, initialValues }) => {
+export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id }) => {
+
+
+  const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);
+  const [deletedTasks, setDeletedTasks] = useState<TaskDraft[]>([]);
+  const addLocalTask = (title: string) => {
+    setLocalTasks((localTasks) => [...localTasks, { 
+      id: `temp-${Date.now()}`,
+      targetId: "temp",
+      title, 
+      status: "PENDING",
+    }]);
+  };
+
+  const updateLocalTaskTitle = (taskId: string, title: string) => {
+    setLocalTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? { ...t, title }
+          : t
+      )
+    );
+  };
+
+  const updateLocalTaskStatus = (taskId: string, status: TaskStatus) => {
+    setLocalTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? { ...t, status }
+          : t
+      )
+    );
+  };
+
+  const deleteLocalTask = (taskId: string) => {
+    setLocalTasks(prev => {
+      const isTemp = taskId.startsWith("temp-");
+  
+      if (!isTemp) {
+        const toDelete = prev.find(t => t.id === taskId);
+        if (toDelete) {
+          setDeletedTasks(d => [...d, toDelete]);
+        }
+      }
+  
+      return prev.filter(t => t.id !== taskId);
+    });
+  };
+
   const form = useForm<TargetFormType>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialValues,
@@ -35,9 +97,53 @@ export const TargetForm: FC<Props> = ({ onSubmit, initialValues }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (data: TargetFormType) => {
+
     setSubmitting(true);
-    await onSubmit(data).finally(() => setSubmitting(false));
+    try {
+      //submit
+      let targetId = Id;
+      if (targetDate) {
+      const newTarget = await client.authed.createMyTarget(data.title, targetDate);
+      targetId = newTarget.id;
+      }
+      if (!targetId) {
+        throw new Error('Missing target ID');
+      }
+      //delete
+      await Promise.all(deletedTasks.map(t => client.authed.deleteMyTask(t.id)));
+      //add
+      const newTasks = localTasks.filter(t => t.id.startsWith("temp-"));
+      await Promise.all(newTasks.map(t => client.authed.createMyTask(targetId,t.title)));
+      //update
+      const titleUpdates = localTasks.filter(t => {
+        if (!t.id.startsWith("temp-")) {
+          const orig = Tasks.find(x => x.id === t.id)!;
+          return orig.title !== t.title;
+        }
+        return false;
+      });
+      await Promise.all(
+        titleUpdates.map(t => client.authed.updateMyTaskTitle(t.id, t.title))
+      );
+
+      const statusUpdates = localTasks.filter(t => {
+        if (!t.id.startsWith("temp-")) {
+          const orig = Tasks.find(x => x.id === t.id)!;
+          return orig.status !== t.status;
+        }
+        return false;
+      });
+      await Promise.all(
+        statusUpdates.map(t => client.authed.updateMyTaskStatus(t.id, t.status))
+      );
+
+      await onfinal().finally(() => setSubmitting(false));
+      } finally {
+        setSubmitting(false);
+      }
   };
+ 
+
 
   return (
     <Form {...form}>
@@ -55,6 +161,7 @@ export const TargetForm: FC<Props> = ({ onSubmit, initialValues }) => {
             </FormItem>
           )}
         />
+        <TaskComponent tasks={localTasks} onAdd={addLocalTask} onDelete={deleteLocalTask} onUpdateTitle={updateLocalTaskTitle} onUpdateStatus={updateLocalTaskStatus}/>
         <Button type="submit" variant="default" className="w-full" disabled={submitting}>
           {submitting && <Loader2 className="animate-spin" />}
           {submitting ? "Creating..." : "DONE"}

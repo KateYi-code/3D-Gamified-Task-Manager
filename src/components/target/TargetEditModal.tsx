@@ -6,21 +6,57 @@ import { client } from "@/endpoints/client";
 import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { TargetForm, TargetFormType } from "@/components/target/TargetForm";
 import { Button } from "@/components/ui/button";
+import { TaskStatus } from "@prisma/client";
+import { useEffect } from "react";
+import { Task , Target } from "@prisma/client";
 
 type Props = ModalProps & {
   targetId: string;
+  tasks: Task[];
+  target: Target;
 };
 
-export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId }) => {
+export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, tasks}) => {
   const invalidate = useInvalidateQuery();
   const { data: target, refetch } = useQuery("getMyTargetById", targetId);
-
   const onSubmit = async (data: TargetFormType) => {
     await client.authed.updateMyTarget(targetId, data.title);
-    onOpenChange(false);
-    await invalidate("getMyTargets");
     await refetch();
     toast("Target updated successfully");
+  };
+
+  useEffect(() => {
+    if (open && targetId) {
+      refetch();
+    }
+  }, [open, targetId, refetch, tasks]);
+
+  const onfinal = async() => {
+    onOpenChange(false);
+    await invalidate("getMyTargets");
+  }
+
+  const onAdd = async (targetid: string,title: string) => {
+    await client.authed.createMyTask(targetid, title);
+    await refetch();
+    toast("Task updated successfully");
+  }
+
+  const onDelete = async (taskId: string) => {
+    await client.authed.deleteMyTask(taskId);
+    await refetch();
+    toast("Task deleted successfully");
+  };
+  const onUpdateTitle = async (taskId: string, title: string) => {
+    await client.authed.updateMyTaskTitle(taskId, title);
+    await refetch();
+    toast("Task title updated successfully");
+  };
+  
+  const onUpdateStatus = async (taskId: string, status: TaskStatus) => {
+    await client.authed.updateMyTaskStatus(taskId, status);
+    await refetch();
+    toast("Task status updated successfully");
   };
 
   const { modal, openModal } = useModal("Confirm");
@@ -30,7 +66,15 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId }) => 
         <DialogHeader>
           <DialogTitle>Edit Target</DialogTitle>
         </DialogHeader>
-        {target && <TargetForm onSubmit={onSubmit} initialValues={target} />}
+        {target && <TargetForm  onSubmit={onSubmit} 
+                                initialValues={target} 
+                                Tasks={target.tasks} 
+                                onAdd={onAdd} 
+                                onDelete={onDelete} 
+                                onUpdateTitle={onUpdateTitle} 
+                                Id={targetId} 
+                                onUpdateStatus={onUpdateStatus }
+                                onfinal={onfinal}/>}
         <Button
           onClick={() => {
             openModal({

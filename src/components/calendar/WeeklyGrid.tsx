@@ -5,6 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import { useQuery } from "@/hooks/useQuery";
 import { TargetItem } from "@/components/calendar/TargetItem";
 import { useModal } from "@/components/modals";
+import { isSameDay } from "date-fns";
 
 interface Props {
   currentDate: Date;
@@ -19,9 +20,13 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
 
   const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate, getWeekDays]);
 
-  const { data: targets } = useQuery("getMyTargets");
+  const { data: targets , refetch} = useQuery("getMyTargets");
 
   const { openModal, modal } = useModal("TargetCreateModal");
+
+  const onUpdate = async () => {
+    await refetch();
+  }
 
   return (
     <div className="grid grid-cols-1 gap-1 md:grid-cols-3 xl:grid-cols-7 rounded-t-md">
@@ -30,22 +35,26 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
         return (
           <div
             key={date.toString()}
-            className={`flex flex-col transition-all duration-200 hover:shadow-md rounded-md ${
-              isCurrentDay ? "ring-2 ring-primary" : ""
-            }`}
           >
             {/*Day*/}
-            <div className={`text-center text-lg font-semibold p-2 bg-gray-50 rounded-t-md`}>
+            <div
+              className={`text-center text-lg font-semibold p-2 rounded-t-md ${
+                isCurrentDay ? "bg-blue-100 text-blue-800" : "bg-gray-100"
+              }`}
+            >
               <div>{format(date, "EEE")}</div>
-              <div className={`text-xl`}>{format(date, "d")}</div>
+              <div className="text-xl">{format(date, "d")}</div>
             </div>
 
             {/* Targets */}
-            <div className="group flex-1 min-h-[300px] border rounded-b-md p-1 hover:bg-gray-100 transition-colors flex flex-col">
+            <div className="h-1" />
+            <div className="group flex-1 min-h-[300px] hover:bg-gray-50 flex flex-col">
               {/* Empty task list container */}
-              <div className="space-y-2 flex-grow">
-                {(targets ?? []).map((target) => (
-                  <TargetItem key={target.id} target={target} tasks={target.tasks} />
+              <div className="space-y-1 flex-grow">
+                {(targets ?? [])
+                .filter((target) => isSameDay(new Date(target.placedAt), date)) // Filter targets by date
+                .map((target) => (
+                    <TargetItem key={target.id} target={target} tasks={target.tasks} onUpdate={onUpdate}/>
                 ))}
               </div>
 
@@ -53,7 +62,7 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => openModal({})}
+                onClick={() => openModal({ targetDate: date})}
                 className="w-full text-sm mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               >
                 <FaPlus className="mr-1" />
