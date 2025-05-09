@@ -100,6 +100,7 @@ model Target {
   title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  placedAt  DateTime
   userId    String
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)

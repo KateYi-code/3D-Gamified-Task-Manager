@@ -8,6 +8,7 @@ import { useModal } from "@/components/modals";
 interface Props {
   target: Target;
   tasks: Task[];
+  onUpdate: () => void;
 }
 
 /**
@@ -25,16 +26,19 @@ interface Props {
  * @param {string} Props.tasks[].title - The title of a task.
  * @returns {JSX.Element} A styled component displaying the target and relevant tasks.
  */
-export const TargetItem: FC<Props> = ({ target, tasks }) => {
+export const TargetItem: FC<Props> = ({ target, tasks ,onUpdate}) => {
   const { modal: editModal, openModal } = useModal("TargetEditModal");
+  const hasTasks = tasks.length > 0;
   return (
-    <div key={target.id} className="rounded-lg overflow-hidden target-item">
+    <div key={target.id} className="shadow-sm rounded-lg overflow-hidden target-item">
       <div className={`p-4 text-center font-medium bg-gray-200 flex items-center justify-between `}>
         <span>{target.title}</span>
         <button
           onClick={() => {
             openModal({
               targetId: target.id,
+              tasks: tasks,
+              target: target,
             });
           }}
           className="text-gray-500 hover:text-gray-700 hover:bg-gray-300 target-item-menu-button p-1 rounded cursor-pointer"
@@ -42,11 +46,15 @@ export const TargetItem: FC<Props> = ({ target, tasks }) => {
           <FaRegEdit size={20} />
         </button>
       </div>
-      <div className={`p-4 space-y-3 flex flex-col items-stretch`}>
-        {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} />
-        ))}
-      </div>
+      {hasTasks && (
+        <>
+          <div className="p-4 space-y-3 flex flex-col items-stretch">
+            {tasks.map((task) => (
+              <TaskItem key={task.id} task={task} onUpdate={onUpdate}/>
+            ))}
+          </div>
+        </>
+      )}
       {editModal}
     </div>
   );

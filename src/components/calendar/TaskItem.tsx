@@ -1,38 +1,72 @@
-import { Task } from "@prisma/client";
+import { Task , TaskStatus} from "@prisma/client";
 import { FC } from "react";
-import { IoIosCheckmarkCircle, IoIosCheckmarkCircleOutline } from "react-icons/io";
-import { Button } from "@/components/ui/button";
+import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
+import { client } from "@/endpoints/client";
+import { toast } from "sonner";
+import { useState , useEffect} from "react";
 
 interface Props {
   task: Task;
+  onUpdate: () => void;
 }
 
-export const TaskItem: FC<Props> = ({ task }) => {
-  // TODO: Add start task. @Kate
-  const onStartTask = () => {};
+const STATUS_ORDER: TaskStatus[] = [
+    "PENDING",
+    "IN_PROGRESS",
+    "COMPLETED",
+  ];
+
+export const TaskItem: FC<Props> = ({ task , onUpdate}) => {
+  const [isHovering, setIsHovering] = useState(false);
+
+  const onStartTask = () => {
+      // TODO: Add start task. @Kate
+  };
+
+  const [LocalTask, setLocalStatus] = useState(task);
+  useEffect(() => {
+    if (LocalTask.status !== task.status) {
+      //toast.error("Task status update failed.");
+      setLocalStatus(task);
+    }
+  }, [task]);
+
+  const onUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
+    setLocalStatus((prev) => ({ ...prev, status }));
+    await client.authed.updateMyTaskStatus(taskId, status);
+    onUpdate();
+    toast("task status updated successfully");
+  };
+  
 
   return (
     <div key={task.id} className="group/task flex flex-col items-stretch gap-1">
       <div className={"flex items-center gap-1"}>
-        {task.status === "COMPLETED" ? (
-          <IoIosCheckmarkCircle className="w-5 h-5" />
-        ) : (
-          <IoIosCheckmarkCircleOutline className="text-gray-400 w-5 h-5" />
-        )}
-        <span>{task.title}</span>
+        <TaskStatusToggle
+            status={LocalTask.status}
+            onClick={() => {
+               const idx = STATUS_ORDER.indexOf(LocalTask.status);
+               const next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length];
+               onUpdateTaskStatus(LocalTask.id, next);
+              }}
+        />
+        {LocalTask.status === "COMPLETED"
+              ? 
+              <span>{LocalTask.title}</span>                 
+              : 
+              <button onClick={onStartTask}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                className="w-full text-left">
+                  {isHovering
+                      ? 'Start Task'                  
+                      : LocalTask.title       
+                  }
+              </button>
+        }
       </div>
 
-      {task.status !== "COMPLETED" && (
-        <div
-          className={
-            "group-hover/task:h-10 h-0 transition-all duration-500 overflow-hidden flex items-center"
-          }
-        >
-          <Button onClick={onStartTask} variant="default" className={"w-full"} size="sm">
-            <span className="text-sm">Start Task</span>
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
+

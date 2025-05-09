@@ -39,7 +39,7 @@ export const updateMyTarget = async (id: string, title: string) => {
     },
   });
 };
-export const createMyTarget = async (title: string) => {
+export const createMyTarget = async (title: string, targetdate: Date) => {
   const user = getSession().user;
   if (!user) {
     throw new Error("login required");
@@ -48,6 +48,7 @@ export const createMyTarget = async (title: string) => {
     data: {
       title,
       userId: user.id,
+      placedAt: targetdate,
     },
   });
 };

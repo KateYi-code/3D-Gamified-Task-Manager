@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   manifest: "/pwa/manifest.json",
   // themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
   // authors: [{ name: "David" }],
-  viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   icons: [{ rel: "icon", url: "pwa/favicon.png" }],
 }
 
