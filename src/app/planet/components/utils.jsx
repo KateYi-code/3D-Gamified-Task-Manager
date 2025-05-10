@@ -195,4 +195,27 @@ function createStarField(count = 1000, radius = 1000) {
   return stars
 }
 
-export {modelLoader, initThree, createTransparentPreview, canvasResize, createGradientBackground, createStarField}
+const AVAILABLE_MODELS = [
+  'Beach.glb',
+  'Canyon.glb',
+  'Cliff.glb',
+  'Dam.glb',
+  'Desert.glb',
+  'Estuary.glb',
+  'Forest.glb',
+  'Glacier.glb',
+  'Hill.glb',
+  'Iceberg.glb',
+  'Island.glb',
+  'Lake.glb',
+  'Mountain.glb',
+  'Oasis.glb',
+  'River.glb',
+  'Rock Mountain.glb',
+  'Savana.glb',
+  'Tarace Farming.glb',
+  'Vulcano.glb',
+  'Waterfall.glb'
+]
+
+export {modelLoader, initThree, createTransparentPreview, canvasResize, createGradientBackground, createStarField, AVAILABLE_MODELS}
