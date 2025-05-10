@@ -1,23 +1,18 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-provider";
-import SinglePost from "@/components/moment/singlePost";
 import { useQuery } from "@/hooks/useQuery";
+import { useEffect, useState } from "react";
 
-import { useEffect } from "react";
+// import components
 
+import SinglePost from "@/components/moment/singlePost";
+import DetailPost from "@/components/moment/detailPost";
 export default function MomentsPage() {
   const { user, loading } = useAuth();
-  
+  const [selectedPost, setSelectedPost] = useState(null);
   const { data: targets } = useQuery("getMyFollowingMoments");
-  console.log("targets", targets);
-
-  // sample data — replace with your real posts
-  // const posts = [
-  //   { id: 1, date: "1 Jan 2025", time: "10:33" },
-  //   { id: 2, date: "2 Jan 2025", time: "14:45" },
-  //   { id: 3, date: "3 Jan 2025", time: "09:12" },
-  // ];
+  console.log("targets", targets, targets?.length);
   var userPosts = targets
 
   if (loading) {
@@ -38,45 +33,53 @@ export default function MomentsPage() {
 
   return (
 
-    
+
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Moments Timeline</h1>
-      <div style={{display:"flex"}}>
+      <div style={{ display: "flex" }}>
 
-      <div className="w-1/3 pr-4">
-        {/* 1) border-l creates the vertical line */}
-      <ul className="relative border-l-2 border-gray-300">
-  {userPosts?.map((entry, idx) =>
-    entry.posts.map((post, i) => (
-      <li key={`${idx}-${i}`} className="relative pl-2 mb-2">
-        <div className="absolute -left-2 top-0 flex items-center space-x-2">
-          <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
-          <span className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
-          </span>
+        <div className="w-full md:w-1/3 md:pr-4 mb-10">
+          {/* 1) border-l creates the vertical line */}
+          <ul className="relative border-l-2 border-gray-300">
+            {userPosts?.map((post, i) => (
+              <li key={`${i}`} className="relative pl-2 mb-2">
+                <div className="absolute -left-2 top-0 flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
+                  <span className="text-xs text-gray-500">
+                    {new Date(post.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <div className="mt-8 pt-6">
+                  <SinglePost
+                    onClick={() =>
+                      setSelectedPost({
+                        ...post,
+                        user: post.user, // include author info
+                      })
+                    }
+                    className="hover:bg-gray-100 cursor-pointer"
+                    post={{
+                      ...post,
+                      user: post.user,
+                    }}
+                  />
+                </div>
+              </li>
+            )
+            )}
+          </ul>
         </div>
-
-        <div className="mt-8 pt-6">
-          <SinglePost
-            onClick={() => alert("clicked!")}
-            className="hover:bg-gray-100 cursor-pointer"
-            post={{
-              ...post,
-              user: entry.user, // ensure SinglePost sees author info
-            }}
-          />
+        <div className="hidden md:block w-full md:w-2/3">
+          {selectedPost ? (
+            <DetailPost post={selectedPost} />
+          ) : (
+            <p className="text-gray-500 mt-10 text-center">Click a post to view details</p>
+          )}
         </div>
-      </li>
-    ))
-  )}
-</ul>
-      </div>
-      <div className="w-2/3">
-      </div>
       </div>
 
     </div>
-    
+
     // <div className="container mx-auto px-4 py-8">
     //   <h1 className="text-2xl font-bold mb-6">Moments</h1>
     //   <div className="bg-white rounded-lg shadow p-6">

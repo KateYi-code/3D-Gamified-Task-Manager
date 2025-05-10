@@ -188,26 +188,47 @@ export const getMyFollowingMoments = async () => {
   }
 
   // 1) Load all the “followed” users, along with their posts
-  const follows = await prisma.follow.findMany({
-    where: { userId: user.id },
-    include: {
-      followed: {
-        include: {
-          posts: {
-            include: {
-              user: true,    // author info
-              likes: true,   // who liked it
-            },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
-      },
+  // const follows = await prisma.follow.findMany({
+  //   where: { userId: user.id },
+  //   include: {
+  //     followed: {
+  //       include: {
+  //         posts: {
+  //           include: {
+  //             user: true,    // author info
+  //             likes: true,
+  //             task: true,
+  //           },
+  //           orderBy: { createdAt: 'desc' },
+  //         },
+  //       },
+  //     },
+  //   },
+  // });
+  // console.log("this is my following moment", follows);
+  // // 2) Flatten into a single Post[]
+  // return follows.map((f) => ({
+  //   user: f.followed,
+  //   posts: f.followed.posts,
+  // }));
+  const friends = await prisma.follow.findMany({
+    where: {
+      userId: user.id,
     },
   });
-  console.log("this is my following moment", follows);
-  // 2) Flatten into a single Post[]
-  return follows.map((f) => ({
-    user: f.followed,
-    posts: f.followed.posts,
-  }));
-};
+  const userIds = friends.map((f) => f.followedId);
+
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+    include: {
+
+      task: true,
+      user: true,
+    },
+  });
+  return posts;
+}

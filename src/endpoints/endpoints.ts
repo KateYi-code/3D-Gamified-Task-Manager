@@ -36,7 +36,8 @@ import {
   deleteMyTask,
   updateMyTaskTitle,
   updateMyTaskStatus,
-  getMyTaskById
+  getMyTaskById,
+  getTaskById
 } from "@/endpoints/task/services/task.service";
 
 export const authEndpoints = shaped<APIs>()({
@@ -58,8 +59,9 @@ export const authEndpoints = shaped<APIs>()({
   deleteMyTask,
   updateMyTaskTitle,
   updateMyTaskStatus,
-  getMyTaskById 
-  getMyFollowingMoments
+  getMyTaskById,
+  getMyFollowingMoments,
+  getTaskById
 });
 
 export const unauthEndpoints = shaped<APIs>()({
