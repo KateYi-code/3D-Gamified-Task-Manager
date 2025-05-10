@@ -14,9 +14,11 @@ type Props = ModalProps & {
   targetId: string;
   tasks: Task[];
   target: Target;
+  setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+  LocalTasks: Task[];
 };
 
-export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, tasks}) => {
+export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUpdate, LocalTasks}) => {
   const invalidate = useInvalidateQuery();
   const { data: target, refetch } = useQuery("getMyTargetById", targetId);
   const onSubmit = async (data: TargetFormType) => {
@@ -29,34 +31,27 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, tasks
     if (open && targetId) {
       refetch();
     }
-  }, [open, targetId, refetch, tasks]);
+  }, [open, targetId, refetch]);
 
   const onfinal = async() => {
     onOpenChange(false);
     await invalidate("getMyTargets");
+    setUpdate(true);
   }
 
   const onAdd = async (targetid: string,title: string) => {
     await client.authed.createMyTask(targetid, title);
-    await refetch();
-    toast("Task updated successfully");
   }
 
   const onDelete = async (taskId: string) => {
     await client.authed.deleteMyTask(taskId);
-    await refetch();
-    toast("Task deleted successfully");
   };
   const onUpdateTitle = async (taskId: string, title: string) => {
     await client.authed.updateMyTaskTitle(taskId, title);
-    await refetch();
-    toast("Task title updated successfully");
   };
   
   const onUpdateStatus = async (taskId: string, status: TaskStatus) => {
     await client.authed.updateMyTaskStatus(taskId, status);
-    await refetch();
-    toast("Task status updated successfully");
   };
 
   const { modal, openModal } = useModal("Confirm");
@@ -68,7 +63,7 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, tasks
         </DialogHeader>
         {target && <TargetForm  onSubmit={onSubmit} 
                                 initialValues={target} 
-                                Tasks={target.tasks} 
+                                Tasks={LocalTasks} 
                                 onAdd={onAdd} 
                                 onDelete={onDelete} 
                                 onUpdateTitle={onUpdateTitle} 

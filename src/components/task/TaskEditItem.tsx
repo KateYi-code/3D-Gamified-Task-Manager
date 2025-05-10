@@ -17,7 +17,7 @@ const STATUS_ORDER: TaskStatus[] = [
 
 export const TaskEditItem: FC<TaskEditItemProps> = ({ task, onUpdateTaskStatus}) => {
     return (
-        <div key={task.id} className="group/task flex flex-col items-stretch gap-1 w-full">
+        <div key={task.id} className="group/task flex flex-col items-stretch w-full relative h-6">
             <div className="flex items-center gap-1">
                 <TaskStatusToggle
                     status={task.status}

@@ -1,13 +1,12 @@
 import { Task , TaskStatus} from "@prisma/client";
 import { FC } from "react";
 import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
-import { client } from "@/endpoints/client";
-import { toast } from "sonner";
-import { useState , useEffect} from "react";
+import { useState ,} from "react";
 
 interface Props {
   task: Task;
   onUpdate: () => void;
+  onUpdateTaskStatus: (taskId: string, status: TaskStatus) => Promise<void>;
 }
 
 const STATUS_ORDER: TaskStatus[] = [
@@ -16,26 +15,11 @@ const STATUS_ORDER: TaskStatus[] = [
     "COMPLETED",
   ];
 
-export const TaskItem: FC<Props> = ({ task , onUpdate}) => {
+export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus}) => {
   const [isHovering, setIsHovering] = useState(false);
 
   const onStartTask = () => {
       // TODO: Add start task. @Kate
-  };
-
-  const [LocalTask, setLocalStatus] = useState(task);
-  useEffect(() => {
-    if (LocalTask.status !== task.status) {
-      //toast.error("Task status update failed.");
-      setLocalStatus(task);
-    }
-  }, [task]);
-
-  const onUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
-    setLocalStatus((prev) => ({ ...prev, status }));
-    await client.authed.updateMyTaskStatus(taskId, status);
-    onUpdate();
-    toast("task status updated successfully");
   };
   
 
@@ -43,26 +27,30 @@ export const TaskItem: FC<Props> = ({ task , onUpdate}) => {
     <div key={task.id} className="group/task flex flex-col items-stretch gap-1">
       <div className={"flex items-center gap-1"}>
         <TaskStatusToggle
-            status={LocalTask.status}
+            status={task.status}
             onClick={() => {
-               const idx = STATUS_ORDER.indexOf(LocalTask.status);
+               const idx = STATUS_ORDER.indexOf(task.status);
                const next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length];
-               onUpdateTaskStatus(LocalTask.id, next);
+               onUpdateTaskStatus(task.id, next);
               }}
         />
-        {LocalTask.status === "COMPLETED"
+        {task.status === "COMPLETED"
               ? 
-              <span>{LocalTask.title}</span>                 
+              <span>{task.title}</span>                 
               : 
-              <button onClick={onStartTask}
+              <div
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
-                className="w-full text-left">
-                  {isHovering
-                      ? 'Start Task'                  
-                      : LocalTask.title       
-                  }
-              </button>
+                className={`w-full h-full`}
+              >
+                {!isHovering ? (
+                  <span>{task.title}</span>
+                ) : (
+                  <button className="w-full h-full bg-primary text-primary-foreground text-sm font-medium rounded-md" onClick={onStartTask}>  
+                    <span>Start Task</span>
+                  </button>
+                )}
+              </div>
         }
       </div>
 
