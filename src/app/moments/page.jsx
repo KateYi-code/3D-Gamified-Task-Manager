@@ -3,7 +3,8 @@
 import { useAuth } from "@/providers/auth-provider";
 import { useQuery } from "@/hooks/useQuery";
 import { useEffect, useState } from "react";
-
+import { Button } from "@/components/ui/button";
+import { useModal } from "@/components/modals";
 // import components
 
 import SinglePost from "@/components/moment/singlePost";
@@ -12,7 +13,8 @@ export default function MomentsPage() {
   const { user, loading } = useAuth();
   const [selectedPost, setSelectedPost] = useState(null);
   const { data: targets } = useQuery("getMyFollowingMoments");
-  console.log("targets", targets, targets?.length);
+  const { openModal: openPostModal, modal: postModal } =
+    useModal("createPostModal");
   var userPosts = targets
 
   if (loading) {
@@ -35,81 +37,57 @@ export default function MomentsPage() {
 
 
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Moments Timeline</h1>
-      <div style={{ display: "flex" }}>
-
-        <div className="w-full md:w-1/3 md:pr-4 mb-10">
-          {/* 1) border-l creates the vertical line */}
-          <ul className="relative border-l-2 border-gray-300">
-            {userPosts?.map((post, i) => (
-              <li key={`${i}`} className="relative pl-2 mb-2">
-                <div className="absolute -left-2 top-0 flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
-                  <span className="text-xs text-gray-500">
-                    {new Date(post.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <div className="mt-8 pt-6">
-                  <SinglePost
-                    onClick={() =>
-                      setSelectedPost({
-                        ...post,
-                        user: post.user, // include author info
-                      })
-                    }
-                    className="hover:bg-gray-100 cursor-pointer"
-                    post={{
-                      ...post,
-                      user: post.user,
-                    }}
-                  />
-                </div>
-              </li>
-            )
-            )}
-          </ul>
-        </div>
-        <div className="hidden md:block w-full md:w-2/3">
-          {selectedPost ? (
-            <DetailPost post={selectedPost} />
-          ) : (
-            <p className="text-gray-500 mt-10 text-center">Click a post to view details</p>
-          )}
-        </div>
+      {/* header sector */}
+      {postModal}
+      <div className="flex items-center justify-between py-6 mb-6">
+        <h1 className="text-2xl font-bold m-0">Moments Timeline</h1>
+        <Button onClick={() => openPostModal({})}>Post Moment +</Button>
       </div>
+      <div style={{ display: "flex" }}>
+        <div className="flex h-[calc(100vh-15px)] gap-4">
+          {/* Left column */}
+          <div className="w-full md:w-1/3 md:pr-4 overflow-visible">
+            <div className="h-full overflow-y-auto">
+              <ul className="relative border-l-2 border-gray-300">
+                {userPosts?.map((post, i) => (
+                  <li key={`${i}`} className="relative pl-2 mb-2">
+                    <div className="absolute -left-2 top-0 flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
+                      <span className="text-xs text-gray-500">
+                        {new Date(post.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="mt-8 pt-6">
+                      <SinglePost
+                        onClick={() =>
+                          setSelectedPost({
+                            ...post,
+                            user: post.user, // include author info
+                          })
+                        }
+                        className="hover:bg-gray-100 cursor-pointer"
+                        post={{
+                          ...post,
+                          user: post.user,
+                        }}
+                      />
+                    </div>
+                  </li>
+                )
+                )}
+              </ul>
+            </div>
+          </div>
+          <div className="hidden pt-6 md:block w-full md:w-2/3 overflow-y-auto">
+            {selectedPost ? (
+              <DetailPost post={selectedPost} />
+            ) : (
+              <p className="text-gray-500 mt-10 text-center">Click a post to view details</p>
+            )}
+          </div>
+        </div>
 
+      </div>
     </div>
-
-    // <div className="container mx-auto px-4 py-8">
-    //   <h1 className="text-2xl font-bold mb-6">Moments</h1>
-    //   <div className="bg-white rounded-lg shadow p-6">
-    //     {loading ? (
-    //       <div className="text-center py-8">
-    //         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-    //         <p className="mt-2 text-gray-600">Loading...</p>
-    //       </div>
-    //     ) : user ? (
-    //       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    //         {/* Placeholder content for moments page */}
-    //         {[1, 2, 3, 4, 5, 6].map((item) => (
-    //           <div key={item} className="bg-gray-50 rounded-lg p-4 shadow-sm">
-    //             <div className="w-full h-40 bg-gray-200 rounded-md mb-3"></div>
-    //             <h3 className="text-lg font-medium text-gray-800">Moment Title {item}</h3>
-    //             <p className="text-gray-600 text-sm mt-1">This is a placeholder for a moment card.</p>
-    //             <div className="flex justify-between items-center mt-4">
-    //               <span className="text-xs text-gray-500">2 hours ago</span>
-    //               <button className="text-blue-600 text-sm hover:text-blue-800">View Details</button>
-    //             </div>
-    //           </div>
-    //         ))}
-    //       </div>
-    //     ) : (
-    //       <div className="text-center py-8">
-    //         <h2 className="text-xl font-semibold text-gray-800 mb-2">Moments Timeline</h2>
-    //         <p className="text-gray-600 mb-4">Please log in to see your moments timeline.</p>
-    //       </div>
-    //     )}
-    //   </div>
-    // </div>
   );
 }

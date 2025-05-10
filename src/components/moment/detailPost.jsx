@@ -22,10 +22,9 @@ export default function detailPost(props) {
     if (!post) return null; // safeguard
 
     const { data: targets } = useQuery("getTaskById", post.taskId);
-    console.log("task info:", targets);
 
     return (
-        <Card className={clsx("w-full h-full transition-shadow", props.className)}>
+        <Card className={clsx("w-full transition-shadow", props.className)}>
             <CardHeader>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", gap: "10px" }}>

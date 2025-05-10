@@ -14,6 +14,8 @@ import { Description } from '@radix-ui/react-dialog'
 // import icons
 import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
+import { client } from "@/endpoints/client"
+
 export default function singlePost(props) {
     // var user = {
     //     name: "David Jones",
@@ -22,6 +24,11 @@ export default function singlePost(props) {
     //     images: [1, 2, 3, 4, 5]
     // }
     const user = props.post
+    async function likePost(e) {
+        e.stopPropagation();
+        const data = await client.authed.LikePost(user.id, user.user.id);
+        alert("Post liked successfully");
+    };
     return (
         <Card onClick={props.onClick}
             className={clsx(
@@ -34,7 +41,7 @@ export default function singlePost(props) {
                         <div style={{ width: "50px", height: "50px", borderRadius: "50%", backgroundColor: "pink", display: 'inline-block', marginLeft: "-14px" }}></div>
                         <span >{user.user.name}</span>
                     </div>
-                    <FaRegThumbsUp className="cursor-pointer hover:text-blue-500" />
+                    <FaRegThumbsUp onClick={(e) => likePost(e)} className="cursor-pointer hover:text-blue-500" />
                 </div>
                 <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{ width: "10px", height: "10px", borderRadius: "50%", border: "1px solid", display: "flex", justifyContent: "center", alignItems: "center" }}>
