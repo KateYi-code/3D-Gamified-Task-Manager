@@ -4,7 +4,6 @@ import { randomUUID } from "crypto";
 import { getSession } from "@/endpoints/handler";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { stat } from "fs";
 
 export const userLogout = async () => {
   const { session } = getSession();
@@ -268,5 +267,5 @@ export const createNewPost = async (data: { taskId: string, description: string,
       images: data.images,
     }
   });
-  return;
+  return post;
 }

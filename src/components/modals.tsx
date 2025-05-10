@@ -3,7 +3,6 @@ import { ComponentProps, useCallback, useMemo, useState } from "react";
 import { TargetEditModal } from "@/components/target/TargetEditModal";
 import { Confirm } from "@/components/target/confirm";
 import { createPostModal as CreatePostModal } from "./moment/createPostModal";
-import { create } from "domain";
 
 export interface ModalProps {
   open: boolean;
