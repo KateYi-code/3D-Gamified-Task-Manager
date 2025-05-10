@@ -32,9 +32,17 @@ import {
   isFollowing,
   getMyFollowingsNumber,
   getMyFollowersNumber,
-  getProfile
+  getProfile,
+  updateMe,
 } from "@/endpoints/friends/services/friends.service";
+
 import {
+  savePlanetObject,
+  getPlanetObjects,
+  deletePlanetObject,
+} from "@/endpoints/planet/services/planet.service";
+
+import{
   createMyTask,
   deleteMyTask,
   updateMyTaskTitle,
@@ -58,6 +66,10 @@ export const authEndpoints = shaped<APIs>()({
   unfollowUser,
   removeMyFollowing,
   isFollowing,
+  savePlanetObject,
+  getPlanetObjects,
+  deletePlanetObject,
+  updateMe,
   createMyTask,
   deleteMyTask,
   updateMyTaskTitle,

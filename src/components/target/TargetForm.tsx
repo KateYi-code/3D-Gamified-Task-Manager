@@ -41,7 +41,7 @@ type Props = {
   Id?: string;
 };
 
-export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id }) => {
+export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id}) => {
 
 
   const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);

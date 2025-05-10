@@ -6,6 +6,7 @@ import {useState} from "react";
 import { FormLabel } from "@/components/ui/form";
 import { TaskDraft } from "./TaskDraft";
 import { TaskStatus } from "./TaskDraft";
+import { IoIosRadioButtonOff } from "react-icons/io";
 
 
 
@@ -22,6 +23,11 @@ export const TaskComponent: FC<TaskComponentProps> = ({tasks, onAdd, onDelete, o
     const [addMode, setAddMode] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const hasTasks = tasks.length > 0;
+    const iconProps = {
+      size: 20,
+      className: "cursor-pointer",
+    };
+  
 
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && newTitle.trim()) {
@@ -37,9 +43,9 @@ export const TaskComponent: FC<TaskComponentProps> = ({tasks, onAdd, onDelete, o
       };
 
     return (
-        <div>
+        <div className="space-y-3 flex flex-col items-stretch overflow-visible">
             <div>
-              <FormLabel>Your Tasks</FormLabel>
+              <FormLabel className="relative h-6">Your Tasks</FormLabel>
             </div>
             {hasTasks && (
             <div className="space-y-3 flex flex-col items-stretch">
@@ -48,28 +54,39 @@ export const TaskComponent: FC<TaskComponentProps> = ({tasks, onAdd, onDelete, o
                 ))}
             </div>
             )}
-            <div className="h-6" />
-            {addMode ? (
-                    <Input
-                    autoFocus
-                    placeholder="Enter new task"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onBlur={() => {
-                        setNewTitle("");
-                        setAddMode(false);
-                    }}
-                    />
-            ) : (
-                <Button
-                variant="default"
-                className="w-full"
-                onClick={() => setAddMode(true)}
-                >
-                <span>Add Task</span>
-                </Button>
-            )}
+            <div className="
+                relative       
+                h-6          
+                flex items-center 
+                gap-1              
+                overflow-visible  
+            ">
+              <IoIosRadioButtonOff {...iconProps} color="green" />
+              {addMode ? (
+                      <Input
+                      autoFocus
+                      placeholder="Enter new task"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={() => {
+                          setNewTitle("");
+                          setAddMode(false);
+                      }}
+                      className="flex-1"
+                      />
+              ) : (
+                  <div>
+                    <Button
+                    variant="default"
+                    className="H-full flex-1"
+                    onClick={() => setAddMode(true)}
+                    >
+                    <span>Add Task</span>
+                    </Button>
+                  </div>
+              )}
+            </div>
         </div>
     );
 }

@@ -6,41 +6,44 @@ import { Button } from "@/components/ui/button"
 import { client } from "@/endpoints/client"
 import { useAuth } from "@/providers/auth-provider"
 import { router } from "next/client";
-
-
-interface ProfileData {
-  id: string
-  name: string | null
-  email: string
-  followersCount: number
-  followingCount: number
-  totalLikes: number
-}
+import { EditProfileDialog } from "@/components/profile/EditProfileDialog"
+import { useMutation,useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@/hooks/useQuery"
 
 interface Props {
   id: string
 }
 
 export default function ProfileHeader({ id }: Props) {
-  const [profile, setProfile] = useState<ProfileData | null>(null)
-  const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   const [isFollowing, setIsFollowing] = useState<boolean>(false)
-  const [followLoading, setFollowLoading] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+
+  const { data: profile, isLoading } = useQuery("getProfile", id);
 
   const isMe = user?.id === id
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await client.unauth.getProfile(id)
-        setProfile(data)
-      } catch (err) {
-        console.error("Get profile failed", err)
-      } finally {
-        setLoading(false)
+  const queryClient = useQueryClient()
+
+  const followMutation = useMutation({
+    mutationFn: async () => {
+      if (isFollowing) {
+        return await client.authed.unfollowUser(id)
+      } else {
+        return await client.authed.followUser(id)
       }
-    }
+    },
+    onSuccess: () => {
+      // ✅ fresh the data after mutation
+      queryClient.invalidateQueries({ queryKey: ["getProfile", id] })
+      setIsFollowing((prev) => !prev)
+    },
+    onError: (err) => {
+      console.error("Follow toggle failed:", err)
+    },
+  })
+  useEffect(() => {
+
     const checkFollowing = async () => {
       if (!user || isMe) return
       try {
@@ -52,39 +55,20 @@ export default function ProfileHeader({ id }: Props) {
       }
     }
 
-    fetchProfile()
     checkFollowing()
   }, [id, user, isMe])
 
-  const handleFollowToggle = async () => {
+  const handleFollowToggle = () => {
     if (!user) {
       router.push("/auth")
       return
     }
 
-    setFollowLoading(true)
-    try {
-      if (isFollowing) {
-        await client.authed.unfollowUser(id)
-        setIsFollowing(false)
-        setProfile((prev) =>
-          prev ? { ...prev, followersCount: prev.followersCount - 1 } : prev
-        )
-      } else {
-        await client.authed.followUser(id)
-        setIsFollowing(true)
-        setProfile((prev) =>
-          prev ? { ...prev, followersCount: prev.followersCount + 1 } : prev
-        )
-      }
-    } catch (err) {
-      console.error("Toggle follow failed:", err)
-    } finally {
-      setFollowLoading(false)
-    }
+    followMutation.mutate()
   }
 
-  if (loading || !profile) {
+  if (isLoading || !profile) {
+
     return (
       <div className="text-center text-muted-foreground py-6">
         Loading...
@@ -112,21 +96,29 @@ export default function ProfileHeader({ id }: Props) {
 
       <div className="flex justify-center sm:justify-end">
         {isSelf ? (
-          <Button variant="outline">Edit Profile</Button>
+          <Button variant="outline" onClick={() => setEditOpen(true)}>Edit Profile</Button>
         ) : (
           <Button
             variant={isFollowing ? "secondary" : "default"}
             onClick={handleFollowToggle}
-            disabled={followLoading}
+            disabled={followMutation.isPending}
           >
-            {followLoading
-              ? "Loading..."
+            {followMutation.isPending
+              ? "Processing..."
               : isFollowing
                 ? "Unfollow"
                 : "Follow"}
           </Button>
         )}
       </div>
+      {isMe && profile && (
+        <EditProfileDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          defaultValues={{ name: profile.name || "", email: profile.email }}
+          onSuccess={() => {}}
+        />
+      )}
     </div>
   )
 }

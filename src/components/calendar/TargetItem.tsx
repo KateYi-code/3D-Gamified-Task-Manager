@@ -1,7 +1,11 @@
 import { Target, Task } from "@prisma/client";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { TaskItem } from "@/components/calendar/TaskItem";
 import { FaRegEdit } from "react-icons/fa";
+import { client } from "@/endpoints/client";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { TaskStatus} from "@prisma/client";
 
 import { useModal } from "@/components/modals";
 
@@ -28,7 +32,28 @@ interface Props {
  */
 export const TargetItem: FC<Props> = ({ target, tasks ,onUpdate}) => {
   const { modal: editModal, openModal } = useModal("TargetEditModal");
+  const [update, setUpdate] = useState(false);
   const hasTasks = tasks.length > 0;
+
+    const [LocalTasks, setLocalStatus] = useState(tasks);
+    useEffect(() => {
+        setLocalStatus(tasks);
+        setUpdate(false);
+    }, [update]);
+  
+    const onUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
+      setLocalStatus(prev =>
+        prev.map(t =>
+          t.id === taskId
+            ? { ...t, status }
+            : t
+        )
+      );
+      await client.authed.updateMyTaskStatus(taskId, status);
+      onUpdate();
+      toast("task status updated successfully");
+    };
+
   return (
     <div key={target.id} className="shadow-sm rounded-lg overflow-hidden target-item">
       <div className={`p-4 text-center font-medium bg-gray-200 flex items-center justify-between `}>
@@ -39,6 +64,8 @@ export const TargetItem: FC<Props> = ({ target, tasks ,onUpdate}) => {
               targetId: target.id,
               tasks: tasks,
               target: target,
+              setUpdate: setUpdate,
+              LocalTasks: LocalTasks,
             });
           }}
           className="text-gray-500 hover:text-gray-700 hover:bg-gray-300 target-item-menu-button p-1 rounded cursor-pointer"
@@ -49,8 +76,8 @@ export const TargetItem: FC<Props> = ({ target, tasks ,onUpdate}) => {
       {hasTasks && (
         <>
           <div className="p-4 space-y-3 flex flex-col items-stretch">
-            {tasks.map((task) => (
-              <TaskItem key={task.id} task={task} onUpdate={onUpdate}/>
+            {LocalTasks.map((task) => (
+              <TaskItem key={task.id} task={task} onUpdate={onUpdate} onUpdateTaskStatus={onUpdateTaskStatus}/>
             ))}
           </div>
         </>
