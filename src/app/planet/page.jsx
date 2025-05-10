@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import * as THREE from 'three'
 import {
   AVAILABLE_MODELS,
@@ -16,7 +16,7 @@ import { client } from "../../endpoints/client"
 import { useParams, useSearchParams } from 'next/navigation'
 
 
-const Planet = () => {
+const PlanetContent = () => {
   const searchParams = useSearchParams()
   const addModel = searchParams.get('add')
   const viewUserId = addModel ? null : searchParams.get('user')
@@ -371,4 +371,20 @@ const Planet = () => {
     </div>
   )
 }
+
+const Planet = () => {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <PlanetContent />
+    </Suspense>
+  )
+}
+
 export default Planet
