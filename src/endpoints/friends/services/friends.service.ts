@@ -210,3 +210,16 @@ export const getProfile = async (userId: string) => {
     totalLikes,
   }
 }
+
+export const updateMe = async (payload: { name: string; email: string }) => {
+  const { user } = getSession()
+  if (!user) throw new Error("Login required")
+
+  return prisma.user.update({
+    where: { id: user.id },
+    data: {
+      name: payload.name,
+      email: payload.email,
+    },
+  })
+}

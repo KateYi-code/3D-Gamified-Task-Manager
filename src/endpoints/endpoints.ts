@@ -29,6 +29,7 @@ import {
   getMyFollowingsNumber,
   getMyFollowersNumber,
   getProfile,
+  updateMe,
 } from "@/endpoints/friends/services/friends.service";
 import{
   createMyTask,
@@ -53,6 +54,7 @@ export const authEndpoints = shaped<APIs>()({
   unfollowUser,
   removeMyFollowing,
   isFollowing,
+  updateMe,
   createMyTask,
   deleteMyTask,
   updateMyTaskTitle,

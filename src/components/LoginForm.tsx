@@ -3,21 +3,31 @@
 import { useState } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 export function LoginForm() {
   const { login, loading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+  });
 
+  const onSubmit = async (data: FormValues) => {
+    setServerError("");
     try {
-      await login(email, password);
+      await login(data.email, data.password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to login");
+      setServerError(err instanceof Error ? err.message : "Failed to login");
     }
   };
 
@@ -25,35 +35,29 @@ export function LoginForm() {
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
 
-      {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
+      {serverError && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{serverError}</div>
+      )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
           </label>
-          <Input
-            id="email"
-            type="email"
-            className="w-full"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <Input id="email" type="email" {...form.register("email")} className="w-full" />
+          {form.formState.errors.email && (
+            <p className="text-sm text-red-500 mt-1">{form.formState.errors.email.message}</p>
+          )}
         </div>
 
         <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="password">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
             Password
           </label>
-          <Input
-            id="password"
-            type="password"
-            className="w-full"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <Input id="password" type="password" {...form.register("password")} className="w-full" />
+          {form.formState.errors.password && (
+            <p className="text-sm text-red-500 mt-1">{form.formState.errors.password.message}</p>
+          )}
         </div>
 
         <button
