@@ -47,7 +47,7 @@ export default function MomentsPage() {
         <div className="flex h-[calc(100vh-15px)] gap-4">
           {/* Left column */}
           <div className="w-full md:w-1/3 md:pr-4 overflow-visible">
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto pl-2">
               <ul className="relative border-l-2 border-gray-300">
                 {userPosts?.map((post, i) => (
                   <li key={`${i}`} className="relative pl-2 mb-2">
