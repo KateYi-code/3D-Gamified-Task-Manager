@@ -55,7 +55,7 @@ export default function SinglePost(props) {
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
                     {user.images.map((image, index) => {
                         return (
-                            <img src={image} alt="" style={{ width: "150px", height: "150px" }} />
+                            <img key={index} src={image} alt="" style={{ width: "150px", height: "150px" }} />
                         )
                     })}
                 </div>
