@@ -180,3 +180,92 @@ export const getMyFollowers = async () => {
     })
     .then((f) => f.map((f) => f.user));
 };
+
+export const getMyFollowingMoments = async () => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+  const friends = await prisma.follow.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+  const userIds = friends.map((f) => f.followedId);
+
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+    include: {
+      task: true,
+      user: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return posts;
+}
+
+export const LikePost = async (postId: string, userId: string) => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+  const existing = await prisma.postLike.findUnique({
+    where: {
+      userId_postId: {
+        userId: userId,
+        postId,
+      },
+    },
+  });
+  if (existing) {
+    return NextResponse.json({ message: "Already liked" }, { status: 200 });
+  }
+  return prisma.postLike.create({
+    data: {
+      userId: userId,
+      postId,
+    },
+  });
+};
+
+export const getMyTasks = async () => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+  const tasks = await prisma.task.findMany({
+    where: {
+      userId: user.id,
+      posts: {
+        none: {}    // <-- only tasks with zero related posts
+      }
+    }
+  });
+  tasks.map((task) => ({
+    id: task.id,
+    title: task.title,
+  }));
+  console.log("user id is", user.id);
+  console.log("this is available option:", tasks);
+  return tasks;
+};
+
+export const createNewPost = async (data: { taskId: string, description: string, images: string[] }) => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+  const post = await prisma.post.create({
+    data: {
+      user: { connect: { id: user.id } },
+      task: { connect: { id: data.taskId } },
+      text: data.description,
+      images: data.images,
+    }
+  });
+  return post;
+}

@@ -9,6 +9,10 @@ import {
   userLogin,
   userLogout,
   userRegister,
+  getMyFollowingMoments,
+  LikePost,
+  getMyTasks,
+  createNewPost
 } from "@/endpoints/users/services/user.service";
 import {
   createMyTarget,
@@ -43,7 +47,8 @@ import{
   deleteMyTask,
   updateMyTaskTitle,
   updateMyTaskStatus,
-  getMyTaskById
+  getMyTaskById,
+  getTaskById
 } from "@/endpoints/task/services/task.service";
 
 export const authEndpoints = shaped<APIs>()({
@@ -69,7 +74,12 @@ export const authEndpoints = shaped<APIs>()({
   deleteMyTask,
   updateMyTaskTitle,
   updateMyTaskStatus,
-  getMyTaskById 
+  getMyTaskById,
+  getMyFollowingMoments,
+  getTaskById,
+  LikePost,
+  getMyTasks,
+  createNewPost
 });
 
 export const unauthEndpoints = shaped<APIs>()({
