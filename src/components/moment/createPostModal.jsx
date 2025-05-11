@@ -8,7 +8,7 @@ import { useQuery } from "@/hooks/useQuery";
 import { fileToBase64 } from "../../lib/utils";
 
 
-export const createPostModal = ({ open, onOpenChange }) => {
+export const CreatePostModal = ({ open, onOpenChange }) => {
   const invalidate = useInvalidateQuery();
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);

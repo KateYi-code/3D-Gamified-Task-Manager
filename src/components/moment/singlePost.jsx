@@ -16,7 +16,7 @@ import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
 import { client } from "@/endpoints/client"
 
-export default function singlePost(props) {
+export default function SinglePost(props) {
     // var user = {
     //     name: "David Jones",
     //     taskID: "111111111",

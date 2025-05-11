@@ -2,7 +2,7 @@ import { TargetCreateModal } from "@/components/target/TargetCreateModal";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import { TargetEditModal } from "@/components/target/TargetEditModal";
 import { Confirm } from "@/components/target/confirm";
-import { createPostModal as CreatePostModal } from "./moment/createPostModal";
+import { CreatePostModal } from "./moment/createPostModal";
 
 export interface ModalProps {
   open: boolean;
@@ -13,7 +13,7 @@ export const modals = {
   TargetCreateModal,
   TargetEditModal,
   Confirm,
-  createPostModal: CreatePostModal,
+  CreatePostModal,
 };
 
 export type Modals = typeof modals;

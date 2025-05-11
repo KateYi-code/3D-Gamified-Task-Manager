@@ -17,7 +17,7 @@ import { FaRegThumbsUp } from "react-icons/fa";
 // import packages
 import { useQuery } from '@/hooks/useQuery';
 
-export default function detailPost(props) {
+export default function DetailPost(props) {
     const post = props.post;
     if (!post) return null; // safeguard
 
