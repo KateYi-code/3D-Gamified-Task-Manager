@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 // src/lib/helpers.ts
@@ -15,3 +15,4 @@ export function fileToBase64(file: File): Promise<string> {
   });
 }
 
+export type ElementOf<T> = T extends (infer U)[] ? U : never;

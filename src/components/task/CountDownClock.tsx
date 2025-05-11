@@ -1,14 +1,28 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { GiAlarmClock } from "react-icons/gi";
-import { FaPlay, FaPause, FaStop, FaCloudUploadAlt, FaVolumeUp, FaVolumeMute, FaMusic } from "react-icons/fa";
+import {
+  FaPlay,
+  FaPause,
+  FaStop,
+  FaCloudUploadAlt,
+  FaVolumeUp,
+  FaVolumeMute,
+  FaMusic,
+} from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { addStory } from "@/lib/taskStories";
 
 interface CountDownClockProps {
@@ -18,11 +32,7 @@ interface CountDownClockProps {
   size?: number;
 }
 
-const whiteNoiseList = [
-  "/sounds/rain.mp3",
-  "/sounds/ocean.mp3",
-  "/sounds/forest.mp3",
-];
+const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
 export const CountDownClock = ({
   size = 200,
@@ -43,7 +53,9 @@ export const CountDownClock = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const minutes = Math.floor(time / 60)
+      .toString()
+      .padStart(2, "0");
     const seconds = (time % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   };
@@ -65,7 +77,7 @@ export const CountDownClock = ({
     stopAudio();
     onComplete?.();
     setShowModal(true);
-  }, [totalInitialTime, onComplete]);
+  }, [totalInitialTime, stopAudio, onComplete]);
 
   useEffect(() => {
     if (isRunning) {
@@ -242,11 +254,14 @@ export const CountDownClock = ({
           <DialogHeader>
             <DialogTitle>🎉 Task Completed!</DialogTitle>
             <DialogDescription>
-              You used <strong>{formatTime(usedTime)}</strong> for this session. Do you want to share your achievement to the community?
+              You used <strong>{formatTime(usedTime)}</strong> for this session. Do you want to
+              share your achievement to the community?
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={() => setShowModal(false)} variant="secondary">Cancel</Button>
+            <Button onClick={() => setShowModal(false)} variant="secondary">
+              Cancel
+            </Button>
             <Button
               onClick={() => {
                 toast.success("✅ Shared to community!");

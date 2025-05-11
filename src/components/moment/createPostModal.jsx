@@ -5,8 +5,7 @@ import { client } from "@/endpoints/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@/hooks/useQuery";
-import { fileToBase64 } from "../../lib/utils";
-
+import { fileToBase64 } from "@/lib/utils";
 
 export const CreatePostModal = ({ open, onOpenChange }) => {
   const invalidate = useInvalidateQuery();
@@ -18,7 +17,7 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
   const onFileChange = (e) => {
     if (e.target.files) setImages(Array.from(e.target.files));
   };
-  console.log(tasks)
+  console.log(tasks);
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
@@ -31,7 +30,6 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
       const data = await client.authed.createNewPost({ taskId, description, images: base64Images });
       alert("Post liked successfully");
       console.log("this is data", data);
-
 
       // 2) re-fetch your feed
       await invalidate("getMyFollowingMoments");
@@ -55,7 +53,6 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
         </DialogHeader>
 
         <div className="space-y-4">
-
           <div>
             <label className="block text-sm font-medium mb-1">Description</label>
             <Textarea
@@ -70,7 +67,10 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
             <label className="block text-sm font-medium mb-1">Related Task</label>
             <select
               value={taskId}
-              onChange={(e) => { setTaskId(e.target.value); console.log(e.target.value) }}
+              onChange={(e) => {
+                setTaskId(e.target.value);
+                console.log(e.target.value);
+              }}
               className="w-full border rounded px-2 py-1"
             >
               <option value="">— none —</option>
@@ -112,18 +112,12 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
                   {images.length} file{images.length > 1 ? "s" : ""} selected
                 </span>
               ) : (
-                <span className="text-gray-400">
-                  Click or drag files here
-                </span>
+                <span className="text-gray-400">Click or drag files here</span>
               )}
             </div>
           </div>
           <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>

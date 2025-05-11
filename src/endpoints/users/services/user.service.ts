@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { getSession } from "@/endpoints/handler";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { createPage, PageRequest } from "@/lib/pagination";
 
 export const userLogout = async () => {
   const { session } = getSession();
@@ -181,7 +182,7 @@ export const getMyFollowers = async () => {
     .then((f) => f.map((f) => f.user));
 };
 
-export const getMyFollowingMoments = async () => {
+export const getMyFollowingMoments = async (pageRequest: PageRequest) => {
   const { user } = getSession();
   if (!user) {
     throw new Error("login required");
@@ -196,7 +197,7 @@ export const getMyFollowingMoments = async () => {
   const posts = await prisma.post.findMany({
     where: {
       userId: {
-        in: userIds,
+        in: [...userIds, user.id],
       },
     },
     include: {
@@ -204,9 +205,12 @@ export const getMyFollowingMoments = async () => {
       user: true,
     },
     orderBy: { createdAt: "desc" },
+    skip: pageRequest.pageSize * pageRequest.page,
+    take: pageRequest.pageSize,
   });
-  return posts;
-}
+
+  return createPage(posts, pageRequest.page, pageRequest.pageSize);
+};
 
 export const LikePost = async (postId: string, userId: string) => {
   const { user } = getSession();
@@ -241,9 +245,9 @@ export const getMyTasks = async () => {
     where: {
       userId: user.id,
       posts: {
-        none: {}    // <-- only tasks with zero related posts
-      }
-    }
+        none: {}, // <-- only tasks with zero related posts
+      },
+    },
   });
   tasks.map((task) => ({
     id: task.id,
@@ -254,7 +258,11 @@ export const getMyTasks = async () => {
   return tasks;
 };
 
-export const createNewPost = async (data: { taskId: string, description: string, images: string[] }) => {
+export const createNewPost = async (data: {
+  taskId: string;
+  description: string;
+  images: string[];
+}) => {
   const { user } = getSession();
   if (!user) {
     throw new Error("login required");
@@ -265,7 +273,7 @@ export const createNewPost = async (data: { taskId: string, description: string,
       task: { connect: { id: data.taskId } },
       text: data.description,
       images: data.images,
-    }
+    },
   });
   return post;
-}
+};
