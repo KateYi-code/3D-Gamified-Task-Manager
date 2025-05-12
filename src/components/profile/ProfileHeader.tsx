@@ -87,7 +87,12 @@ export default function ProfileHeader({ id }: Props) {
       </Avatar>
 
       <div className="flex-1 space-y-2 text-center sm:text-left">
-        <h1 className="text-2xl font-bold">{profile.name || "Undefined name"}</h1>
+        <h1 className="text-2xl font-bold">
+          {profile.name || "Undefined name"}
+          <span className="ml-2 text-sm text-muted-foreground font-normal">
+      @{profile.id}
+    </span>
+        </h1>
         <p className="text-muted-foreground text-sm">
           👥 {profile.followersCount} Followers ｜ 👣 {profile.followingCount} Following ｜ ❤️ {profile.totalLikes} Likes
         </p>
