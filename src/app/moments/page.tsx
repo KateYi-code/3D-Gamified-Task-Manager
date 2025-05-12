@@ -4,19 +4,17 @@ import { useAuth } from "@/providers/auth-provider";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/components/modals";
-
 import SinglePost from "@/components/moment/singlePost";
 import DetailPost from "@/components/moment/detailPost";
 import { PageRequest } from "@/lib/pagination";
 import { Post, User } from "@prisma/client";
 import { client } from "@/endpoints/client";
 import { If } from "@/lib/If";
-
-type PostHydrated = Post & {
-  user: User;
-};
-
 export default function MomentsPage() {
+  type PostHydrated = Post & {
+    user: User;
+  };
+
   const { user, loading: userLoading } = useAuth();
   const [page, setPage] = useState<PageRequest>({
     page: 0,
