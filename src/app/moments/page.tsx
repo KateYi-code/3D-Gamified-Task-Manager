@@ -10,11 +10,12 @@ import { PageRequest } from "@/lib/pagination";
 import { Post, User } from "@prisma/client";
 import { client } from "@/endpoints/client";
 import { If } from "@/lib/If";
-export default function MomentsPage() {
-  type PostHydrated = Post & {
-    user: User;
-  };
 
+export type PostHydrated = Post & {
+  user: User;
+};
+
+export default function MomentsPage() {
   const { user, loading: userLoading } = useAuth();
   const [page, setPage] = useState<PageRequest>({
     page: 0,
@@ -25,7 +26,6 @@ export default function MomentsPage() {
   const [isLoading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostHydrated>();
   const { openModal: openPostModal, modal: postModal } = useModal("CreatePostModal");
-  const { openModal: openInfo, modal: infoModal } = useModal("InfoModal");
 
   const [isEnd, setIsEnd] = useState(false);
   const onLoadMore = useCallback(() => {
@@ -73,72 +73,68 @@ export default function MomentsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* header sector */}
+    <div className="flex flex-col items-center h-[100%] py-10 w-full md:w-[1200px] self-center">
       {postModal}
-      {infoModal}
-      <div className="flex items-center justify-between py-6 mb-6">
-        <h1 className="text-2xl font-bold m-0">Moments Timeline</h1>
-        <Button onClick={() => openPostModal({ onSuccess: openInfo })}>Post Moment +</Button>
+      <div className="flex flex-col items-end w-full">
+        <Button className="py-6 mb-6" onClick={() => openPostModal({})}>
+          Post Moment +
+        </Button>
       </div>
-      <div className={"flex"}>
-        <div className="flex h-[calc(100vh-15px)] gap-4">
-          {/* Left column */}
-          <div className="w-full md:w-1/3 md:pr-4 overflow-visible">
-            <div className="h-full overflow-y-auto pl-2 flex flex-col">
-              <ul className="relative border-l-2 border-gray-300">
-                {posts?.map((post) => (
-                  <li key={`${post.id}`} className="relative pl-2 mb-2">
-                    <div className="absolute -left-2 top-0 flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
-                      <span className="text-xs text-gray-500">
-                        {new Date(post.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="mt-8 pt-6">
-                      <SinglePost
-                        onClick={() =>
-                          setSelectedPost({
-                            ...post,
-                            user: post.user, // include author info
-                          })
-                        }
-                        className="hover:bg-gray-100 cursor-pointer"
-                        post={{
+      <div className="flex justify-center h-[100%]">
+        {/* Left column */}
+        <div className="w-full md:w-1/4 md:pr-4 md:min-w-[500px] overflow-visible max-h-[100%] ">
+          <div className="h-full overflow-y-auto pl-2 flex flex-col max-h-[100%]">
+            <ul className="relative border-l-2 border-gray-300">
+              {posts?.map((post) => (
+                <li key={`${post.id}`} className="relative pl-2 mb-2">
+                  <div className="absolute -left-2 top-0 flex items-center space-x-2">
+                    <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
+                    <span className="text-xs text-gray-500">
+                      {new Date(post.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="mt-8 pt-6">
+                    <SinglePost
+                      onClick={() =>
+                        setSelectedPost({
                           ...post,
-                          user: post.user,
-                        }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <If condition={isEnd}>
-                <div className="text-center text-gray-500 mt-4">No more posts to load.</div>
-              </If>
-              <If condition={!isEnd}>
-                <Button
-                  hidden={isEnd}
-                  className="mt-4"
-                  variant="outline"
-                  disabled={isLoading}
-                  onClick={() => onLoadMore()}
-                >
-                  Load More...
-                </Button>
-              </If>
-            </div>
+                          user: post.user, // include author info
+                        })
+                      }
+                      className="hover:bg-gray-100 cursor-pointer"
+                      post={{
+                        ...post,
+                        user: post.user,
+                      }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <If condition={isEnd}>
+              <div className="text-center text-gray-500 mt-4">No more posts to load.</div>
+            </If>
+            <If condition={!isEnd}>
+              <Button
+                hidden={isEnd}
+                className="mt-4"
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => onLoadMore()}
+              >
+                Load More...
+              </Button>
+            </If>
           </div>
-          <div className="hidden pt-6 md:block w-full md:w-2/3 overflow-y-auto">
-            {selectedPost ? (
-              <DetailPost post={selectedPost} />
-            ) : (
-              <p className="text-gray-500 mt-10 text-center">Click a post to view details</p>
-            )}
-          </div>
+        </div>
+        <div className="hidden md:flex md:w-2/4 pt-6 overflow-y-auto max-w-[600px]">
+          {selectedPost ? (
+            <DetailPost post={selectedPost} />
+          ) : (
+            <p className="text-gray-500 text-center">Click a post to view details</p>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

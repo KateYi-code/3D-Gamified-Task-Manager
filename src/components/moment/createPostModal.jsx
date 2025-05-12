@@ -8,7 +8,7 @@ import { useQuery } from "@/hooks/useQuery";
 import { fileToBase64 } from "@/lib/utils";
 import { toast } from "sonner";
 
-export const CreatePostModal = ({ open, onOpenChange, onSuccess }) => {
+export const CreatePostModal = ({ open, onOpenChange }) => {
   const invalidate = useInvalidateQuery();
   const [errors, setErrors] = useState({});
   const [description, setDescription] = useState("");
@@ -65,7 +65,10 @@ export const CreatePostModal = ({ open, onOpenChange, onSuccess }) => {
             <label className="block text-sm font-medium mb-1">Description</label>
             <Textarea
               value={description}
-              onChange={(e) => { setDescription(e.target.value); setErrors((prev) => ({ ...prev, desc: undefined })); }}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setErrors((prev) => ({ ...prev, desc: undefined }));
+              }}
               placeholder="Tell your followers what’s up…"
               rows={4}
             />

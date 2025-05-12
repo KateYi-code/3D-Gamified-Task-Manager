@@ -189,7 +189,7 @@ export function Navbar() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden bg-white shadow-lg fixed bottom-0 w-full z-50 border-t border-gray-200">
-        <div className="grid grid-cols-3">
+        <div className="flex flex-row justify-evenly">
           {navItems.map((item) => (
             <Link
               key={item.path}

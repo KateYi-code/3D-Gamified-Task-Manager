@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   // themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
   // authors: [{ name: "David" }],
   icons: [{ rel: "icon", url: "pwa/favicon.png" }],
-}
+};
 
 export default function RootLayout({
   children,
@@ -23,11 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <link rel="manifest" href="/pwa/manifest.json" />
-      <body className="min-h-screen bg-gray-50">
+      <body className="max-h-screen min-h-screen bg-gray-50">
         <QueryProvider>
           <AuthProvider>
             <Navbar />
-            <main className="pt-14 md:pt-16 pb-16 md:pb-0 min-h-screen">{children}</main>
+            <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">{children}</main>
           </AuthProvider>
         </QueryProvider>
         <Toaster />
