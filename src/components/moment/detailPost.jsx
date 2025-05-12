@@ -16,13 +16,21 @@ import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
 // import packages
 import { useQuery } from '@/hooks/useQuery';
+import { client } from "@/endpoints/client"
+import { toast } from "sonner";
 
 export default function DetailPost(props) {
     const post = props.post;
+    console.log("this is details post", post);
     if (!post) return null; // safeguard
-
     const { data: targets } = useQuery("getTaskById", post.taskId);
 
+
+    async function likePost(e) {
+        e.stopPropagation();
+        const data = await client.authed.LikePost(post.id, post.user.id);
+        toast("You Like the Post!");
+    };
     return (
         <Card className={clsx("w-full transition-shadow", props.className)}>
             <CardHeader>
@@ -31,7 +39,7 @@ export default function DetailPost(props) {
                         <div style={{ width: "50px", height: "50px", borderRadius: "50%", backgroundColor: "pink" }} />
                         <span>{post.user?.name}</span>
                     </div>
-                    <FaRegThumbsUp />
+                    <FaRegThumbsUp onClick={(e) => likePost(e)} className="cursor-pointer hover:text-blue-500" />
                 </div>
                 <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{ width: "10px", height: "10px", borderRadius: "50%", border: "1px solid", display: "flex", justifyContent: "center", alignItems: "center" }}>

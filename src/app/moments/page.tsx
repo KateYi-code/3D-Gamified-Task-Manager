@@ -25,6 +25,7 @@ export default function MomentsPage() {
   const [isLoading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostHydrated>();
   const { openModal: openPostModal, modal: postModal } = useModal("CreatePostModal");
+  const { openModal: openInfo, modal: infoModal } = useModal("InfoModal");
 
   const [isEnd, setIsEnd] = useState(false);
   const onLoadMore = useCallback(() => {
@@ -75,9 +76,10 @@ export default function MomentsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* header sector */}
       {postModal}
+      {infoModal}
       <div className="flex items-center justify-between py-6 mb-6">
         <h1 className="text-2xl font-bold m-0">Moments Timeline</h1>
-        <Button onClick={() => openPostModal({})}>Post Moment +</Button>
+        <Button onClick={() => openPostModal({ onSuccess: openInfo })}>Post Moment +</Button>
       </div>
       <div className={"flex"}>
         <div className="flex h-[calc(100vh-15px)] gap-4">
@@ -139,3 +141,4 @@ export default function MomentsPage() {
     </div>
   );
 }
+

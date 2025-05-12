@@ -10,27 +10,22 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Description } from '@radix-ui/react-dialog'
 // import icons
 import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
 import { client } from "@/endpoints/client"
 
-import { useModal } from "@/components/modals";
+import { toast } from "sonner";
 
 export default function SinglePost(props) {
     const user = props.post
-    const { openModal: openInfo, modal: infoModal } = useModal("InfoModal");
     async function likePost(e) {
         e.stopPropagation();
         const data = await client.authed.LikePost(user.id, user.user.id);
-        openInfo({
-            title: "Success",
-            message: data.message ?? "Post liked successfully",
-        });
+        toast("You Like the Post!");
     };
     return (
-        <>{infoModal}
+        <>
             <Card onClick={props.onClick}
                 className={clsx(
                     "w-full transition-shadow duration-150 ease-in-out",
