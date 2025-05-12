@@ -17,8 +17,8 @@ export default function ProfileContent() {
           <Image
             src={post.image}
             alt="post"
-            width={500} // 可以根据需求调整宽度
-            height={200} // 可以根据需求调整高度
+            width={500}
+            height={200}
             className="w-full h-48 object-cover"
           />
           <CardContent className="p-2">

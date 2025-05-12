@@ -51,6 +51,10 @@ import{
   getTaskById
 } from "@/endpoints/task/services/task.service";
 
+import{
+  search,
+} from "@/endpoints/search/services/search.service";
+
 export const authEndpoints = shaped<APIs>()({
   getMe,
   userLogout,
@@ -93,6 +97,7 @@ export const unauthEndpoints = shaped<APIs>()({
   getMyFollowingsNumber,
   getMyFollowersNumber,
   getProfile,
+  search,
 });
 
 export const endpoints = shaped<APIs>()({

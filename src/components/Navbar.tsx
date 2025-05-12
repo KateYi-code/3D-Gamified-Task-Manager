@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { CiSearch } from "react-icons/ci";
+import { SearchBox } from "@/components/search/SearchDesktopBar";
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+  // const [searchOpen, setSearchOpen] = useState(false)
 
   const navItems = [
     {
@@ -64,6 +67,22 @@ export function Navbar() {
                 ))}
               </div>
             </div>
+            {/* Middle - Search bar */}
+            <div className="flex-1 max-w-md mx-4 relative hidden md:flex items-center">
+              <SearchBox />
+            </div>
+
+            {/*/!* Middle - Search bar *!/*/}
+            {/*<div className="flex-1 max-w-md mx-4 relative hidden md:flex items-center">*/}
+            {/*  <input*/}
+            {/*    type="text"*/}
+            {/*    placeholder="Search ID, Name, or Email"*/}
+            {/*    className="w-full rounded-full bg-gray-100 text-sm px-4 py-2 pr-10 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-300"*/}
+            {/*  />*/}
+            {/*  <button className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-500">*/}
+            {/*    <CiSearch size={20} />*/}
+            {/*  </button>*/}
+            {/*</div>*/}
 
             {/* Right side - User section */}
             <div className="flex items-center">
@@ -135,6 +154,14 @@ export function Navbar() {
           <span className="text-lg font-bold text-blue-600">Planet</span>
         </Link>
 
+        {/* Mobile Search Bar */}
+        {/*  <button onClick={() => setSearchOpen(true)} className="text-gray-600">*/}
+          <button className="text-gray-600">
+            <div className="flex rounded-full items-center space-x-3">
+              <CiSearch size={22} />
+            </div>
+          </button>
+
         {!loading && user && (
           <button onClick={() => setProfileOpen(!profileOpen)} className="focus:outline-none">
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
@@ -166,7 +193,8 @@ export function Navbar() {
                       setProfileOpen(false);
                       logout();
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    // className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="block text-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     role="menuitem"
                   >
                     Logout
@@ -186,7 +214,6 @@ export function Navbar() {
           </Link>
         )}
       </div>
-
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden bg-white shadow-lg fixed bottom-0 w-full z-50 border-t border-gray-200">
         <div className="flex flex-row justify-evenly">
