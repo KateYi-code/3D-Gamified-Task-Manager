@@ -4,6 +4,7 @@ import { AuthProvider } from "@/providers/auth-provider";
 import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Planet App",
@@ -23,14 +24,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <link rel="manifest" href="/pwa/manifest.json" />
-      <body className="max-h-screen min-h-screen bg-gray-50">
-        <QueryProvider>
-          <AuthProvider>
-            <Navbar />
-            <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">{children}</main>
-          </AuthProvider>
-        </QueryProvider>
-        <Toaster />
+      <body className="max-h-screen min-h-screen bg-background">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <AuthProvider>
+              <Navbar />
+              <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">
+                {children}
+              </main>
+            </AuthProvider>
+          </QueryProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
