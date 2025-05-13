@@ -92,7 +92,7 @@ export default function SinglePost(props) {
           >
             <TiTick />
           </div>
-          <span className="overflow-hidden truncate"> Task {post.task?.id}</span>
+          <span className="overflow-hidden truncate"> Task {post.task?.title}</span>
         </CardDescription>
         <div className="text-xs text-foreground">{new Date(post.createdAt).toLocaleString()}</div>
       </CardHeader>

@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import clsx from "clsx";
 
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
 import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { client } from "@/endpoints/client";
@@ -73,22 +72,9 @@ export default function DetailPost(props: Props) {
             </TooltipProvider>
           </div>
         </div>
-        <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              border: "1px solid",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <TiTick />
-          </div>
-          <span>Task {task?.id}</span>
-        </CardDescription>
+        <CardDescription
+          style={{ display: "flex", alignItems: "center", gap: "10px" }}
+        ></CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <p>{post.text}</p>
