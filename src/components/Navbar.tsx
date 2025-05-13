@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { CiSearch } from "react-icons/ci";
 import { SearchBox } from "@/components/search/SearchDesktopBar";
+import { MobileSearchTrigger } from "@/components/search/MobileSearchTrigger";
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -156,12 +156,8 @@ export function Navbar() {
 
         {/* Mobile Search Bar */}
         {/*  <button onClick={() => setSearchOpen(true)} className="text-gray-600">*/}
-          <button className="text-gray-600">
-            <div className="flex rounded-full items-center space-x-3">
-              <CiSearch size={22} />
-            </div>
-          </button>
-
+        <MobileSearchTrigger />
+        
         {!loading && user && (
           <button onClick={() => setProfileOpen(!profileOpen)} className="focus:outline-none">
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
