@@ -212,7 +212,7 @@ export const getMyFollowingMoments = async (pageRequest: PageRequest) => {
   return createPage(posts, pageRequest.page, pageRequest.pageSize);
 };
 
-export const LikePost = async (postId: string, userId: string) => {
+export const likePost = async (postId: string, userId: string) => {
   const { user } = getSession();
   if (!user) {
     throw new Error("login required");
@@ -316,4 +316,24 @@ export const getUserPosts = async (userId: string, pageRequest: PageRequest) => 
   });
 
   return createPage(posts, pageRequest.page, pageRequest.pageSize);
+};
+
+export const getPostById = async (postId: string) => {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: {
+      task: true,
+      user: true,
+      likes: {
+        include: {
+          user: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return post;
 };

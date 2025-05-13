@@ -4,6 +4,7 @@ import { TargetEditModal } from "@/components/target/TargetEditModal";
 import { Confirm } from "@/components/target/confirm";
 import { CreatePostModal } from "./moment/createPostModal";
 import { InfoModal } from "./moment/infoModal";
+import { DetailPostModal } from "@/components/moment/detail-post-modal";
 export interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -14,7 +15,8 @@ export const modals = {
   TargetEditModal,
   Confirm,
   CreatePostModal,
-  InfoModal
+  InfoModal,
+  DetailPostModal,
 };
 
 export type Modals = typeof modals;

@@ -1,42 +1,39 @@
-import React from "react";
+import React, { useMemo } from "react";
 import clsx from "clsx";
 
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
-import { useQuery } from "@/hooks/useQuery";
-import { PostHydrated } from "@/app/moments/page";
+import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/providers/auth-provider";
 
 interface Props {
-  post: PostHydrated;
+  postId: string;
   className?: string;
 }
 export default function DetailPost(props: Props) {
-  const post = props.post;
-  const { data: targets } = useQuery("getTaskById", post.taskId ?? "");
+  const { user } = useAuth();
+  const { data: post } = useQuery("getPostById", props.postId);
+  const invalidate = useInvalidateQuery();
+  const { task } = post || {};
 
-  const [liked, setLiked] = useState(false);
+  const liked = useMemo(() => {
+    return !!post?.likes.find((like) => like.user.id === user?.id);
+  }, [post?.likes, user?.id]);
 
   const likePost = async () => {
-    const data = await client.authed.LikePost(post.id, post.user.id);
+    if (!post) return;
+    const data = await client.authed.likePost(post.id, post.user.id);
+    invalidate("getPostById", props.postId);
     if (data) {
-      setLiked(true);
       toast("You Like the Post!");
     } else {
-      setLiked(false);
       toast("You remove the like!");
     }
   };
-
-  useEffect(() => {
-    client.authed.getLikeState(post.id, post.user.id).then((res) => {
-      setLiked(res);
-    });
-  }, [post.id, post.user.id]);
 
   if (!post) return null; // safeguard
 
@@ -90,15 +87,15 @@ export default function DetailPost(props: Props) {
           >
             <TiTick />
           </div>
-          <span>Task {targets?.id}</span>
+          <span>Task {task?.id}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <p>{post.text}</p>
         <div>
           <span>Complete Time: {new Date(post.updatedAt).toLocaleString()}</span>
-          <h2>Task Title: {targets?.title} </h2>
-          <p>Task Description: {targets?.description}</p>
+          <h2>Task Title: {task?.title} </h2>
+          <p>Task Description: {task?.description}</p>
         </div>
         <div className="flex gap-2.5 mt-2.5 flex-wrap">
           {post.images?.map((src, index) => (

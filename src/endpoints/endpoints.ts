@@ -10,11 +10,12 @@ import {
   userLogout,
   userRegister,
   getMyFollowingMoments,
-  LikePost,
+  likePost,
   getMyTasks,
   createNewPost,
   getUserPosts,
-  getLikeState
+  getLikeState,
+  getPostById,
 } from "@/endpoints/users/services/user.service";
 import {
   createMyTarget,
@@ -44,18 +45,16 @@ import {
   deletePlanetObject,
 } from "@/endpoints/planet/services/planet.service";
 
-import{
+import {
   createMyTask,
   deleteMyTask,
   updateMyTaskTitle,
   updateMyTaskStatus,
   getMyTaskById,
-  getTaskById
+  getTaskById,
 } from "@/endpoints/task/services/task.service";
 
-import{
-  search,
-} from "@/endpoints/search/services/search.service";
+import { search } from "@/endpoints/search/services/search.service";
 
 export const authEndpoints = shaped<APIs>()({
   getMe,
@@ -83,10 +82,10 @@ export const authEndpoints = shaped<APIs>()({
   getMyTaskById,
   getMyFollowingMoments,
   getTaskById,
-  LikePost,
+  likePost,
   getMyTasks,
   createNewPost,
-  getLikeState
+  getLikeState,
 });
 
 export const unauthEndpoints = shaped<APIs>()({
@@ -102,6 +101,7 @@ export const unauthEndpoints = shaped<APIs>()({
   getProfile,
   search,
   getUserPosts,
+  getPostById,
 });
 
 export const endpoints = shaped<APIs>()({

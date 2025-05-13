@@ -16,7 +16,7 @@ export type PostHydrated = Post & {
 };
 
 interface Props {
-  id: string
+  id: string;
 }
 
 export default function ProfileContent({ id }: Props) {
@@ -38,14 +38,14 @@ export default function ProfileContent({ id }: Props) {
     }));
   }, [isLoading]);
 
-  const isMe = user?.id === id
+  const isMe = user?.id === id;
 
   useEffect(() => {
     if (!user) return;
     setLoading(true);
     const fetchPosts = async () => {
       try {
-        const data = await client.unauth.getUserPosts(id,page);
+        const data = await client.unauth.getUserPosts(id, page);
         if (data.items.length === 0) {
           setIsEnd(true);
           return;
@@ -80,11 +80,11 @@ export default function ProfileContent({ id }: Props) {
     <div className="flex flex-col items-center h-[100%] py-10 w-full md:w-[1200px] self-center">
       {postModal}
       {isMe && (
-      <div className="flex flex-col items-end w-full">
-        <Button className="py-6 mb-6" onClick={() => openPostModal({})}>
-          Post Moment +
-        </Button>
-      </div>
+        <div className="flex flex-col items-end w-full">
+          <Button className="py-6 mb-6" onClick={() => openPostModal({})}>
+            Post Moment +
+          </Button>
+        </div>
       )}
       <div className="flex justify-center h-[100%]">
         {/* Left column */}
@@ -135,7 +135,7 @@ export default function ProfileContent({ id }: Props) {
         </div>
         <div className="hidden md:flex md:w-2/4 pt-6 overflow-y-auto max-w-[600px]">
           {selectedPost ? (
-            <DetailPost post={selectedPost} />
+            <DetailPost postId={selectedPost.id} />
           ) : (
             <p className="text-gray-500 text-center">Click a post to view details</p>
           )}
