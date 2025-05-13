@@ -60,8 +60,8 @@ export default function DetailPost(props: Props) {
                     className={clsx(
                       "cursor-pointer",
                       liked
-                        ? "text-blue-600 hover:text-red-500"
-                        : "text-gray-400 hover:text-blue-500",
+                        ? "text-primary hover:text-accent-foreground"
+                        : "text-accent-foreground hover:text-primary",
                     )}
                   />
                 </TooltipTrigger>

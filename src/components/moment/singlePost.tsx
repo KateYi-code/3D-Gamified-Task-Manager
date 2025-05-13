@@ -7,12 +7,22 @@ import { FaRegThumbsUp } from "react-icons/fa";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Post, Task, User } from "@prisma/client";
 
-export default function SinglePost(props) {
+interface Props {
+  post: Post & {
+    user: User;
+    task: Task | null;
+  };
+  onClick?: () => void;
+  className?: string;
+}
+
+export default function SinglePost(props: Props) {
   const post = props.post;
   const [liked, setLiked] = useState(false);
 
-  async function likePost(e) {
+  const likePost = async (e: any) => {
     e.stopPropagation();
     const data = await client.authed.likePost(post.id, post.user.id);
     if (data) {
@@ -22,12 +32,12 @@ export default function SinglePost(props) {
       setLiked(false);
       toast("You remove the like!");
     }
-  }
+  };
   useEffect(() => {
     client.authed.getLikeState(post.id, post.user.id).then((res) => {
       setLiked(res);
     });
-  }, [post.id]);
+  }, [post.id, post.user.id]);
 
   return (
     <Card
@@ -98,11 +108,9 @@ export default function SinglePost(props) {
       </CardHeader>
       <CardContent className={"pb-2"}>
         {post.text}
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+        <div className="grid grid-cols-2 gap-2.5 mt-2.5">
           {post.images.map((image, index) => {
-            return (
-              <img key={index} src={image} alt="" style={{ width: "150px", height: "150px" }} />
-            );
+            return <img key={index} src={image} alt="" className="aspect-square max-w-36" />;
           })}
         </div>
       </CardContent>
