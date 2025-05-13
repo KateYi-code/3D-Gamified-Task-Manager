@@ -1,10 +1,13 @@
 "use client"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { PMREMGenerator } from 'three'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 import * as THREE from "three"
-const loader = new GLTFLoader()
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+
+const gltfLoader = new GLTFLoader()
+const fbxLoader = new FBXLoader()
 
 let renderer, camera, scene
 let cRef
@@ -13,14 +16,10 @@ function initThree(containerRef){
   scene = new THREE.Scene()
   cRef = containerRef
 
-  const axesHelper = new THREE.AxesHelper(1500)
-  scene.add(axesHelper)
-
   let ratio = containerRef.current.clientWidth / containerRef.current.clientHeight
   camera = new THREE.PerspectiveCamera(75,ratio,0.1,1000)
   camera.position.z = 30
   camera.position.y = 15
-
 
   renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight - 0.4)
@@ -32,49 +31,47 @@ function initThree(containerRef){
   const controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
 
-  // scene.environment = null
-  // scene.background = new THREE.Color(0x000022)
-
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
   ambientLight.position.set(0, -10, 0)
   scene.add(ambientLight)
-  // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
-  // directionalLight.position.set(0, -10, 0)
-  // scene.add(directionalLight)
-
-  // new RGBELoader().load('/scene/NightSkyHDR4K.hdr', (texture) => {
-  //   const envMap = pmremGenerator.fromEquirectangular(texture).texture
-  //   scene.background = envMap
-  //   scene.environment = envMap
-  //   texture.dispose()
-  //   pmremGenerator.dispose()
-  // })
 
   return { renderer, camera, scene, controls }
 }
 
-async function modelLoader(model, trans){
-  let transform = {
+async function modelLoader(modelPath, trans) {
+  const extension = modelPath.split('.').pop().toLowerCase()
+  const transform = {
     s: trans?.s ? ((typeof trans.s == 'number')?[trans.s,trans.s,trans.s]:trans.s):[1, 1, 1],
     p: trans?.p ?? [0, 0, 0],
     r: trans?.r ?? [0, 0, 0]
   }
-  return new Promise(resolve => {
-    loader.load(`/3d/${model}`, gltf => {
-      const model = gltf.scene
+
+  return new Promise((resolve, reject) => {
+    const onLoad = (loaded) => {
+      const model = extension === 'fbx' ? loaded : loaded.scene
       model.scale.set(...transform.s)
       model.position.set(...transform.p)
       model.rotation.set(...transform.r)
-      model.traverse(child => {
-        if (child.isMesh) child.receiveShadow = true
+      model.traverse((child) => {
+        if (child.isMesh) {
+          child.receiveShadow = true
+        }
       })
-      // model.traverse((child) => {
-      //   if (child.isMesh) {
-      //     console.log(child.name, child.geometry.attributes.position.count, child.material);
-      //   }
-      // })
       resolve(model)
-    })
+    }
+
+    const onError = (e) => {
+      console.error(`Error loading model: ${modelPath}`, e)
+      reject(e)
+    }
+
+    if (extension === 'glb' || extension === 'gltf') {
+      gltfLoader.load(`/3d/${modelPath}`, onLoad, undefined, onError)
+    } else if (extension === 'fbx') {
+      fbxLoader.load(`/3d/${modelPath}`, onLoad, undefined, onError)
+    } else {
+      reject(new Error(`Unsupported model format: ${extension}`))
+    }
   })
 }
 
@@ -215,7 +212,100 @@ const AVAILABLE_MODELS = [
   'Savana.glb',
   'Tarace Farming.glb',
   'Vulcano.glb',
-  'Waterfall.glb'
+  'Waterfall.glb',
+  "building00.fbx",
+  "building01.fbx",
+  "building02.fbx",
+  "building03.fbx",
+  "building04.fbx",
+  "building05.fbx",
+  "building06.fbx",
+  "building07.fbx",
+  "building08.fbx",
+  "building09.fbx",
+  "building10.fbx",
+  "building11.fbx",
+  "building12.fbx",
+  "building13.fbx",
+  "building14.fbx",
+  "building15.fbx",
+  "building16.fbx",
+  "building17.fbx",
+  "building18.fbx",
+  "building19.fbx",
+  "building20.fbx",
+  "building21.fbx",
+  "building22.fbx",
+  "building23.fbx",
+  "building24.fbx",
+  "building25.fbx",
+  "building26.fbx",
+  "building27.fbx",
+  "building28.fbx",
+  "building29.fbx",
+  "building30.fbx",
+  "building31.fbx",
+  "building32.fbx",
+  "building33.fbx",
+  "building34.fbx",
+  "building35.fbx",
+  "building36.fbx",
+  "building37.fbx",
+  "building38.fbx",
+  "building39.fbx",
+  "building40.fbx",
+  "building41.fbx",
+  "building42.fbx",
+  "building43.fbx",
+  "building44.fbx",
+  "castle00.fbx",
+  "castle01.fbx",
+  "castle02.fbx",
+  "castle03.fbx",
+  "castle04.fbx",
+  "castle05.fbx",
+  "castle06.fbx",
+  "castle07.fbx",
+  "castle08.fbx",
+  "castle09.fbx",
+  "castle12.fbx",
+  "castle13.fbx",
+  "castle14.fbx",
+  "castle15.fbx",
+  "castle16.fbx",
+  "city-decor00.fbx",
+  "city-decor01.fbx",
+  "city-decor02.fbx",
+  "city-decor03.fbx",
+  "city-decor04.fbx",
+  "city-decor05.fbx",
+  "city-decor06.fbx",
+  "city-decor07.fbx",
+  "city-decor08.fbx",
+  "city-decor09.fbx",
+  "city-decor10.fbx",
+  "city-decor11.fbx",
+  "city-decor13.fbx",
+  "city-decor14.fbx",
+  "city-decor15.fbx",
+  "forest00.fbx",
+  "forest01.fbx",
+  "forest07.fbx",
+  "forest08.fbx",
+  "forest09.fbx",
+  "forest13.fbx",
+  "forest15.fbx",
+  "forest16.fbx",
+  "forest17.fbx",
+  "village-decor00.fbx",
+  "village-decor01.fbx",
+  "village-decor02.fbx",
+  "village-decor03.fbx",
+  "village-decor04.fbx",
+  "village-decor05.fbx",
+  "village-decor06.fbx",
+  "village-decor07.fbx",
+  "village-decor08.fbx",
 ]
 
 export {modelLoader, initThree, createTransparentPreview, canvasResize, createGradientBackground, createStarField, AVAILABLE_MODELS}
