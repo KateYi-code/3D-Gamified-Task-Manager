@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <link rel="manifest" href="/pwa/manifest.json" />
       <body className="max-h-screen min-h-screen bg-background">
         <ThemeProvider

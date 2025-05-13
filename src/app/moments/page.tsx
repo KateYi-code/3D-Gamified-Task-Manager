@@ -1,15 +1,15 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-provider";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/components/modals";
 import SinglePost from "@/components/moment/singlePost";
 import DetailPost from "@/components/moment/detailPost";
 import { PageRequest } from "@/lib/pagination";
 import { Post, User } from "@prisma/client";
-import { client } from "@/endpoints/client";
 import { If } from "@/lib/If";
+import { useQuery } from "@/hooks/useQuery";
 
 export type PostHydrated = Post & {
   user: User;
@@ -22,39 +22,25 @@ export default function MomentsPage() {
     pageSize: 10,
   });
 
-  const [posts, setPosts] = useState<PostHydrated[]>([]);
-  const [isLoading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostHydrated>();
   const { openModal: openPostModal, modal: postModal } = useModal("CreatePostModal");
 
-  const [isEnd, setIsEnd] = useState(false);
   const onLoadMore = useCallback(() => {
-    if (isLoading) return;
     setPage((prev) => ({
       ...prev,
-      page: prev.page + 1,
+      pageSize: page.pageSize + 10,
     }));
-  }, [isLoading]);
+  }, [page.pageSize]);
 
-  useEffect(() => {
-    if (!user) return;
-    setLoading(true);
-    const fetchPosts = async () => {
-      try {
-        const posts = await client.authed.getMyFollowingMoments(page);
-        if (posts.items.length === 0) {
-          setIsEnd(true);
-          return;
-        }
-        setPosts((prev) => [...prev, ...posts.items]);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPosts();
-  }, [page, user]);
+  const { data: posts, isLoading } = useQuery("getMyFollowingMoments", page);
+
+  const isEnd = useMemo(() => {
+    if (!posts?.items) return false;
+    const { page: pageIndex, pageSize } = page;
+    const totalPosts = posts.items.length;
+    const totalPages = Math.ceil(totalPosts / pageSize);
+    return pageIndex >= totalPages - 1;
+  }, [page, posts?.items]);
 
   if (userLoading) {
     return (
@@ -83,7 +69,7 @@ export default function MomentsPage() {
         <div className="w-full md:w-1/4 md:pr-4 md:min-w-[500px] overflow-visible max-h-[100%] ">
           <div className="h-full overflow-y-auto pl-2 flex flex-col max-h-[100%]">
             <ul className="relative border-l-2">
-              {posts?.map((post) => (
+              {posts?.items?.map((post) => (
                 <li key={`${post.id}`} className="relative pl-2 mb-2">
                   <div className="absolute -left-2 top-0 flex items-center space-x-2">
                     <div className="w-4 h-4 bg-background border-2 rounded-full z-10" />
