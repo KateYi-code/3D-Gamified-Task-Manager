@@ -5,10 +5,12 @@ import { useQuery } from "@/hooks/useQuery";
 import { Button } from "@/components/ui/button";
 import SinglePost from "@/components/moment/singlePost";
 import { If } from "@/lib/If";
-import { CreatePostButton } from "@/components/moment/create-post-button";
 import { useModal } from "@/components/modals";
 
-export const PostsList = () => {
+interface Props {
+  userIds?: string[];
+}
+export const PostsList = ({ userIds }: Props) => {
   const { user, loading: userLoading } = useAuth();
   const [page, setPage] = useState<PageRequest>({
     page: 0,
@@ -23,7 +25,7 @@ export const PostsList = () => {
     }));
   }, [page.pageSize]);
 
-  const { data: posts, isLoading } = useQuery("getMyFollowingMoments", page);
+  const { data: posts, isLoading } = useQuery("getMyFollowingMoments", page, userIds);
 
   const isEnd = useMemo(() => {
     if (!posts?.items) return false;
@@ -50,56 +52,45 @@ export const PostsList = () => {
   }
 
   return (
-    <div className="flex flex-col items-center py-10 w-full md:w-[1200px] self-center">
-      <CreatePostButton />
+    <div className="flex flex-col items-center py-10 self-center">
       {detailPostModal}
-      <div className="flex justify-center ">
-        {/* Left column */}
-        <div className="w-full md:w-1/4 md:pr-4 md:min-w-[500px]">
-          <div className="h-full overflow-y-auto pl-2 flex flex-col">
-            <ul className="relative border-l-2">
-              {posts?.items?.map((post) => (
-                <li key={`${post.id}`} className="relative pl-2 mb-2">
-                  <div className="absolute -left-2 top-0 flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-background border-2 rounded-full z-10" />
-                    <span className="text-xs text-foreground">
-                      {new Date(post.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="mt-8 pt-6">
-                    <SinglePost
-                      onClick={() => {
-                        openPostModal({
-                          postId: post.id,
-                        });
-                      }}
-                      className="hover:bg-secondary cursor-pointer"
-                      post={{
-                        ...post,
-                        user: post.user,
-                      }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <If condition={isEnd}>
-              <div className="text-center mb-12 mt-12">No more posts to load.</div>
-            </If>
-            <If condition={!isEnd}>
-              <Button
-                hidden={isEnd}
-                className="mt-4"
-                variant="outline"
-                disabled={isLoading}
-                onClick={() => onLoadMore()}
-              >
-                Load More...
-              </Button>
-            </If>
+      <div className="flex flex-row flex-wrap gap-4">
+        {posts?.items?.map((post) => (
+          <div
+            key={`${post.id}`}
+            className="flex flex-col w-full lg:w-[360px] lg:max-h-[400px] lg:min-h-[400px]"
+          >
+            <SinglePost
+              onClick={() => {
+                openPostModal({
+                  postId: post.id,
+                });
+              }}
+              className="hover:bg-secondary cursor-pointer"
+              post={{
+                ...post,
+                user: post.user,
+              }}
+            />
           </div>
-        </div>
+        ))}
       </div>
+      <If condition={!isEnd}>
+        <Button
+          hidden={isEnd}
+          className="mt-4"
+          variant="outline"
+          disabled={isLoading}
+          onClick={() => onLoadMore()}
+        >
+          Load More...
+        </Button>
+      </If>
+      <If condition={isEnd}>
+        <div className="text-center self-stretch mb-12 mt-12 border-t pt-6">
+          No more posts to load.
+        </div>
+      </If>
     </div>
   );
 };

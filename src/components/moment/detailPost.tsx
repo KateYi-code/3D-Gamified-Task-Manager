@@ -38,7 +38,7 @@ export default function DetailPost(props: Props) {
   if (!post) return null; // safeguard
 
   return (
-    <Card className={clsx("w-full transition-shadow", props.className)}>
+    <Card className={clsx("w-full shadow-none border-none", props.className)}>
       <CardHeader>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: "10px" }}>

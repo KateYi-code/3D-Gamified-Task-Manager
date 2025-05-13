@@ -182,22 +182,27 @@ export const getMyFollowers = async () => {
     .then((f) => f.map((f) => f.user));
 };
 
-export const getMyFollowingMoments = async (pageRequest: PageRequest) => {
+export const getMyFollowingMoments = async (pageRequest: PageRequest, userIds?: string[]) => {
   const { user } = getSession();
+
   if (!user) {
     throw new Error("login required");
   }
-  const friends = await prisma.follow.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
-  const userIds = friends.map((f) => f.followedId);
+
+  let userIdList = userIds;
+  if (!userIdList) {
+    const friends = await prisma.follow.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+    userIdList = [...friends.map((f) => f.followedId), user.id];
+  }
 
   const posts = await prisma.post.findMany({
     where: {
       userId: {
-        in: [...userIds, user.id],
+        in: userIdList,
       },
     },
     include: {
