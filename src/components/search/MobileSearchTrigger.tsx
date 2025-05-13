@@ -1,15 +1,16 @@
 import { CiSearch } from "react-icons/ci";
 import { useState } from "react";
 import { MobileSearchOverlay } from "@/components/search/MobileSearchOverlay";
+import { Button } from "@/components/ui/button";
 
 export function MobileSearchTrigger() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-gray-600 md:hidden">
+      <Button variant={"ghost"} onClick={() => setOpen(true)} className="md:hidden">
         <CiSearch size={22} />
-      </button>
+      </Button>
 
       {open && <MobileSearchOverlay onClose={() => setOpen(false)} />}
     </>

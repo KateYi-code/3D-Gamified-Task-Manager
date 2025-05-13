@@ -1,29 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { GiAlarmClock } from "react-icons/gi";
 import {
-  FaPlay,
-  FaPause,
-  FaStop,
   FaCloudUploadAlt,
-  FaVolumeUp,
-  FaVolumeMute,
   FaMusic,
+  FaPause,
+  FaPlay,
+  FaStop,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { addStory } from "@/lib/taskStories";
+import { Slider } from "@/components/ui/slider";
 
 interface CountDownClockProps {
   initialMinutes?: number;
@@ -236,14 +237,13 @@ export const CountDownClock = ({
               {volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
               Volume Control
             </label>
-            <input
-              type="range"
+            <Slider
               min={0}
-              max={1}
               step={0.01}
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="w-full accent-blue-500"
+              max={1}
+              value={[volume]}
+              onValueChange={(e) => setVolume(e[0])}
+              className="w-full"
             />
           </div>
         </div>

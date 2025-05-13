@@ -76,19 +76,17 @@ export default function MomentsPage() {
     <div className="flex flex-col items-center h-[100%] py-10 w-full md:w-[1200px] self-center">
       {postModal}
       <div className="flex flex-col items-end w-full">
-        <Button className="py-6 mb-6" onClick={() => openPostModal({})}>
-          Post Moment +
-        </Button>
+        <Button onClick={() => openPostModal({})}>Post Moment +</Button>
       </div>
       <div className="flex justify-center h-[100%]">
         {/* Left column */}
         <div className="w-full md:w-1/4 md:pr-4 md:min-w-[500px] overflow-visible max-h-[100%] ">
           <div className="h-full overflow-y-auto pl-2 flex flex-col max-h-[100%]">
-            <ul className="relative border-l-2 border-gray-300">
+            <ul className="relative border-l-2">
               {posts?.map((post) => (
                 <li key={`${post.id}`} className="relative pl-2 mb-2">
                   <div className="absolute -left-2 top-0 flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded-full z-10" />
+                    <div className="w-4 h-4 bg-background border-2 rounded-full z-10" />
                     <span className="text-xs text-gray-500">
                       {new Date(post.createdAt).toLocaleString()}
                     </span>
@@ -101,7 +99,7 @@ export default function MomentsPage() {
                           user: post.user, // include author info
                         })
                       }
-                      className="hover:bg-gray-100 cursor-pointer"
+                      className="hover:bg-accent cursor-pointer"
                       post={{
                         ...post,
                         user: post.user,
