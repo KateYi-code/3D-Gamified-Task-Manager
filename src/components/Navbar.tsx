@@ -4,14 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { SearchBox } from "@/components/search/SearchDesktopBar";
 import { MobileSearchTrigger } from "@/components/search/MobileSearchTrigger";
+import { ToggleThemeButton } from "@/components/profile/ToggleThemeButton";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { If } from "@/lib/If";
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
   const pathname = usePathname();
-  const [profileOpen, setProfileOpen] = useState(false);
   // const [searchOpen, setSearchOpen] = useState(false)
 
   const navItems = [
@@ -37,17 +39,40 @@ export function Navbar() {
     // },
   ];
 
+  const profileMenus = () => {
+    return (
+      <div className={"flex flex-col items-stretch"}>
+        <Link
+          href={`/profile/${user?.id}`}
+          className={"hover:bg-secondary px-4 py-2 w-full rounded-md"}
+        >
+          Your Profile
+        </Link>
+        <ToggleThemeButton className="cursor-pointer hover:bg-secondary px-4 py-2 w-full rounded-md" />
+        <Button
+          variant="link"
+          onClick={() => {
+            logout();
+          }}
+          className="text-destructive hover:bg-secondary px-4 py-2 w-full flex items-center justify-start"
+        >
+          Logout
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="bg-white shadow-md fixed w-full z-50 top-0 hidden md:block">
+      <nav className="bg-background shadow-md fixed w-full z-50 top-0 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-10">
               {/* Logo */}
               <Link href="/" className="flex items-center space-x-2">
                 <Image src="/globe.svg" alt="Planet Logo" width={32} height={32} />
-                <span className="text-xl font-bold text-blue-600">Planet</span>
+                <span className="text-xl font-bold text-primary">Planet</span>
               </Link>
 
               {/* Navigation Links */}
@@ -58,8 +83,8 @@ export function Navbar() {
                     href={item.path}
                     className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                       pathname === item.path
-                        ? "text-blue-600 bg-blue-50"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                        ? "text-foreground bg-accent"
+                        : "text-accent-foreground hover:bg-accent"
                     }`}
                   >
                     {item.name}
@@ -87,57 +112,26 @@ export function Navbar() {
             {/* Right side - User section */}
             <div className="flex items-center">
               {loading ? (
-                <div className="text-gray-500">Loading...</div>
+                <div className="text-accent-foreground">Loading...</div>
               ) : user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-                    </div>
-                    <span>My Profile</span>
-                  </button>
-
-                  {/* Profile dropdown */}
-                  {profileOpen && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                      <div className="py-1" role="menu" aria-orientation="vertical">
-                        <Link
-                          href={`/profile/${user.id}`}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          Your Profile
-                        </Link>
-                        <Link
-                          href="/settings"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          Settings
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setProfileOpen(false);
-                            logout();
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                          role="menuitem"
-                        >
-                          Logout
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <Popover>
+                  <div className="relative">
+                    <PopoverTrigger asChild>
+                      <Button variant={"ghost"}>
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                          {user.name?.charAt(0).toUpperCase() ||
+                            user.email?.charAt(0).toUpperCase()}
+                        </div>
+                        <span>My Profile</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-50">{profileMenus()}</PopoverContent>
+                  </div>
+                </Popover>
               ) : (
                 <Link
                   href="/auth"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+                  className="bg-primary hover:bg-secondary font-medium py-2 px-4 rounded-md transition-colors"
                 >
                   Login
                 </Link>
@@ -151,74 +145,40 @@ export function Navbar() {
       <div className="md:hidden bg-background shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
           <Image src="/globe.svg" alt="Planet Logo" width={28} height={28} />
-          <span className="text-lg font-bold text-blue-600">Planet</span>
+          <span className="text-lg font-bold text-primary">Planet</span>
         </Link>
 
         {/* Mobile Search Bar */}
         {/*  <button onClick={() => setSearchOpen(true)} className="text-gray-600">*/}
         <MobileSearchTrigger />
 
-        {!loading && user && (
-          <button onClick={() => setProfileOpen(!profileOpen)} className="focus:outline-none">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-              {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-            </div>
-
-            {/* Mobile Profile dropdown */}
-            {profileOpen && (
-              <div className="origin-top-right absolute right-4 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                <div className="py-1" role="menu" aria-orientation="vertical">
-                  <Link
-                    href={`/profile/${user.id}`}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    role="menuitem"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Your Profile
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    role="menuitem"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setProfileOpen(false);
-                      logout();
-                    }}
-                    // className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    className="block text-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    role="menuitem"
-                  >
-                    Logout
-                  </button>
+        <If condition={!loading && !!user}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="focus:outline-none">
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+                  {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                 </div>
-              </div>
-            )}
-          </button>
-        )}
-
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-50">{profileMenus()}</PopoverContent>
+          </Popover>
+        </If>
         {!loading && !user && (
-          <Link
-            href="/auth"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
-          >
+          <Link href="/auth" className="font-medium py-1.5 px-3 text-sm rounded-md">
             Login
           </Link>
         )}
       </div>
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden bg-white shadow-lg fixed bottom-0 w-full z-50 border-t border-gray-200">
+      <nav className="md:hidden bg-background shadow-lg fixed bottom-0 w-full z-50 border-t">
         <div className="flex flex-row justify-evenly">
           {navItems.map((item) => (
             <Link
               key={item.path}
               href={item.path}
               className={`flex flex-col items-center py-3 ${
-                pathname === item.path ? "text-blue-600" : "text-gray-500"
+                pathname === item.path ? "text-primary" : "text-accent-foreground"
               }`}
             >
               <svg

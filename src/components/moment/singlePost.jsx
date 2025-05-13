@@ -54,7 +54,7 @@ export default function SinglePost(props) {
             </div>
             <FaRegThumbsUp
               onClick={(e) => likePost(e)}
-              className="cursor-pointer hover:text-blue-500"
+              className="cursor-pointer hover:text-primary"
             />
           </div>
           <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>

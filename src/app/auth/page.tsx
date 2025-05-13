@@ -16,13 +16,13 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6">
+    <div className="self-center w-full lg:w-[500px] mt-10">
       <div className="flex mb-6 border-b">
         <button
           className={`flex-1 py-2 text-center font-medium transition-colors ${
-            mode === "login" 
-              ? "text-blue-600 border-b-2 border-blue-600" 
-              : "text-gray-500 hover:text-gray-700"
+            mode === "login"
+              ? "text-primary border-b-2 border-primary"
+              : "text-foreground hover:bg-accent"
           }`}
           onClick={() => setMode("login")}
         >
@@ -30,9 +30,9 @@ export default function AuthPage() {
         </button>
         <button
           className={`flex-1 py-2 text-center font-medium transition-colors ${
-            mode === "register" 
-              ? "text-blue-600 border-b-2 border-blue-600" 
-              : "text-gray-500 hover:text-gray-700"
+            mode === "register"
+              ? "text-primary border-b-2 border-primary"
+              : "text-foreground hover:bg-accent"
           }`}
           onClick={() => setMode("register")}
         >

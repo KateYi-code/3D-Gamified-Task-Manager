@@ -38,8 +38,8 @@ export default function Home() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Welcome to the Weekly Calendar</h1>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">
+        <div className="bg-background rounded-lg shadow p-6">
+          <p>
             Please{" "}
             <Link className={"text-primary underline"} href={"/auth"}>
               log in
