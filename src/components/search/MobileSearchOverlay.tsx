@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { client } from "@/endpoints/client";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   onClose: () => void;
@@ -21,21 +23,18 @@ export function MobileSearchOverlay({ onClose }: Props) {
   }, [query]);
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col p-4">
+    <div className="fixed inset-0 bg-background z-50 flex flex-col p-4">
       {/* top input and return */}
       <div className="flex items-center mb-4">
-        <button
-          onClick={onClose}
-          className="text-gray-500 text-lg mr-4"
-        >
+        <Button onClick={onClose} variant={"ghost"} className="text-lg mr-4">
           ←
-        </button>
-        <input
+        </Button>
+        <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search ID, Name, or Email"
-          className="flex-1 rounded-full bg-gray-100 text-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          className="flex-1 rounded-full text-sm px-4 py-2"
           autoFocus
         />
       </div>
@@ -46,16 +45,16 @@ export function MobileSearchOverlay({ onClose }: Props) {
           <Link
             key={user.id}
             href={`/profile/${user.id}`}
-            className="block px-4 py-3 border-b hover:bg-gray-100"
+            className="block px-4 py-3 border-b hover:bg-accent"
             onClick={onClose}
           >
             <div className="font-medium">{user.name || "Unnamed User"}</div>
-            <div className="text-sm text-gray-500">{user.email || "Undefined Email"}</div>
+            <div className="text-sm text-accent-foreground">{user.email || "Undefined Email"}</div>
           </Link>
         ))}
 
         {!results.length && query && (
-          <div className="text-center text-sm text-gray-400 mt-8">No results found</div>
+          <div className="text-center text-sm text-accent-foreground mt-8">No results found</div>
         )}
       </div>
     </div>

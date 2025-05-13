@@ -1,35 +1,36 @@
-import { CiSearch } from "react-icons/ci"
-import Link from "next/link"
-import { useState, useEffect } from "react"
+import { CiSearch } from "react-icons/ci";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import { client } from "@/endpoints/client";
+import { Input } from "@/components/ui/input";
 
 export function SearchBox() {
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<any[]>([])
-  const [showDropdown, setShowDropdown] = useState(false)
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (!query) return
+    if (!query) return;
     const timeout = setTimeout(async () => {
-      const users = await client.unauth.search(query)
-      setResults(users)
-    }, 300) // debounce 300ms
+      const users = await client.unauth.search(query);
+      setResults(users);
+    }, 300); // debounce 300ms
 
-    return () => clearTimeout(timeout)
-  }, [query])
+    return () => clearTimeout(timeout);
+  }, [query]);
 
   useEffect(() => {
-    setShowDropdown(!!query.trim())
-  }, [query])
+    setShowDropdown(!!query.trim());
+  }, [query]);
 
   return (
     <div className="relative w-full max-w-md">
-      <input
+      <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search ID, Name, or Email"
-        className="w-full rounded-full bg-gray-100 text-sm px-4 py-2 pr-10 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="w-full rounded-full text-sm px-4 py-2 pr-10"
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)} // delay to allow click on dropdown
       />
       <button
@@ -40,20 +41,20 @@ export function SearchBox() {
       </button>
 
       {showDropdown && results.length > 0 && (
-        <div className="absolute w-full mt-2 bg-white shadow-lg border rounded-md z-50">
+        <div className="absolute w-full mt-2 bg-background shadow-lg border rounded-md z-50">
           {results.map((user) => (
             <Link
               key={user.id}
               href={`/profile/${user.id}`}
-              className="flex flex-col px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+              className="flex flex-col px-4 py-2 hover:bg-accent text-sm text-gray-700"
               onMouseDown={(e) => e.preventDefault()} // prevent blur on input
             >
               <span className="font-medium">{user.name || "Unnamed User"}</span>
-              <span className="text-xs text-gray-500">{user.email || "Undefined Email"}</span>
+              <span className="text-xs">{user.email || "Undefined Email"}</span>
             </Link>
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
