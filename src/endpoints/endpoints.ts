@@ -12,7 +12,8 @@ import {
   getMyFollowingMoments,
   LikePost,
   getMyTasks,
-  createNewPost
+  createNewPost,
+  getUserPosts,
 } from "@/endpoints/users/services/user.service";
 import {
   createMyTarget,
@@ -83,7 +84,7 @@ export const authEndpoints = shaped<APIs>()({
   getTaskById,
   LikePost,
   getMyTasks,
-  createNewPost
+  createNewPost,
 });
 
 export const unauthEndpoints = shaped<APIs>()({
@@ -98,6 +99,7 @@ export const unauthEndpoints = shaped<APIs>()({
   getMyFollowersNumber,
   getProfile,
   search,
+  getUserPosts,
 });
 
 export const endpoints = shaped<APIs>()({

@@ -13,9 +13,9 @@ export default function ProfilePage() {
   if (!id) return <div>Loading...</div>
 
   return (
-    <main className="min-h-screen px-4 py-8 bg-white dark:bg-black">
+    <main className="flex flex-col items-center min-h-screen px-4 py-8 bg-white dark:bg-black">
       <ProfileHeader id={id}/>
-      <ProfileContent />
+      <ProfileContent id={id}/>
       {/*<ProfileContent id={params.id}/>*/}
     </main>
   )

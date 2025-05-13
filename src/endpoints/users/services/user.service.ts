@@ -267,7 +267,7 @@ export const createNewPost = async (data: {
   if (!user) {
     throw new Error("login required");
   }
-  const post = await prisma.post.create({
+  return prisma.post.create({
     data: {
       user: { connect: { id: user.id } },
       task: { connect: { id: data.taskId } },
@@ -275,5 +275,23 @@ export const createNewPost = async (data: {
       images: data.images,
     },
   });
-  return post;
+};
+
+export const getUserPosts = async (userId: string, pageRequest: PageRequest) => {
+  const posts = await prisma.post.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      task: true,
+      user: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: pageRequest.page * pageRequest.pageSize,
+    take: pageRequest.pageSize,
+  });
+
+  return createPage(posts, pageRequest.page, pageRequest.pageSize);
 };

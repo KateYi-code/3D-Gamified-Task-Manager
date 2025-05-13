@@ -4,15 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { SearchBox } from "@/components/search/SearchDesktopBar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
-import { ToggleThemeButton } from "@/components/profile/ToggleThemeButton";
 import { MobileSearchTrigger } from "@/components/search/MobileSearchTrigger";
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
   const pathname = usePathname();
+  const [profileOpen, setProfileOpen] = useState(false);
   // const [searchOpen, setSearchOpen] = useState(false)
 
   const navItems = [
@@ -150,13 +149,43 @@ export function Navbar() {
         {/* Mobile Search Bar */}
         {/*  <button onClick={() => setSearchOpen(true)} className="text-gray-600">*/}
         <MobileSearchTrigger />
-
         {!loading && user && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant={"ghost"}>
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
-                  {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+          <button onClick={() => setProfileOpen(!profileOpen)} className="focus:outline-none">
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+              {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+            </div>
+
+            {/* Mobile Profile dropdown */}
+            {profileOpen && (
+              <div className="origin-top-right absolute right-4 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                <div className="py-1" role="menu" aria-orientation="vertical">
+                  <Link
+                    href={`/profile/${user.id}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    Your Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setProfileOpen(false);
+                      logout();
+                    }}
+                    // className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="block text-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    role="menuitem"
+                  >
+                    Logout
+                  </button>
                 </div>
               </Button>
             </PopoverTrigger>
