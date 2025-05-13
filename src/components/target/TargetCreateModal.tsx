@@ -6,6 +6,7 @@ import { useInvalidateQuery } from "@/hooks/useQuery";
 import { TargetForm, TargetFormType } from "@/components/target/TargetForm";
 import { TaskStatus } from "@prisma/client";
 import { useState } from "react";
+import { useEffect } from "react";
 
 type Props = ModalProps&{
   targetDate: Date;
@@ -13,7 +14,12 @@ type Props = ModalProps&{
 
 
 export const TargetCreateModal: FC<Props> = ({ open, onOpenChange, targetDate }) => {
-
+  const [trigger, setTrigger] = useState(false);
+  useEffect(() => {
+    if (trigger) {
+      setTrigger(true);
+    }
+  }, [trigger]);
   const [newTargetId, setNewTargetId] = useState<string>(" ");
   const onAdd = async (targetId: string, title: string): Promise<void> => {
     await client.authed.createMyTask(targetId, title);
@@ -56,7 +62,8 @@ export const TargetCreateModal: FC<Props> = ({ open, onOpenChange, targetDate })
         Id={ newTargetId } 
         onUpdateStatus={onUpdateStatus}
         onfinal={onfinal}
-        targetDate={targetDate}/>
+        targetDate={targetDate}
+        setTrigger={setTrigger}/>
       </DialogContent>
     </Dialog>
   );

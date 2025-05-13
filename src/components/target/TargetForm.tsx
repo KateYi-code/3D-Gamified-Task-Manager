@@ -39,13 +39,13 @@ type Props = {
   onfinal: () => Promise<void>;
   targetDate?: Date;
   Id?: string;
+  setTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id}) => {
 
-
   const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);
-  const [deletedTasks, setDeletedTasks] = useState<TaskDraft[]>([]);
+  const [, setDeletedTasks] = useState<TaskDraft[]>([]);
   const addLocalTask = (title: string) => {
     setLocalTasks((localTasks) => [...localTasks, { 
       id: `temp-${Date.now()}`,
@@ -110,7 +110,13 @@ export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate
         throw new Error('Missing target ID');
       }
       //delete
-      await Promise.all(deletedTasks.map(t => client.authed.deleteMyTask(t.id)));
+      const toDeleteIds = Tasks
+      .filter(orig => !localTasks.some(t => t.id === orig.id))
+      .map(t => t.id);
+
+      await Promise.all(toDeleteIds.map(id =>
+        client.authed.deleteMyTask(id)
+      ));
       //add
       const newTasks = localTasks.filter(t => t.id.startsWith("temp-"));
       await Promise.all(newTasks.map(t => client.authed.createMyTask(targetId,t.title)));

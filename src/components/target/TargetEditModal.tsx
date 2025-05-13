@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { TaskStatus } from "@prisma/client";
 import { useEffect } from "react";
 import { Task , Target } from "@prisma/client";
+import { useState } from "react";
 
 type Props = ModalProps & {
   targetId: string;
@@ -19,6 +20,12 @@ type Props = ModalProps & {
 };
 
 export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUpdate, LocalTasks}) => {
+  const [trigger, setTrigger] = useState(false);
+  useEffect(() => {
+    if (trigger) {
+      setTrigger(true);
+    }
+  }, [trigger]);
   const invalidate = useInvalidateQuery();
   const { data: target, refetch } = useQuery("getMyTargetById", targetId);
   const onSubmit = async (data: TargetFormType) => {
@@ -69,7 +76,8 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUp
                                 onUpdateTitle={onUpdateTitle} 
                                 Id={targetId} 
                                 onUpdateStatus={onUpdateStatus }
-                                onfinal={onfinal}/>}
+                                onfinal={onfinal}
+                                setTrigger={setTrigger}/>}
         <Button
           onClick={() => {
             openModal({

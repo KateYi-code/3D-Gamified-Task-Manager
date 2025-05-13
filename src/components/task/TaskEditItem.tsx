@@ -15,7 +15,7 @@ const STATUS_ORDER: TaskStatus[] = [
     "COMPLETED",
   ];
 
-export const TaskEditItem: FC<TaskEditItemProps> = ({ task, onUpdateTaskStatus}) => {
+export const TaskEditItem: FC<TaskEditItemProps> = ({ task, onUpdateTaskStatus, onDelete}) => {
     return (
         <div key={task.id} className="group/task flex flex-col items-stretch w-full relative h-6">
             <div className="flex items-center gap-1">
@@ -28,6 +28,12 @@ export const TaskEditItem: FC<TaskEditItemProps> = ({ task, onUpdateTaskStatus})
                     }}
                 />
                 <span>{task.title}</span>
+                <button
+                onClick={() => onDelete(task.id)}
+                className="absolute right-0 px-2 py-1 bg-[var(--destructive)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] text-sm"
+                >
+                Delete
+                </button>
             </div>
         </div>
     );
