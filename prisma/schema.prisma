@@ -143,9 +143,10 @@ model Task {
   targetId    String
   userId      String
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  target Target @relation(fields: [targetId], references: [id], onDelete: Cascade)
-  posts  Post[]
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  target       Target         @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  posts        Post[]
+  PlanetObject PlanetObject[]
 }
 
 model PlanetObject {
@@ -155,9 +156,12 @@ model PlanetObject {
   position  Json
   rotation  Json
   scale     Json
+  taskId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([taskId])
 }

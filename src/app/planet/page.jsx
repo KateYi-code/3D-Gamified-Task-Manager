@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, Suspense, useCallback } from 'react'
 import * as THREE from 'three'
 import {
   AVAILABLE_MODELS,
@@ -13,15 +13,13 @@ import {
 import { gsap } from "gsap"
 import { useAuth } from "../../providers/auth-provider"
 import { client } from "../../endpoints/client"
-import { useParams, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 
 const PlanetContent = () => {
   const searchParams = useSearchParams()
-  const addModel = searchParams.get('add')
-  const viewUserId = addModel ? null : searchParams.get('user')
-  // console.log(viewUserId)
-
+  const finishedTaskId = searchParams.get('finished')
+  const viewUserId = searchParams.get('user')
 
   const { user, loading } = useAuth()
   const containerRef = useRef()
@@ -41,6 +39,9 @@ const PlanetContent = () => {
   const [error, setError] = useState(null)
   const [viewUser, setViewUser] = useState(null)
   const [targetUserId, setTargetUserId] = useState(null)
+  const [taskInfo, setTaskInfo] = useState(null)
+  const [rewardOptions, setRewardOptions] = useState([])
+  const [selectedReward, setSelectedReward] = useState(null)
 
   const dragging = useRef(false)
   const dragMode = useRef('')
@@ -51,6 +52,82 @@ const PlanetContent = () => {
   const [rotation, setRotation] = useState(0)
 
   const [isControlsExpanded, setIsControlsExpanded] = useState(false)
+
+  const [selectedObject, setSelectedObject] = useState(null)
+  const [objectTaskInfo, setObjectTaskInfo] = useState(null)
+  const [bubblePosition, setBubblePosition] = useState({ x: 0, y: 0 })
+  const [objectScreenPosition, setObjectScreenPosition] = useState({ x: 0, y: 0 })
+
+  const planetRadius = 15
+  const updatePositions = useCallback(() => {
+    if (!selectedObject || !objectsRef.current.has(selectedObject)) return
+
+    const object = objectsRef.current.get(selectedObject)
+    const objectWorldPos = new THREE.Vector3()
+    object.getWorldPosition(objectWorldPos)
+    const planetCenter = new THREE.Vector3(0, 0, 0)
+    const dir = objectWorldPos.clone().sub(planetCenter).normalize()
+    const bubbleWorldPos = planetCenter.clone().add(dir.multiplyScalar(planetRadius * 1.2))
+    bubbleWorldPos.project(cameraRef.current)
+    let bubbleX = (bubbleWorldPos.x * 0.5 + 0.5) * window.innerWidth
+    let bubbleY = (-bubbleWorldPos.y * 0.5 + 0.5) * window.innerHeight
+
+    const bubbleWidth = 250
+    const bubbleHeight = 100
+    const margin = 16
+    const canvasRect = containerRef.current?.getBoundingClientRect()
+    if (canvasRect) {
+      const left = canvasRect.left
+      const top = canvasRect.top
+      const right = canvasRect.right
+      const bottom = canvasRect.bottom
+      bubbleX = Math.max(left + margin + bubbleWidth / 2, Math.min(right - margin - bubbleWidth / 2, bubbleX))
+      bubbleY = Math.max(top + margin + bubbleHeight / 2, Math.min(bottom - margin - bubbleHeight / 2, bubbleY))
+    }
+
+    setBubblePosition({ x: bubbleX, y: bubbleY })
+    objectWorldPos.project(cameraRef.current)
+    const objX = (objectWorldPos.x * 0.5 + 0.5) * window.innerWidth
+    const objY = (-objectWorldPos.y * 0.5 + 0.5) * window.innerHeight
+    setObjectScreenPosition({ x: objX, y: objY })
+  }, [selectedObject, planetRadius])
+
+  useEffect(() => {
+    if (!selectedObject) return
+
+    const animate = () => {
+      updatePositions()
+      requestAnimationFrame(animate)
+    }
+    const animationId = requestAnimationFrame(animate)
+
+    return () => {
+      cancelAnimationFrame(animationId)
+    }
+  }, [selectedObject, updatePositions])
+
+  const handleObjectClick = async (objectId, taskId) => {
+    if (!taskId) return
+    
+    try {
+      const taskInfo = await client.authed.getTaskAndTargetByTaskId(taskId)
+      console.log('Clicked object info:', {
+        objectId, taskId, taskInfo: {title: taskInfo.title, targetTitle: taskInfo.target.title, completedAt: taskInfo.completedAt}
+      })
+      setObjectTaskInfo(taskInfo)
+      setSelectedObject(objectId)
+      updatePositions()
+    } catch (error) {
+      console.error('Failed to load task info:', error)
+    }
+  }
+
+  const handleBackgroundClick = (event) => {
+    if (event.target === containerRef.current) {
+      setSelectedObject(null)
+      setObjectTaskInfo(null)
+    }
+  }
 
   useEffect(() => {
     if (viewUserId && viewUserId !== user?.id) {
@@ -67,38 +144,48 @@ const PlanetContent = () => {
     }
   }, [viewUserId, user])
 
+  useEffect(() => {
+    if (finishedTaskId) {
+      client.authed.getTaskAndTargetByTaskId(finishedTaskId).then(task => {
+        console.log(task)
+        setTaskInfo(task)
+        const shuffled = [...AVAILABLE_MODELS].sort(() => 0.5 - Math.random())
+        setRewardOptions(shuffled.slice(0, 3))
+      }).catch(err => {
+        console.error('Failed to load task data', err)
+        setError('Failed to load task data')
+      })
+    }
+  }, [finishedTaskId])
+
   const loadSavedObjects = async () => {
     try {
       setTargetUserId(viewUserId || user.id)
       let targetUserId = viewUserId || user.id
       let objects = await client.authed.getPlanetObjects(targetUserId)
-      for (const obj of objects) {
+      
+      const loadPromises = objects.map(async (obj) => {
         const scaleFactor = obj.scale_factor || 1
         const model = await modelLoader(obj.modelPath, {
           s: [scaleFactor, scaleFactor, scaleFactor]
         })
 
         model.position.set(obj.position.x, obj.position.y, obj.position.z)
-        
-        if (obj.height) {
-          const normal = new THREE.Vector3(0, 1, 0)
-          const heightOffset = normal.multiplyScalar(obj.height)
-          model.position.add(heightOffset)
-        }
+        model.quaternion.set(obj.rotation.x, obj.rotation.y, obj.rotation.z, obj.rotation.w)
 
-        if (obj.rotation) {
-          model.quaternion.set(obj.rotation.x, obj.rotation.y, obj.rotation.z, obj.rotation.w)
-          
-          if (obj.rotation_angle) {
-            const normal = new THREE.Vector3(0, 1, 0)
-            const rotationQuat = new THREE.Quaternion().setFromAxisAngle(normal, obj.rotation_angle)
-            model.quaternion.multiply(rotationQuat)
-          }
-        }
+        let fileName = obj.modelPath.split('/').pop().split('.')[0].replace(/\d+/g, '')
+        let ObjectName = fileName.charAt(0).toUpperCase() + fileName.slice(1)
+
+        model.userData = { id: obj.id, taskId: obj.taskId, modelName: ObjectName }
+        model.traverse((child) => {
+          if (child.isMesh) {child.userData = { id: obj.id, taskId: obj.taskId }}
+        })
 
         planetGroupRef.current.add(model)
         objectsRef.current.set(obj.id, model)
-      }
+      })
+
+      await Promise.all(loadPromises)
     } catch (error) {
       console.error('Failed to load saved objects:', error)
     }
@@ -107,10 +194,6 @@ const PlanetContent = () => {
   useEffect(() => {
     if (!user || loading) return
     if (hasLoadedRef.current) return
-    if (addModel && !AVAILABLE_MODELS.includes(addModel)) {
-      setError('Invalid model name')
-      return
-    }
     hasLoadedRef.current = true
 
     const { renderer, camera, scene, controls } = initThree(containerRef)
@@ -118,35 +201,6 @@ const PlanetContent = () => {
     cameraRef.current = camera
     rendererRef.current = renderer
     controlsRef.current = controls
-
-    if (addModel) {
-      modelLoader(`/decorations/${addModel}`, {s:[scale, scale, scale]}).then(model => {
-        scene.add(model)
-        model.position.set(0, 13, 0)
-        const centerToPoint = new THREE.Vector3(0, 1, 0).normalize()
-        const baseQuat = new THREE.Quaternion()
-        baseQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), centerToPoint)
-        model.quaternion.copy(baseQuat)
-        
-        const rotationQuat = new THREE.Quaternion().setFromAxisAngle(centerToPoint, rotation)
-        model.quaternion.multiply(rotationQuat)
-        
-        // Make sure the model is transparent
-        model.traverse((child) => {
-          if (child.isMesh && child.material) {
-            child.material.transparent = true
-            child.material.opacity = 0.4
-            child.material.needsUpdate = true
-          }
-        })
-        
-        cubeRef.current = model
-
-        previewRef.current = createTransparentPreview(model)
-        scene.add(previewRef.current)
-        updatePreviewPosition()
-      })
-    }
 
     modelLoader('Earth.glb', {s:1}).then(model => {
       const group = new THREE.Group()
@@ -178,7 +232,7 @@ const PlanetContent = () => {
       renderer.clear()
       renderer.render(backgroundScene, backgroundCamera)
       renderer.render(scene, camera)
-      if (addModel) {
+      if (selectedReward) {
         updatePreviewPosition()
       }
     }
@@ -189,10 +243,10 @@ const PlanetContent = () => {
     return () => {
       renderer.dispose()
     }
-  }, [user, loading, addModel])
+  }, [user, loading, selectedReward])
 
   useEffect(() => {
-    if (!addModel || !cubeRef.current || !previewRef.current) return
+    if (!selectedReward || !cubeRef.current || !previewRef.current) return
 
     let animationFrameId
     let time = 0
@@ -211,7 +265,6 @@ const PlanetContent = () => {
         const rotationQuat = new THREE.Quaternion().setFromAxisAngle(centerToPoint, rotation)
         cubeRef.current.quaternion.multiply(rotationQuat)
 
-        //breathing effect with more pronounced changes
         time += 0.02
         const opacity = 0.8 + Math.sin(time) * 0.3
         cubeRef.current.traverse((child) => {
@@ -233,7 +286,7 @@ const PlanetContent = () => {
         cancelAnimationFrame(animationFrameId)
       }
     }
-  }, [height, scale, rotation, addModel])
+  }, [height, scale, rotation, selectedReward])
 
   const updatePreviewPosition = () => {
     if (!planetRef.current || !cubeRef.current || !previewRef.current || placedRef.current) return
@@ -294,7 +347,8 @@ const PlanetContent = () => {
         },
         height: additionalProps.height || 0,
         scale_factor: additionalProps.scale || 1,
-        rotation_angle: additionalProps.rotation || 0
+        rotation_angle: additionalProps.rotation || 0,
+        taskId: finishedTaskId || null
       }
 
       await client.authed.savePlanetObject(objectData)
@@ -304,7 +358,7 @@ const PlanetContent = () => {
   }
 
   const placeCubeOnPlanet = async () => {
-    if (!planetRef.current || !cameraRef.current || !rendererRef.current || !cubeRef.current || !addModel) return
+    if (!planetRef.current || !cameraRef.current || !rendererRef.current || !cubeRef.current || !selectedReward) return
 
     const raycaster = new THREE.Raycaster()
     const origin = cubeRef.current.position.clone()
@@ -335,7 +389,7 @@ const PlanetContent = () => {
       planetGroupRef.current.getWorldQuaternion(planetQuat)
       const relativeQuat = targetQuat.clone().premultiply(planetQuat.invert())
 
-      const newModel = await modelLoader(`/decorations/${addModel}`, { s: [scale, scale, scale] })
+      const newModel = await modelLoader(`/decorations/${selectedReward}`, { s: [scale, scale, scale] })
       newModel.position.copy(cubeRef.current.position)
       newModel.quaternion.copy(cubeRef.current.quaternion)
       sceneRef.current.add(newModel)
@@ -351,7 +405,7 @@ const PlanetContent = () => {
           newModel.quaternion.copy(relativeQuat)
           planetGroupRef.current.add(newModel)
 
-          await saveObjectPosition(newModel, `/decorations/${addModel}`, {
+          await saveObjectPosition(newModel, `/decorations/${selectedReward}`, {
             height,
             scale,
             rotation
@@ -359,30 +413,41 @@ const PlanetContent = () => {
 
           sceneRef.current.remove(cubeRef.current)
           sceneRef.current.remove(previewRef.current)
-
-          const nextPreview = await modelLoader(`/decorations/${addModel}`, { s: [scale, scale, scale] })
-          nextPreview.position.set(0, 16, 0)
-          const centerToPoint = new THREE.Vector3(0, 1, 0).normalize()
-          const baseQuat = new THREE.Quaternion()
-          baseQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), centerToPoint)
-          nextPreview.quaternion.copy(baseQuat)
-          
-          const rotationQuat = new THREE.Quaternion().setFromAxisAngle(centerToPoint, rotation)
-          nextPreview.quaternion.multiply(rotationQuat)
-          
-          cubeRef.current = nextPreview
-          sceneRef.current.add(nextPreview)
-
-          const newPreview = createTransparentPreview(nextPreview)
-          previewRef.current = newPreview
-          sceneRef.current.add(newPreview)
-
-          placedRef.current = false
+          setSelectedReward(null)
+          setPlaced(true)
         }
       })
     }
   }
 
+  const handleRewardSelection = (model) => {
+    setSelectedReward(model)
+    modelLoader(`/decorations/${model}`, {s:[scale, scale, scale]}).then(model => {
+      sceneRef.current.add(model)
+      model.position.set(0, 13, 0)
+      const centerToPoint = new THREE.Vector3(0, 1, 0).normalize()
+      const baseQuat = new THREE.Quaternion()
+      baseQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), centerToPoint)
+      model.quaternion.copy(baseQuat)
+      
+      const rotationQuat = new THREE.Quaternion().setFromAxisAngle(centerToPoint, rotation)
+      model.quaternion.multiply(rotationQuat)
+      
+      model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.transparent = true
+          child.material.opacity = 0.4
+          child.material.needsUpdate = true
+        }
+      })
+      
+      cubeRef.current = model
+
+      previewRef.current = createTransparentPreview(model)
+      sceneRef.current.add(previewRef.current)
+      updatePreviewPosition()
+    })
+  }
 
   useEffect(() => {
     if (!targetUserId || loading) return
@@ -407,12 +472,26 @@ const PlanetContent = () => {
       const raycaster = new THREE.Raycaster()
       raycaster.setFromCamera(mouse, cameraRef.current)
 
-      const intersects = raycaster.intersectObject(planetRef.current, true)
+      const intersects = raycaster.intersectObjects(planetGroupRef.current.children, true)
+      const planetIntersects = raycaster.intersectObject(planetRef.current, true)
 
       if (intersects.length > 0) {
+        const object = intersects[0].object
+        const taskId = object.userData?.taskId
+        if (taskId) {
+          console.log(object);
+          handleObjectClick(object.userData.id, taskId)
+        }
+        dragMode.current = 'planet'
+        if (controlsRef.current) controlsRef.current.enabled = false
+      } else if (planetIntersects.length > 0) {
+        setSelectedObject(null)
+        setObjectTaskInfo(null)
         dragMode.current = 'planet'
         if (controlsRef.current) controlsRef.current.enabled = false
       } else {
+        setSelectedObject(null)
+        setObjectTaskInfo(null)
         dragMode.current = 'scene'
         if (controlsRef.current) controlsRef.current.enabled = true
       }
@@ -516,11 +595,68 @@ const PlanetContent = () => {
         className="w-full h-screen-minus-nav bg-black no-scrollbar flex-1 select-none touch-none"
         onContextMenu={(e) => e.preventDefault()}
         onSelect={(e) => e.preventDefault()}
+        onClick={handleBackgroundClick}
         style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
       />
-      {addModel && !placed && (
-        <div className="opacity-85 absolute bottom-[6%] left-1/2 -translate-x-1/2 bg-black/60 p-4 rounded-xl shadow-lg z-10 flex flex-col gap-3 min-w-[280px] max-w-[90vw]" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
-        >
+
+      {objectTaskInfo && selectedObject && (
+        <>
+          <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-10" style={{ position: 'fixed' }}>
+            <line x1={objectScreenPosition.x} y1={objectScreenPosition.y} x2={bubblePosition.x} y2={bubblePosition.y} stroke="rgba(255, 255, 255, 0.45)" strokeWidth="1.6" strokeDasharray="5,8"/>
+          </svg>
+          
+          <div className="absolute bg-black/60 p-4 rounded-xl shadow-lg z-10 min-w-[220px] max-w-[90vw]"
+            style={{
+              left: `${bubblePosition.x}px`,
+              top: `${bubblePosition.y}px`,
+              transform: 'translate(-50%, -50%)',
+              WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'
+            }}
+          >
+            <div className="text-left">
+              <h2 className="text-white text-base font-semibold mb-2">You Got Bonus Item：
+                <span className="text-[#00aaff]">{objectsRef.current.get(selectedObject)?.userData?.modelName}</span>
+              </h2>
+              <p className="text-white/90 text-sm mb-1">
+                From Target: <span className="text-[#00aaff]">{objectTaskInfo.target.title}</span>
+                , Task:<span className="text-[#00aaff]">{objectTaskInfo.title}</span>
+              </p>
+              {objectTaskInfo.completedAt && (
+                <p className="text-white/70 text-xs mt-1">
+                  On: {new Date(objectTaskInfo.completedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {finishedTaskId && !selectedReward && !placed && (
+        <div className="opacity-85 absolute bottom-[6%] left-1/2 -translate-x-1/2 bg-black/60 p-4 rounded-xl shadow-lg z-10 flex flex-col gap-3 min-w-[280px] max-w-[90vw]">
+          {taskInfo && (
+            <div className="text-center mb-4">
+              <h2 className="text-white text-xl font-semibold mb-2">Congratulations!</h2>
+              <p className="text-white/90">
+                Completed <span className="text-[#00aaff]">{taskInfo.target.title}</span>'s <span className="text-[#00aaff]">{taskInfo.title}</span>
+              </p>
+            </div>
+          )}
+          <h3 className="text-white text-base font-medium text-center mb-2">Choose Your Reward</h3>
+          <div className="grid grid-cols-3 gap-4">
+            {rewardOptions.map((model, index) => (
+              <button
+                key={index}
+                onClick={() => handleRewardSelection(model)}
+                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-colors"
+              >
+                {model.replace('.fbx', '')}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {selectedReward && !placed && (
+        <div className="opacity-85 absolute bottom-[6%] left-1/2 -translate-x-1/2 bg-black/60 p-4 rounded-xl shadow-lg z-10 flex flex-col gap-3 min-w-[280px] max-w-[90vw]">
           <div className="flex justify-between items-center">
             <h3 className="text-white text-base font-medium">Adjust Your Item:</h3>
             <button onClick={() => setIsControlsExpanded(!isControlsExpanded)} className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg transition-colors">
@@ -554,9 +690,8 @@ const PlanetContent = () => {
           </div>
         </div>
       )}
-      <div className="absolute top-[8%] left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-lg text-white z-10 opacity-85" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
-      >
-        {viewUser ? `${viewUser.name}'s Planet` : (addModel ? 'Place Your Item' : ``)}
+      <div className="absolute top-[8%] left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-lg text-white z-10 opacity-85">
+        {viewUser ? `${viewUser.name}'s Planet` : (finishedTaskId && !placed ? 'Choose Your Reward' : '')}
       </div>
     </div>
   )

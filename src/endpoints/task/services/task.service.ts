@@ -1,6 +1,7 @@
 import { getSession } from "@/endpoints/handler";
 import { prisma } from "@/db";
 import { Task, TaskStatus } from "@prisma/client";
+import { Target } from "@prisma/client";
 
 
 
@@ -103,6 +104,29 @@ export const getTaskById = async (
     where: {
       id: taskId,
     },
+  });
+
+  if (!task) {
+    throw new Error("Task not found");
+  }
+
+  return task;
+};
+
+export const getTaskAndTargetByTaskId = async (
+  taskId: string
+): Promise<Task & { target: Target }> => {
+  const session = getSession();
+  const user = session?.user;
+  if (!user) throw new Error("Login required");
+
+  const task = await prisma.task.findUnique({
+    where: {
+      id: taskId,
+    },
+    include: {
+      target: true
+    }
   });
 
   if (!task) {

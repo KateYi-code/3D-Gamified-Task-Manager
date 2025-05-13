@@ -7,6 +7,7 @@ export interface PlanetObject {
   position: { x: number, y: number, z: number }
   rotation: { x: number, y: number, z: number, w: number }
   scale: { x: number, y: number, z: number }
+  taskId?: string
 }
 
 export const savePlanetObject = async (object: Omit<PlanetObject, 'id'>) => {
@@ -20,6 +21,7 @@ export const savePlanetObject = async (object: Omit<PlanetObject, 'id'>) => {
       position: object.position,
       rotation: object.rotation,
       scale: object.scale,
+      taskId: object.taskId,
     },
   })
 }

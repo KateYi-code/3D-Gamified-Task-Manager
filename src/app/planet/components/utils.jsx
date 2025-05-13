@@ -5,7 +5,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 import * as THREE from "three"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-
+import { AVAILABLE_MODELS } from "./available_models"
 const gltfLoader = new GLTFLoader()
 const fbxLoader = new FBXLoader()
 
@@ -17,9 +17,14 @@ function initThree(containerRef){
   cRef = containerRef
 
   let ratio = containerRef.current.clientWidth / containerRef.current.clientHeight
-  camera = new THREE.PerspectiveCamera(75,ratio,0.1,1000)
+  camera = new THREE.PerspectiveCamera(50,ratio,0.1,2000)
   camera.position.z = 30
   camera.position.y = 15
+  // camera.lookAt(new THREE.Vector3(99, 99, 99))
+  // scene.add(camera)
+
+  // const axesHelper = new THREE.AxesHelper(1500)
+  // scene.add(axesHelper)
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -112,7 +117,7 @@ async function modelLoader(modelPath, trans) {
   })
 }
 
-function createTransparentPreview(model, opacity = 0.6) {
+function createTransparentPreview(model, opacity = 0.83) {
   const clone = model.clone()
   clone.traverse(child => {
     if (child.isMesh && child.material) {
@@ -243,120 +248,5 @@ function createStarField(count = 1000, radius = 1000) {
   return stars
 }
 
-const AVAILABLE_MODELS = [
-  'Beach.glb',
-  'Canyon.glb',
-  'Cliff.glb',
-  'Dam.glb',
-  'Desert.glb',
-  'Estuary.glb',
-  'Forest.glb',
-  'Glacier.glb',
-  'Hill.glb',
-  'Iceberg.glb',
-  'Island.glb',
-  'Lake.glb',
-  'Mountain.glb',
-  'Oasis.glb',
-  'River.glb',
-  'Rock Mountain.glb',
-  'Savana.glb',
-  'Tarace Farming.glb',
-  'Vulcano.glb',
-  'Waterfall.glb',
-  "building00.fbx",
-  "building01.fbx",
-  "building02.fbx",
-  "building03.fbx",
-  "building04.fbx",
-  "building05.fbx",
-  "building06.fbx",
-  "building07.fbx",
-  "building08.fbx",
-  "building09.fbx",
-  "building10.fbx",
-  "building11.fbx",
-  "building12.fbx",
-  "building13.fbx",
-  "building14.fbx",
-  "building15.fbx",
-  "building16.fbx",
-  "building17.fbx",
-  "building18.fbx",
-  "building19.fbx",
-  "building20.fbx",
-  "building21.fbx",
-  "building22.fbx",
-  "building23.fbx",
-  "building24.fbx",
-  "building25.fbx",
-  "building26.fbx",
-  "building27.fbx",
-  "building28.fbx",
-  "building29.fbx",
-  "building30.fbx",
-  "building31.fbx",
-  "building32.fbx",
-  "building33.fbx",
-  "building34.fbx",
-  "building35.fbx",
-  "building36.fbx",
-  "building37.fbx",
-  "building38.fbx",
-  "building39.fbx",
-  "building40.fbx",
-  "building41.fbx",
-  "building42.fbx",
-  "building43.fbx",
-  "building44.fbx",
-  "castle00.fbx",
-  "castle01.fbx",
-  "castle02.fbx",
-  "castle03.fbx",
-  "castle04.fbx",
-  "castle05.fbx",
-  "castle06.fbx",
-  "castle07.fbx",
-  "castle08.fbx",
-  "castle09.fbx",
-  "castle12.fbx",
-  "castle13.fbx",
-  "castle14.fbx",
-  "castle15.fbx",
-  "castle16.fbx",
-  "city-decor00.fbx",
-  "city-decor01.fbx",
-  "city-decor02.fbx",
-  "city-decor03.fbx",
-  "city-decor04.fbx",
-  "city-decor05.fbx",
-  "city-decor06.fbx",
-  "city-decor07.fbx",
-  "city-decor08.fbx",
-  "city-decor09.fbx",
-  "city-decor10.fbx",
-  "city-decor11.fbx",
-  "city-decor13.fbx",
-  "city-decor14.fbx",
-  "city-decor15.fbx",
-  "forest00.fbx",
-  "forest01.fbx",
-  "forest07.fbx",
-  "forest08.fbx",
-  "forest09.fbx",
-  "forest13.fbx",
-  "forest15.fbx",
-  "forest16.fbx",
-  "forest17.fbx",
-  "village-decor00.fbx",
-  "village-decor01.fbx",
-  "village-decor02.fbx",
-  "village-decor03.fbx",
-  "village-decor04.fbx",
-  "village-decor05.fbx",
-  "village-decor06.fbx",
-  "village-decor07.fbx",
-  "village-decor08.fbx",
-]
 
 export {modelLoader, initThree, createTransparentPreview, canvasResize, createGradientBackground, createStarField, AVAILABLE_MODELS}
