@@ -61,13 +61,13 @@ export const CountDownClock = ({
     return `${minutes}:${seconds}`;
   };
 
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
       setIsAudioPlaying(false);
     }
-  };
+  }, [audio]);
 
   const handleCompletion = useCallback(() => {
     setIsRunning(false);

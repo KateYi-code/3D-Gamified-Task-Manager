@@ -59,7 +59,7 @@ export default function MomentsPage() {
   if (userLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-r-transparent"></div>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function MomentsPage() {
                 <li key={`${post.id}`} className="relative pl-2 mb-2">
                   <div className="absolute -left-2 top-0 flex items-center space-x-2">
                     <div className="w-4 h-4 bg-background border-2 rounded-full z-10" />
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-foreground">
                       {new Date(post.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -99,7 +99,7 @@ export default function MomentsPage() {
                           user: post.user, // include author info
                         })
                       }
-                      className="hover:bg-accent cursor-pointer"
+                      className="hover:bg-secondary cursor-pointer"
                       post={{
                         ...post,
                         user: post.user,
@@ -110,7 +110,7 @@ export default function MomentsPage() {
               ))}
             </ul>
             <If condition={isEnd}>
-              <div className="text-center text-gray-500 mt-4">No more posts to load.</div>
+              <div className="text-center mb-12 mt-12">No more posts to load.</div>
             </If>
             <If condition={!isEnd}>
               <Button
@@ -129,7 +129,7 @@ export default function MomentsPage() {
           {selectedPost ? (
             <DetailPost post={selectedPost} />
           ) : (
-            <p className="text-gray-500 text-center">Click a post to view details</p>
+            <p className="text-center">Click a post to view details</p>
           )}
         </div>
       </div>

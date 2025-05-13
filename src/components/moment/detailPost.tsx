@@ -8,6 +8,8 @@ import { useQuery } from "@/hooks/useQuery";
 import { PostHydrated } from "@/app/moments/page";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   post: PostHydrated;
@@ -17,10 +19,24 @@ export default function DetailPost(props: Props) {
   const post = props.post;
   const { data: targets } = useQuery("getTaskById", post.taskId ?? "");
 
+  const [liked, setLiked] = useState(false);
+
   const likePost = async () => {
-    await client.authed.LikePost(post.id, post.user.id);
-    toast("You Like the Post!");
+    const data = await client.authed.LikePost(post.id, post.user.id);
+    if (data) {
+      setLiked(true);
+      toast("You Like the Post!");
+    } else {
+      setLiked(false);
+      toast("You remove the like!");
+    }
   };
+
+  useEffect(() => {
+    client.authed.getLikeState(post.id, post.user.id).then((res) => {
+      setLiked(res);
+    });
+  }, [post.id, post.user.id]);
 
   if (!post) return null; // safeguard
 
@@ -39,10 +55,26 @@ export default function DetailPost(props: Props) {
             />
             <span>{post.user?.name}</span>
           </div>
-          <FaRegThumbsUp
-            onClick={() => likePost()}
-            className="cursor-pointer hover:text-blue-500"
-          />
+          <div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <FaRegThumbsUp
+                    onClick={() => likePost()}
+                    className={clsx(
+                      "cursor-pointer",
+                      liked
+                        ? "text-blue-600 hover:text-red-500"
+                        : "text-gray-400 hover:text-blue-500",
+                    )}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {liked ? <p>unlike the post</p> : <p>Like the post</p>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div

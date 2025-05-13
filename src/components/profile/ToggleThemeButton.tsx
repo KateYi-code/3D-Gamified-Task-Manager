@@ -9,15 +9,12 @@ interface Props {
 export const ToggleThemeButton: FC<Props> = ({ className }) => {
   const { theme, setTheme } = useTheme();
   return (
-    <div className={`flex items-center space-x-2 ${className} cursor-pointer`}>
-      <Label htmlFor="dark-mode">Dark Mode</Label>
-      <Switch
-        id="dark-mode"
-        checked={theme === "dark"}
-        onCheckedChange={(dark) => {
-          setTheme(dark ? "dark" : "light");
-        }}
-      />
+    <div
+      className={`flex items-center space-x-2 ${className} cursor-pointer justify-between`}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+    >
+      <Label>Dark Mode</Label>
+      <Switch checked={theme === "dark"} />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { RedirectToAuth } from "@/components/auth/redirect-to-auth";
 
 export const metadata: Metadata = {
   title: "Planet App",
@@ -33,6 +34,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <AuthProvider>
+              <RedirectToAuth />
               <Navbar />
               <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">
                 {children}

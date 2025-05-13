@@ -14,16 +14,31 @@ import {
 import { TiTick } from "react-icons/ti";
 import { FaRegThumbsUp } from "react-icons/fa";
 import { client } from "@/endpoints/client";
-
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function SinglePost(props) {
   const user = props.post;
+  const [liked, setLiked] = useState(false);
+
   async function likePost(e) {
     e.stopPropagation();
     const data = await client.authed.LikePost(user.id, user.user.id);
-    toast("You Like the Post!");
+    if (data) {
+      setLiked(true);
+      toast("You Like the Post!");
+    } else {
+      setLiked(false);
+      toast("You remove the like!");
+    }
   }
+  useEffect(() => {
+    client.authed.getLikeState(user.id, user.user.id).then((res) => {
+      setLiked(res);
+    });
+  }, [user.id]);
+
   return (
     <>
       <Card
@@ -52,10 +67,24 @@ export default function SinglePost(props) {
               ></div>
               <span>{user.user.name}</span>
             </div>
-            <FaRegThumbsUp
-              onClick={(e) => likePost(e)}
-              className="cursor-pointer hover:text-blue-500"
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <FaRegThumbsUp
+                    onClick={(e) => likePost(e)}
+                    className={clsx(
+                      "cursor-pointer",
+                      liked
+                        ? "text-primary hover:text-foreground"
+                        : "text-foreground hover:text-primary",
+                    )}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {liked ? <p>unlike the post</p> : <p>Like the post</p>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <CardDescription style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div
