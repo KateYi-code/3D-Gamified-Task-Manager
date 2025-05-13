@@ -226,14 +226,19 @@ export const LikePost = async (postId: string, userId: string) => {
     },
   });
   if (existing) {
-    return NextResponse.json({ message: "Already liked" }, { status: 200 });
-  }
-  return prisma.postLike.create({
+    //if already liked, delete the like
+    await prisma.postLike.delete({
+      where: { id: existing.id },
+    });
+    return false;
+  } //if not liked, create a new like
+  await prisma.postLike.create({
     data: {
       userId: userId,
       postId,
     },
   });
+  return true;
 };
 
 export const getMyTasks = async () => {
@@ -275,6 +280,23 @@ export const createNewPost = async (data: {
       images: data.images,
     },
   });
+};
+
+export const getLikeState = async (postId: string, userId: string) => {
+  const { user } = getSession();
+  if (!user) {
+    throw new Error("login required");
+  }
+  const existing = await prisma.postLike.findUnique({
+    where: {
+      userId_postId: {
+        userId: userId,
+        postId,
+      },
+    },
+  });
+
+  return Boolean(existing);
 };
 
 export const getUserPosts = async (userId: string, pageRequest: PageRequest) => {
