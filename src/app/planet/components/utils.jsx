@@ -21,8 +21,15 @@ function initThree(containerRef){
   camera.position.z = 30
   camera.position.y = 15
 
-  renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    powerPreference: "high-performance",
+    precision: "highp"
+  })
   renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight - 0.4)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   containerRef.current.appendChild(renderer.domElement)
 
   const pmremGenerator = new PMREMGenerator(renderer)
@@ -31,9 +38,35 @@ function initThree(containerRef){
   const controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+  const mainLight = new THREE.DirectionalLight(0xffffff, 2.5)
+  mainLight.position.set(50, 50, 50)
+  mainLight.castShadow = true
+  mainLight.shadow.mapSize.width = 4096
+  mainLight.shadow.mapSize.height = 4096
+  mainLight.shadow.camera.near = 0.5
+  mainLight.shadow.camera.far = 500
+  mainLight.shadow.camera.left = -50
+  mainLight.shadow.camera.right = 50
+  mainLight.shadow.camera.top = 50
+  mainLight.shadow.camera.bottom = -50
+  mainLight.shadow.bias = -0.0001
+  mainLight.shadow.normalBias = 0.02
+  mainLight.shadow.radius = 2
+  scene.add(mainLight)
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
   ambientLight.position.set(0, -10, 0)
   scene.add(ambientLight)
+
+  const fillLight = new THREE.DirectionalLight(0xffffff, 1.5)
+  fillLight.position.set(-50, 30, -50)
+  fillLight.castShadow = true
+  fillLight.shadow.mapSize.width = 2048
+  fillLight.shadow.mapSize.height = 2048
+  fillLight.shadow.bias = -0.0001
+  fillLight.shadow.normalBias = 0.02
+  fillLight.shadow.radius = 2
+  scene.add(fillLight)
 
   return { renderer, camera, scene, controls }
 }
@@ -54,7 +87,11 @@ async function modelLoader(modelPath, trans) {
       model.rotation.set(...transform.r)
       model.traverse((child) => {
         if (child.isMesh) {
+          child.castShadow = true
           child.receiveShadow = true
+          if (child.material) {
+            child.material.shadowSide = THREE.FrontSide
+          }
         }
       })
       resolve(model)
@@ -75,7 +112,7 @@ async function modelLoader(modelPath, trans) {
   })
 }
 
-function createTransparentPreview(model, opacity = 0.4) {
+function createTransparentPreview(model, opacity = 0.6) {
   const clone = model.clone()
   clone.traverse(child => {
     if (child.isMesh && child.material) {
@@ -83,6 +120,8 @@ function createTransparentPreview(model, opacity = 0.4) {
       child.material.transparent = true
       child.material.opacity = opacity
       child.renderOrder = 1
+      child.castShadow = true
+      child.receiveShadow = true
     }
   })
   return clone
@@ -94,27 +133,39 @@ function canvasResize(){
   camera.aspect = width / height
   camera.updateProjectionMatrix()
   renderer.setSize(width, height)
+  
+  if (renderer && renderer.domElement) {
+    const material = renderer.domElement._backgroundMaterial
+    if (material && material.uniforms) {
+      material.uniforms.resolution.value.set(width, height)
+    }
+  }
 }
 
 function createGradientBackground(containerRef) {
   const geometry = new THREE.PlaneGeometry(2, 2)
   const material = new THREE.ShaderMaterial({
     uniforms: {
-      colorCenter: { value: new THREE.Color(0x0909AB) }, // 中心偏蓝
-      colorEdge: { value: new THREE.Color(0x030356) }    // 边缘接近黑
+      colorCenter: { value: new THREE.Color(0x0909AB) },
+      colorEdge: { value: new THREE.Color(0x030356) },
+      resolution: { value: new THREE.Vector2(containerRef.current.clientWidth, containerRef.current.clientHeight) }
     },
     vertexShader: `
+      varying vec2 vUv;
       void main() {
+        vUv = uv;
         gl_Position = vec4(position, 1.0);
       }
     `,
     fragmentShader: `
       uniform vec3 colorCenter;
       uniform vec3 colorEdge;
+      uniform vec2 resolution;
+      varying vec2 vUv;
 
       void main() {
-        vec2 uv = gl_FragCoord.xy / vec2(${containerRef.current.clientWidth}, ${containerRef.current.clientHeight});
-        float dist = distance(uv, vec2(0.5));
+        vec2 center = vec2(0.5, 0.5);
+        float dist = distance(vUv, center);
         vec3 color = mix(colorCenter, colorEdge, smoothstep(0.0, 0.7, dist));
         gl_FragColor = vec4(color, 1.0);
       }
@@ -125,10 +176,10 @@ function createGradientBackground(containerRef) {
   })
   const mesh = new THREE.Mesh(geometry, material)
   const backgroundScene = new THREE.Scene()
-  const backgroundCamera = new THREE.PerspectiveCamera()
+  const backgroundCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
   backgroundScene.add(mesh)
 
-  return { backgroundScene, backgroundCamera }
+  return { backgroundScene, backgroundCamera, material }
 }
 
 
