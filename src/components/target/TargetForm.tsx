@@ -18,6 +18,8 @@ import { Task } from "@prisma/client";
 import { TaskDraft } from "../task/TaskDraft";
 import { TaskStatus } from "../task/TaskDraft";
 import { client } from "@/endpoints/client";
+import React, { useRef } from "react";
+import { TaskComponentHandle } from "../task/TaskComponent";
 
 const FormSchema = z.object({
   title: z.string().min(1, {
@@ -42,8 +44,8 @@ type Props = {
   setTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id}) => {
-
+export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate, Id, onSubmit}) => {
+  const taskCompRef = useRef<TaskComponentHandle>(null);
   const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);
   const [, setDeletedTasks] = useState<TaskDraft[]>([]);
   const addLocalTask = (title: string) => {
@@ -99,7 +101,9 @@ export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate
   const handleSubmit = async (data: TargetFormType) => {
 
     setSubmitting(true);
+    //taskCompRef.current?.submitTaskInput();
     try {
+      await onSubmit(data);
       //submit
       let targetId = Id;
       if (targetDate) {
@@ -120,6 +124,10 @@ export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate
       //add
       const newTasks = localTasks.filter(t => t.id.startsWith("temp-"));
       await Promise.all(newTasks.map(t => client.authed.createMyTask(targetId,t.title)));
+      const newTask = taskCompRef.current?.submitTaskInput();
+      if (newTask) {
+        await client.authed.createMyTask(targetId, newTask);
+      }
       //update
       const titleUpdates = localTasks.filter(t => {
         if (!t.id.startsWith("temp-")) {
@@ -167,7 +175,7 @@ export const TargetForm: FC<Props> = ({initialValues, Tasks, onfinal, targetDate
             </FormItem>
           )}
         />
-        <TaskComponent tasks={localTasks} onAdd={addLocalTask} onDelete={deleteLocalTask} onUpdateTitle={updateLocalTaskTitle} onUpdateStatus={updateLocalTaskStatus}/>
+        <TaskComponent tasks={localTasks} ref={taskCompRef} onAdd={addLocalTask} onDelete={deleteLocalTask} onUpdateTitle={updateLocalTaskTitle} onUpdateStatus={updateLocalTaskStatus}/>
         <Button type="submit" variant="default" className="w-full" disabled={submitting}>
           {submitting && <Loader2 className="animate-spin" />}
           {submitting ? "Creating..." : "DONE"}

@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { TaskEditItem } from "@/components/task/TaskEditItem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,11 @@ import { TaskDraft } from "./TaskDraft";
 import { TaskStatus } from "./TaskDraft";
 import { IoIosRadioButtonOff } from "react-icons/io";
 import { useForm } from "react-hook-form";
+import { useImperativeHandle, forwardRef } from "react";
 
+export type TaskComponentHandle = {
+  submitTaskInput: () => void;
+};
 
 type FormInput = {
   task: string;
@@ -21,13 +24,11 @@ interface TaskComponentProps {
   onDelete: (id: string) => void;
 }
 
-export const TaskComponent: FC<TaskComponentProps> = ({
-  tasks,
-  onAdd,
-  onDelete,
-  onUpdateTitle,
-  onUpdateStatus,
-}) => {
+export const TaskComponent = forwardRef<
+  TaskComponentHandle,
+  TaskComponentProps
+>((props, ref) => {
+  const { tasks, onAdd, onDelete, onUpdateTitle, onUpdateStatus } = props;
   const { register, getValues, setValue } = useForm<FormInput>();
   const hasTasks = tasks.length > 0;
   const iconProps = {
@@ -49,6 +50,15 @@ export const TaskComponent: FC<TaskComponentProps> = ({
       setValue("task", "");
     }
   };
+
+  const getValue = () => {
+    const value = getValues("task")?.trim();
+    return value;
+    setValue("task", "");
+  }
+  useImperativeHandle(ref, () => ({
+    submitTaskInput: getValue
+  }), [getValue]);
 
   return (
     <div className="space-y-3 flex flex-col items-stretch overflow-visible">
@@ -83,4 +93,6 @@ export const TaskComponent: FC<TaskComponentProps> = ({
       </div>
     </div>
   );
-};
+});
+
+TaskComponent.displayName = "TaskComponent";

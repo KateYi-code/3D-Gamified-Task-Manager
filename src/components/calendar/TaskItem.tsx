@@ -2,6 +2,7 @@ import { Task , TaskStatus} from "@prisma/client";
 import { FC } from "react";
 import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
 import { useState ,} from "react";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   task: Task;
@@ -24,7 +25,7 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus}) => {
   
 
   return (
-    <div key={task.id} className="group/task flex flex-col items-stretch gap-1">
+    <div key={task.id} className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6">
       <div className={"flex items-center gap-1"}>
         <TaskStatusToggle
             status={task.status}
@@ -41,14 +42,17 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus}) => {
               <div
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
-                className={`w-full h-full`}
+                className="flex-1 min-w-0 relative overflow-visible"
               >
-                {!isHovering ? (
-                  <span>{task.title}</span>
-                ) : (
-                  <button className="w-full h-full bg-primary text-primary-foreground text-sm font-medium rounded-md" onClick={onStartTask}>  
+                <span className="block truncate">{task.title}</span>
+                {isHovering && (
+                  <Button type="button" variant="default" className=" absolute 
+                  top-1/2 w-full
+                  transform -translate-y-1/2 
+                  bg-primary text-white rounded text-sm
+                  z-10 " onClick={onStartTask}>  
                     <span>Start Task</span>
-                  </button>
+                  </Button>
                 )}
               </div>
         }
