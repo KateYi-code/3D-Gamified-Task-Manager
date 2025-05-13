@@ -31,11 +31,11 @@ export function Navbar() {
       path: "/moments",
       icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
     },
-    {
-      name: "CountDownClock",
-      path: "/countdownclock",
-      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-    },
+    // {
+    //   name: "CountDownClock",
+    //   path: "/countdownclock",
+    //   icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+    // },
   ];
 
   const profileMenus = () => {
@@ -141,7 +141,7 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden bg-white shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
+      <div className="md:hidden bg-background shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
           <Image src="/globe.svg" alt="Planet Logo" width={28} height={28} />
           <span className="text-lg font-bold text-primary">Planet</span>
