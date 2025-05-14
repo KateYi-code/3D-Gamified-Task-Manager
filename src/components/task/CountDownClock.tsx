@@ -25,19 +25,19 @@ import {
 } from "@/components/ui/dialog";
 import { addStory } from "@/lib/taskStories";
 import { Slider } from "@/components/ui/slider";
+import { NotificationManager, MAX_BACKGROUND_TIME, WARNING_INTERVAL } from "@/lib/notifications";
+import { cn } from "@/lib/utils";
 
 interface CountDownClockProps {
   initialMinutes?: number;
   initialSeconds?: number;
   onComplete?: () => void;
-  size?: number;
   taskId: string;
 }
 
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
 export const CountDownClock = ({
-  size = 200,
   initialMinutes = 25,
   initialSeconds = 0,
   onComplete,
@@ -52,8 +52,12 @@ export const CountDownClock = ({
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [buttonPressed, setButtonPressed] = useState<string | null>(null);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const backgroundTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActiveTimeRef = useRef<number>(Date.now());
+  const notificationManager = useRef(NotificationManager.getInstance());
 
   const formatTime = (time: number) =>
     `${String(Math.floor(time / 60)).padStart(2, "0")}:${String(time % 60).padStart(2, "0")}`;
@@ -154,25 +158,90 @@ export const CountDownClock = ({
 
   const percentage = timeLeft / totalInitialTime;
 
+  const handleVisibilityChange = useCallback(() => {
+    if (document.hidden) {
+      lastActiveTimeRef.current = Date.now();
+      if (isRunning) {
+        notificationManager.current.sendNotification("Task in Progress", {
+          body: "Please return to the page to continue your task! Or your task will fail in 1 minute.",
+        });
+        
+        backgroundTimerRef.current = setInterval(() => {
+          const currentTime = Date.now();
+          const timeInBackground = Math.floor((currentTime - lastActiveTimeRef.current) / 1000);
+
+          if (timeInBackground >= MAX_BACKGROUND_TIME) {
+            clearInterval(backgroundTimerRef.current!);
+            handleTaskFailure();
+          } else if (timeInBackground % WARNING_INTERVAL === 0) {
+            notificationManager.current.sendWarningNotification(timeInBackground);
+          }
+        }, 1000);
+      }
+    } else {
+      if (backgroundTimerRef.current) {
+        clearInterval(backgroundTimerRef.current);
+        notificationManager.current.resetWarningTimer();
+      }
+    }
+  }, [isRunning]);
+
+  const handleTaskFailure = () => {
+    clearTimer();
+    setIsRunning(false);
+    stopAudio();
+    toast.error("Task Failed: Away for too long");
+    notificationManager.current.sendNotification("Task Failed", {
+      body: "Task has been terminated due to extended absence",
+    });
+  };
+
+  const handleStart = async () => {
+    if (!notificationManager.current.hasNotificationPermission()) {
+      const granted = await notificationManager.current.requestPermission();
+      if (!granted) {
+        toast.error("Please approve notification permission");
+        // return;
+      }
+    }
+    setIsRunning(true);
+  };
+
+  useEffect(() => {
+    const init = async () => {await handleStart()};
+    init();
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (backgroundTimerRef.current) {
+        clearInterval(backgroundTimerRef.current);
+      }
+    };
+  }, [handleVisibilityChange]);
+
   return (
     <>
       <div className="flex flex-col items-center gap-4">
         {/* Timer Circle */}
         <div
-          className="shadow-2xl rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-4 relative flex justify-center items-center"
-          style={{ width: size, height: size }}
+          className="shadow-2xl rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-2 sm:p-3 md:p-4 relative flex justify-center items-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px]"
         >
           <div className="absolute z-10 flex flex-col items-center text-white font-semibold">
-            <GiAlarmClock size={36} />
-            <div>{formatTime(timeLeft)}</div>
+            <GiAlarmClock className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" />
+            <br/>
+            <div className="font-bold text-2xl sm:text-2xl md:text-3xl">{formatTime(timeLeft)}</div>
           </div>
           <CircularProgressbar
             styles={buildStyles({
-              pathColor: "#00ffff",
-              trailColor: "#4b5563",
-              strokeLinecap: "butt",
+              pathColor: "#4fe7e7",
+              trailColor: "#ffffff",
+              strokeLinecap: "round",
+              pathTransition: "stroke-dashoffset 0.5s ease 0s",
             })}
-            value={percentage}
+            value={1 - percentage}
             maxValue={1}
             className="z-0"
           />
@@ -180,13 +249,44 @@ export const CountDownClock = ({
 
         {/* Control Buttons */}
         <div className="flex gap-4 mt-2">
-          <Button onClick={() => setIsRunning(true)} variant="default" size="lg">
+          <Button 
+            onClick={handleStart} 
+            variant="default" 
+            size="lg"
+            className={cn(
+              "transition-transform duration-100",
+              buttonPressed === "start" && "scale-95"
+            )}
+            onMouseDown={() => setButtonPressed("start")}
+            onMouseUp={() => setButtonPressed(null)}
+            onMouseLeave={() => setButtonPressed(null)}
+          >
             <FaPlay className="mr-2" /> Start
           </Button>
-          <Button onClick={() => setIsRunning(false)} variant="secondary" size="lg">
+          <Button 
+            onClick={() => setIsRunning(false)} 
+            variant="secondary" 
+            size="lg"
+            className={cn(
+              "transition-transform duration-100",
+              buttonPressed === "pause" && "scale-95"
+            )}
+            onMouseDown={() => setButtonPressed("pause")}
+            onMouseUp={() => setButtonPressed(null)}
+            onMouseLeave={() => setButtonPressed(null)}
+          >
             <FaPause className="mr-2" /> Pause
           </Button>
-          <Button onClick={handleStop} variant="destructive" size="lg">
+          <Button
+            onClick={handleStop}
+            variant="destructive" size="lg" className={cn(
+              "transition-transform duration-100",
+              buttonPressed === "stop" && "scale-95"
+            )}
+            onMouseDown={() => setButtonPressed("stop")}
+            onMouseUp={() => setButtonPressed(null)}
+            onMouseLeave={() => setButtonPressed(null)}
+          >
             <FaStop className="mr-2" /> Stop
           </Button>
         </div>
