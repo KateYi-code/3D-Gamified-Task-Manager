@@ -3,6 +3,7 @@ import { client } from "@/endpoints/client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface Props {
   onClose: () => void;
@@ -27,7 +28,8 @@ export function MobileSearchOverlay({ onClose }: Props) {
       {/* top input and return */}
       <div className="flex items-center mb-4">
         <Button onClick={onClose} variant={"ghost"} className="text-lg mr-4">
-          ←
+          <ArrowLeft className="w-5 h-5" />
+          <span className="sr-only">Back</span>
         </Button>
         <Input
           type="text"
