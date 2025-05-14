@@ -1,14 +1,13 @@
 import { FC, useEffect, useState } from "react";
-import { ModalProps } from "@/components/modals";
+import { ModalProps, useModal } from "@/components/modals";
 import { toast } from "sonner";
 import { client } from "@/endpoints/client";
 import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { TargetForm, TargetFormType } from "@/components/target/TargetForm";
 import { Button } from "@/components/ui/button";
 import { TaskStatus } from "@prisma/client";
-import { useEffect } from "react";
-import { Task , Target } from "@prisma/client";
-import { useState } from "react";
+import { Task, Target } from "@prisma/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 type Props = ModalProps & {
   targetId: string;
@@ -18,7 +17,13 @@ type Props = ModalProps & {
   LocalTasks: Task[];
 };
 
-export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUpdate, LocalTasks}) => {
+export const TargetEditModal: FC<Props> = ({
+  open,
+  onOpenChange,
+  targetId,
+  setUpdate,
+  LocalTasks,
+}) => {
   const [trigger, setTrigger] = useState(false);
   useEffect(() => {
     if (trigger) {
@@ -33,7 +38,7 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUp
 
   // Check if all tasks are completed
   const checkAllTasksCompleted = (tasks: Task[]) => {
-    const allCompleted = tasks.every(task => task.status === "COMPLETED");
+    const allCompleted = tasks.every((task) => task.status === "COMPLETED");
     setAllTasksCompleted(allCompleted);
   };
 
@@ -83,24 +88,29 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUp
       toast.success("🎉 All tasks completed! Please place the reward on the planet!");
       onfinal(); // Optionally, finalize once all tasks are complete
     }
-  }, [allTasksCompleted]);
+  }, [allTasksCompleted, onfinal]);
 
+  const { modal, openModal } = useModal("Confirm");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Target</DialogTitle>
         </DialogHeader>
-        {target && <TargetForm  onSubmit={onSubmit} 
-                                initialValues={target} 
-                                Tasks={LocalTasks} 
-                                onAdd={onAdd} 
-                                onDelete={onDelete} 
-                                onUpdateTitle={onUpdateTitle} 
-                                Id={targetId} 
-                                onUpdateStatus={onUpdateStatus }
-                                onfinal={onfinal}
-                                setTrigger={setTrigger}/>}
+        {target && (
+          <TargetForm
+            onSubmit={onSubmit}
+            initialValues={target}
+            Tasks={LocalTasks}
+            onAdd={onAdd}
+            onDelete={onDelete}
+            onUpdateTitle={onUpdateTitle}
+            Id={targetId}
+            onUpdateStatus={onUpdateStatus}
+            onfinal={onfinal}
+            setTrigger={setTrigger}
+          />
+        )}
         <Button
           onClick={() => {
             openModal({

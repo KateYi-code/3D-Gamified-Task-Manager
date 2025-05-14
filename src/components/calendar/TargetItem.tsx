@@ -73,12 +73,7 @@ export const TargetItem: FC<Props> = ({ target, tasks, onUpdate }) => {
         <>
           <div className="p-4 space-y-3 flex flex-col items-stretch">
             {LocalTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onUpdate={onUpdate}
-                onUpdateTaskStatus={onUpdateTaskStatus}
-              />
+              <TaskItem key={task.id} task={task} onUpdateTaskStatus={onUpdateTaskStatus} />
             ))}
           </div>
         </>

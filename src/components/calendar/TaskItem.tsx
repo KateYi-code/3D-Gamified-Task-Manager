@@ -1,9 +1,8 @@
-
 import { Task, TaskStatus } from "@prisma/client";
 import { FC, useState } from "react";
 import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
-import { useState ,} from "react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface Props {
   task: Task;
@@ -23,7 +22,10 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
   };
 
   return (
-    <div key={task.id} className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6">
+    <div
+      key={task.id}
+      className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6"
+    >
       <div className={"flex items-center gap-1"}>
         <TaskStatusToggle
           status={task.status}
@@ -33,28 +35,31 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
             onUpdateTaskStatus(task.id, next);
           }}
         />
-        {task.status === "COMPLETED"
-              ? 
-              <span>{task.title}</span>                 
-              : 
-              <div
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-                className="flex-1 min-w-0 relative overflow-visible"
-              >
-                <span className="block truncate">{task.title}</span>
-                {isHovering && (
-                  <Button type="button" variant="default" className=" absolute 
+        {task.status === "COMPLETED" ? (
+          <span>{task.title}</span>
+        ) : (
+          <div
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            className="flex-1 min-w-0 relative overflow-visible"
+          >
+            <span className="block truncate">{task.title}</span>
+            {isHovering && (
+              <Button
+                type="button"
+                variant="default"
+                className=" absolute 
                   top-1/2 w-full
                   transform -translate-y-1/2 
                   bg-primary text-white rounded text-sm
-                  z-10 " onClick={onStartTask}>  
-                    <span>Start Task</span>
-                  </Button>
-                )}
-              </div>
-        }
-
+                  z-10 "
+                onClick={onStartTask}
+              >
+                <span>Start Task</span>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
