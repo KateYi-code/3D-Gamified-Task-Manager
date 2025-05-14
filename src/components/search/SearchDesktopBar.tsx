@@ -11,7 +11,10 @@ export function SearchBox() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (!query) return;
+    if (!query) {
+      setResults([]); // Clear results when query is empty
+      return;
+    }
     const timeout = setTimeout(async () => {
       const users = await client.unauth.search(query);
       setResults(users);
@@ -21,8 +24,10 @@ export function SearchBox() {
   }, [query]);
 
   useEffect(() => {
-    setShowDropdown(!!query.trim());
-  }, [query]);
+    if (query.trim() && results.length > 0) {
+      setShowDropdown(true);
+    }
+  }, [results, query]);
 
   return (
     <div className="relative w-full max-w-md">
@@ -30,6 +35,11 @@ export function SearchBox() {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => {
+          if (results.length > 0) {
+            setShowDropdown(true);
+          }
+        }}
         placeholder="Search ID, Name, or Email"
         className="w-full rounded-full text-sm px-4 py-2 pr-10"
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)} // delay to allow click on dropdown
