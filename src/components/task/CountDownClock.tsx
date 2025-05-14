@@ -38,8 +38,6 @@ interface CountDownClockProps {
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
 export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
-
-
   const router = useRouter();
   const totalInitialTime = (() => {
     if (task.startAt && task.finishAt) {
@@ -78,6 +76,14 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
       setIsAudioPlaying(false);
     }
   }, [audio]);
+
+  // stop audio when the component unmounts
+  useEffect(() => {
+    return () => {
+      stopAudio();
+      clearTimer();
+    };
+  }, [stopAudio]);
 
   const handleCompletion = useCallback(() => {
     clearTimer();
