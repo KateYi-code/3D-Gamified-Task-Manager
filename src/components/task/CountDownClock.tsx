@@ -53,6 +53,7 @@ export const CountDownClock = ({
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [buttonPressed, setButtonPressed] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const backgroundTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -110,6 +111,14 @@ export const CountDownClock = ({
   }, [volume, audio]);
 
   const handleStop = () => {
+    if (timeLeft > 0) {
+      setShowConfirmModal(true);
+    } else {
+      handleTaskComplete();
+    }
+  };
+
+  const handleTaskComplete = () => {
     clearTimer();
     setIsRunning(false);
     const used = totalInitialTime - timeLeft;
@@ -165,7 +174,7 @@ export const CountDownClock = ({
         notificationManager.current.sendNotification("Task in Progress", {
           body: "Please return to the page to continue your task! Or your task will fail in 1 minute.",
         });
-        
+
         backgroundTimerRef.current = setInterval(() => {
           const currentTime = Date.now();
           const timeInBackground = Math.floor((currentTime - lastActiveTimeRef.current) / 1000);
@@ -249,9 +258,9 @@ export const CountDownClock = ({
 
         {/* Control Buttons */}
         <div className="flex gap-4 mt-2">
-          <Button 
-            onClick={handleStart} 
-            variant="default" 
+          <Button
+            onClick={handleStart}
+            variant="default"
             size="lg"
             className={cn(
               "transition-transform duration-100",
@@ -263,9 +272,9 @@ export const CountDownClock = ({
           >
             <FaPlay className="mr-2" /> Start
           </Button>
-          <Button 
-            onClick={() => setIsRunning(false)} 
-            variant="secondary" 
+          <Button
+            onClick={() => setIsRunning(false)}
+            variant="secondary"
             size="lg"
             className={cn(
               "transition-transform duration-100",
@@ -353,27 +362,89 @@ export const CountDownClock = ({
         </div>
       </div>
 
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-orange-500">⚠️ Task Not Completed</DialogTitle>
+            <DialogDescription className="space-y-4">
+              <p className="text-gray-700">
+                You still have <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span> left in your session.
+              </p>
+              <p className="text-sm text-gray-500">
+                Are you sure you want to end this session early?
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button
+              onClick={() => {
+                setShowConfirmModal(false);
+                handleTaskComplete();
+              }}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Yes, End Session Now
+            </Button>
+            <Button
+              onClick={() => setShowConfirmModal(false)}
+              variant="secondary"
+            >
+              No, Continue Session
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Completion Dialog */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>🎉 Task Completed!</DialogTitle>
-            <DialogDescription>
-              You used <strong>{formatTime(usedTime)}</strong>. Share it with the community?
+            <DialogTitle className="text-3xl font-bold text-purple-600">🎉Task Completed!</DialogTitle>
+            <DialogDescription className="space-y-4">
+              <p className="text-gray-700">
+                You&apos;ve just finished a session with{" "}
+                <span className="font-semibold text-blue-500">{formatTime(usedTime)}</span> of deep work.
+              </p>
+              <p className="text-sm text-gray-500">
+                Your achievement has been shared to the community. Keep it up!
+              </p>
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={() => setShowModal(false)} variant="secondary">
-              Cancel
-            </Button>
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                onClick={() => {
+                  setShowModal(false);
+                  router.push("/");
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Back to Home
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowModal(false);
+                  router.push("/tasklog");
+                }}
+                variant="secondary"
+              >
+                View Task Log
+              </Button>
+            </div>
             <Button
               onClick={() => {
-                toast.success("✅ Shared!");
-                setShowModal(false);
-                router.push(`/taskcomplete?duration=${usedTime}&taskId=${taskId}`);
+                if (taskId) {
+                  setShowModal(false);
+
+                  router.push(`/planet?finished=${taskId}`);
+                } else {
+                  toast.error("Missing task ID");
+                }
               }}
+              className="bg-green-500 hover:bg-green-600 text-white"
             >
-              Share Now
+              Share and Add Bonus Item to My Planet
             </Button>
           </div>
         </DialogContent>

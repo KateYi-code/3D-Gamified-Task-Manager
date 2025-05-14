@@ -45,6 +45,9 @@ next-env.d.ts
 
 public/pwa
 
+# certificates
+/certificates
+
 # Playwright
 node_modules/
 /test-results/

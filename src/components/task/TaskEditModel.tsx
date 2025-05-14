@@ -36,6 +36,7 @@ const REPEAT_ORDER: rRule[] = [
   "none",
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TaskEditModel: FC<TaskEditModelProps> = ({ open, onOpenChange , task, setOpen}) => {
   const [localTask, setLocalTask] = useState<TaskDraft>(task);
   const [, setLoading] = useState(true);
