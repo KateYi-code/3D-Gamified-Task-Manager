@@ -26,26 +26,30 @@ import {
 import { useModal } from "@/components/modals";
 import { addStory } from "@/lib/taskStories";
 import { Slider } from "@/components/ui/slider";
-import { NotificationManager, MAX_BACKGROUND_TIME, WARNING_INTERVAL } from "@/lib/notifications";
+import {
+  NotificationManager,
+} from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+import { Task } from "@prisma/client";
 
 interface CountDownClockProps {
-  initialMinutes?: number;
-  initialSeconds?: number;
+  task: Task;
   onComplete?: () => void;
-  taskId: string;
 }
 
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
-export const CountDownClock = ({
-  initialMinutes = 25,
-  initialSeconds = 0,
-  onComplete,
-  taskId,
-}: CountDownClockProps) => {
+export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
   const router = useRouter();
-  const totalInitialTime = initialMinutes * 60 + initialSeconds;
+    const totalInitialTime = (() => {
+    if (task.startAt && task.finishAt) {
+      const start = new Date(task.startAt).getTime();
+      const end = new Date(task.finishAt).getTime();
+      const duration = Math.floor((end - start) / 1000);
+      return duration > 0 ? duration : 1500;
+    }
+    return 1500;
+  })();
   const [timeLeft, setTimeLeft] = useState(totalInitialTime);
   const [isRunning, setIsRunning] = useState(false);
   const [usedTime, setUsedTime] = useState(0);
@@ -58,8 +62,6 @@ export const CountDownClock = ({
   const { openModal: openPostModal, modal: postModal } = useModal("CreatePostModal");
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const backgroundTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastActiveTimeRef = useRef<number>(Date.now());
   const notificationManager = useRef(NotificationManager.getInstance());
 
   const formatTime = (time: number) =>
@@ -169,50 +171,12 @@ export const CountDownClock = ({
 
   const percentage = timeLeft / totalInitialTime;
 
-  const handleVisibilityChange = useCallback(() => {
-    if (document.hidden) {
-      lastActiveTimeRef.current = Date.now();
-      if (isRunning) {
-        notificationManager.current.sendNotification("Task in Progress", {
-          body: "Please return to the page to continue your task! Or your task will fail in 1 minute.",
-        });
-
-        backgroundTimerRef.current = setInterval(() => {
-          const currentTime = Date.now();
-          const timeInBackground = Math.floor((currentTime - lastActiveTimeRef.current) / 1000);
-
-          if (timeInBackground >= MAX_BACKGROUND_TIME) {
-            clearInterval(backgroundTimerRef.current!);
-            handleTaskFailure();
-          } else if (timeInBackground % WARNING_INTERVAL === 0) {
-            notificationManager.current.sendWarningNotification(timeInBackground);
-          }
-        }, 1000);
-      }
-    } else {
-      if (backgroundTimerRef.current) {
-        clearInterval(backgroundTimerRef.current);
-        notificationManager.current.resetWarningTimer();
-      }
-    }
-  }, [isRunning]);
-
-  const handleTaskFailure = () => {
-    clearTimer();
-    setIsRunning(false);
-    stopAudio();
-    toast.error("Task Failed: Away for too long");
-    notificationManager.current.sendNotification("Task Failed", {
-      body: "Task has been terminated due to extended absence",
-    });
-  };
 
   const handleStart = async () => {
     if (!notificationManager.current.hasNotificationPermission()) {
       const granted = await notificationManager.current.requestPermission();
       if (!granted) {
         toast.error("Please approve notification permission");
-        // return;
       }
     }
     setIsRunning(true);
@@ -225,15 +189,6 @@ export const CountDownClock = ({
     init();
   }, []);
 
-  useEffect(() => {
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      if (backgroundTimerRef.current) {
-        clearInterval(backgroundTimerRef.current);
-      }
-    };
-  }, [handleVisibilityChange]);
 
   return (
     <>
@@ -443,10 +398,10 @@ export const CountDownClock = ({
             </div>
             <Button
               onClick={() => {
-                if (taskId) {
+                if (task.id) {
                   setShowModal(false);
 
-                  router.push(`/planet?finished=${taskId}`);
+                  router.push(`/planet?finished=${task.id}`);
                 } else {
                   toast.error("Missing task ID");
                 }

@@ -14,10 +14,11 @@ const STATUS_ORDER: TaskStatus[] = ["PENDING", "IN_PROGRESS", "COMPLETED"];
 export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
   const router = useRouter();
   const [isHovering, setIsHovering] = useState(false);
+  const url = `/clock/${task.id}`;
 
   const onStartTask = () => {
     onUpdateTaskStatus(task.id, "IN_PROGRESS").then(() => {
-      router.push(`/timerdialog/${task.id}`);
+      router.push(url);
     });
   };
 
