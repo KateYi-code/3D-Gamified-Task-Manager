@@ -34,7 +34,11 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
         const isCurrentDay = isToday(date);
         const dayOfWeek = format(date, "EEE");
         return (
-          <div key={date.toString()} data-testid={`weekly-grid-day-${dayOfWeek}`}>
+          <div
+            key={date.toString()}
+            data-testid={`weekly-grid-day-${dayOfWeek}`}
+            className="flex flex-col"
+          >
             {/*Day*/}
             <div
               className={`text-center text-lg font-semibold p-2 rounded-t-md ${
