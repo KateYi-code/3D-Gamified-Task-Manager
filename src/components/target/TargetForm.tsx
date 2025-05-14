@@ -50,7 +50,6 @@ export const TargetForm: FC<Props> = ({
   onfinal,
   targetDate,
   Id,
-  onSubmit,
 }) => {
   const taskCompRef = useRef<TaskComponentHandle>(null);
   const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);
@@ -101,7 +100,8 @@ export const TargetForm: FC<Props> = ({
     setSubmitting(true);
     //taskCompRef.current?.submitTaskInput();
     try {
-      await onSubmit(data);
+      //await onSubmit(data);
+
       //submit
       let targetId = Id;
       if (targetDate) {
@@ -111,12 +111,14 @@ export const TargetForm: FC<Props> = ({
       if (!targetId) {
         throw new Error("Missing target ID");
       }
+
       //delete
       const toDeleteIds = Tasks.filter((orig) => !localTasks.some((t) => t.id === orig.id)).map(
         (t) => t.id,
       );
-
       await Promise.all(toDeleteIds.map((id) => client.authed.deleteMyTask(id)));
+
+
       //add
       const newTasks = localTasks.filter((t) => t.id.startsWith("temp-"));
       await Promise.all(newTasks.map((t) => client.authed.createMyTask(targetId, t.title)));
@@ -152,7 +154,7 @@ export const TargetForm: FC<Props> = ({
       // Show error toast if something goes wrong
       toast.error("Failed to update target and tasks. Please try again.");
     } finally {
-      setSubmitting(false);
+      //setSubmitting(false);
     }
   };
 
