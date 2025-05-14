@@ -26,9 +26,7 @@ import {
 import { useModal } from "@/components/modals";
 import { addStory } from "@/lib/taskStories";
 import { Slider } from "@/components/ui/slider";
-import {
-  NotificationManager,
-} from "@/lib/notifications";
+import { NotificationManager } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import { Task } from "@prisma/client";
 
@@ -41,7 +39,7 @@ const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest
 
 export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
   const router = useRouter();
-    const totalInitialTime = (() => {
+  const totalInitialTime = (() => {
     if (task.startAt && task.finishAt) {
       const start = new Date(task.startAt).getTime();
       const end = new Date(task.finishAt).getTime();
@@ -171,7 +169,6 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
 
   const percentage = timeLeft / totalInitialTime;
 
-
   const handleStart = async () => {
     if (!notificationManager.current.hasNotificationPermission()) {
       const granted = await notificationManager.current.requestPermission();
@@ -188,7 +185,6 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
     };
     init();
   }, []);
-
 
   return (
     <>
@@ -412,7 +408,7 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
             </Button>
             <button
               onClick={() => {
-                if (taskId) {
+                if (task.id) {
                   openPostModal({});
                 } else {
                   alert("Missing task ID");
