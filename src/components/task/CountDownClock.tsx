@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useModal } from "@/components/modals";
 import { addStory } from "@/lib/taskStories";
 import { Slider } from "@/components/ui/slider";
 import { NotificationManager, MAX_BACKGROUND_TIME, WARNING_INTERVAL } from "@/lib/notifications";
@@ -54,6 +55,7 @@ export const CountDownClock = ({
   const [showModal, setShowModal] = useState(false);
   const [buttonPressed, setButtonPressed] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { openModal: openPostModal, modal: postModal } = useModal("CreatePostModal");
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const backgroundTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -217,7 +219,9 @@ export const CountDownClock = ({
   };
 
   useEffect(() => {
-    const init = async () => {await handleStart()};
+    const init = async () => {
+      await handleStart();
+    };
     init();
   }, []);
 
@@ -233,14 +237,13 @@ export const CountDownClock = ({
 
   return (
     <>
+      {postModal}
       <div className="flex flex-col items-center gap-4">
         {/* Timer Circle */}
-        <div
-          className="shadow-2xl rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-2 sm:p-3 md:p-4 relative flex justify-center items-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px]"
-        >
+        <div className="shadow-2xl rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-2 sm:p-3 md:p-4 relative flex justify-center items-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px]">
           <div className="absolute z-10 flex flex-col items-center text-white font-semibold">
             <GiAlarmClock className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" />
-            <br/>
+            <br />
             <div className="font-bold text-2xl sm:text-2xl md:text-3xl">{formatTime(timeLeft)}</div>
           </div>
           <CircularProgressbar
@@ -264,7 +267,7 @@ export const CountDownClock = ({
             size="lg"
             className={cn(
               "transition-transform duration-100",
-              buttonPressed === "start" && "scale-95"
+              buttonPressed === "start" && "scale-95",
             )}
             onMouseDown={() => setButtonPressed("start")}
             onMouseUp={() => setButtonPressed(null)}
@@ -278,7 +281,7 @@ export const CountDownClock = ({
             size="lg"
             className={cn(
               "transition-transform duration-100",
-              buttonPressed === "pause" && "scale-95"
+              buttonPressed === "pause" && "scale-95",
             )}
             onMouseDown={() => setButtonPressed("pause")}
             onMouseUp={() => setButtonPressed(null)}
@@ -288,9 +291,11 @@ export const CountDownClock = ({
           </Button>
           <Button
             onClick={handleStop}
-            variant="destructive" size="lg" className={cn(
+            variant="destructive"
+            size="lg"
+            className={cn(
               "transition-transform duration-100",
-              buttonPressed === "stop" && "scale-95"
+              buttonPressed === "stop" && "scale-95",
             )}
             onMouseDown={() => setButtonPressed("stop")}
             onMouseUp={() => setButtonPressed(null)}
@@ -366,10 +371,14 @@ export const CountDownClock = ({
       <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-orange-500">⚠️ Task Not Completed</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-orange-500">
+              ⚠️ Task Not Completed
+            </DialogTitle>
             <DialogDescription className="space-y-4">
               <p className="text-gray-700">
-                You still have <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span> left in your session.
+                You still have{" "}
+                <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span> left
+                in your session.
               </p>
               <p className="text-sm text-gray-500">
                 Are you sure you want to end this session early?
@@ -386,10 +395,7 @@ export const CountDownClock = ({
             >
               Yes, End Session Now
             </Button>
-            <Button
-              onClick={() => setShowConfirmModal(false)}
-              variant="secondary"
-            >
+            <Button onClick={() => setShowConfirmModal(false)} variant="secondary">
               No, Continue Session
             </Button>
           </div>
@@ -400,11 +406,14 @@ export const CountDownClock = ({
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-3xl font-bold text-purple-600">🎉Task Completed!</DialogTitle>
+            <DialogTitle className="text-3xl font-bold text-purple-600">
+              🎉Task Completed!
+            </DialogTitle>
             <DialogDescription className="space-y-4">
               <p className="text-gray-700">
                 You&apos;ve just finished a session with{" "}
-                <span className="font-semibold text-blue-500">{formatTime(usedTime)}</span> of deep work.
+                <span className="font-semibold text-blue-500">{formatTime(usedTime)}</span> of deep
+                work.
               </p>
               <p className="text-sm text-gray-500">
                 Your achievement has been shared to the community. Keep it up!
@@ -446,6 +455,18 @@ export const CountDownClock = ({
             >
               Share and Add Bonus Item to My Planet
             </Button>
+            <button
+              onClick={() => {
+                if (taskId) {
+                  openPostModal({});
+                } else {
+                  alert("Missing task ID");
+                }
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 transition-all"
+            >
+              Share the Achievement
+            </button>
           </div>
         </DialogContent>
       </Dialog>
