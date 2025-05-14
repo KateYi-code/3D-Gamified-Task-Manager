@@ -44,13 +44,7 @@ type Props = {
   setTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const TargetForm: FC<Props> = ({
-  initialValues,
-  Tasks,
-  onfinal,
-  targetDate,
-  Id,
-}) => {
+export const TargetForm: FC<Props> = ({ initialValues, Tasks, onfinal, targetDate, Id }) => {
   const taskCompRef = useRef<TaskComponentHandle>(null);
   const [localTasks, setLocalTasks] = useState<TaskDraft[]>(Tasks);
   const [, setDeletedTasks] = useState<TaskDraft[]>([]);
@@ -118,7 +112,6 @@ export const TargetForm: FC<Props> = ({
       );
       await Promise.all(toDeleteIds.map((id) => client.authed.deleteMyTask(id)));
 
-
       //add
       const newTasks = localTasks.filter((t) => t.id.startsWith("temp-"));
       await Promise.all(newTasks.map((t) => client.authed.createMyTask(targetId, t.title)));
@@ -168,7 +161,7 @@ export const TargetForm: FC<Props> = ({
             <FormItem>
               <FormLabel>Your Goal Title</FormLabel>
               <FormControl>
-                <Input placeholder="Input your goal" {...field} />
+                <Input placeholder="Input your goal" {...field} data-testid={"goal-field"} />
               </FormControl>
               <FormMessage />
             </FormItem>

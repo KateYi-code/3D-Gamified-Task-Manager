@@ -8,10 +8,9 @@ import { TaskStatus } from "@prisma/client";
 import { useState } from "react";
 import { useEffect } from "react";
 
-type Props = ModalProps&{
+type Props = ModalProps & {
   targetDate: Date;
 };
-
 
 export const TargetCreateModal: FC<Props> = ({ open, onOpenChange, targetDate }) => {
   const [trigger, setTrigger] = useState(false);
@@ -40,30 +39,30 @@ export const TargetCreateModal: FC<Props> = ({ open, onOpenChange, targetDate })
     setNewTargetId(newTarget.id);
   };
 
-  const onfinal = async() => {
+  const onfinal = async () => {
     onOpenChange(false);
     await invalidate("getMyTargets");
-  }
-  
-
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" data-testid="target-create-modal">
         <DialogHeader>
           <DialogTitle>Create Target</DialogTitle>
         </DialogHeader>
-        <TargetForm onSubmit={onSubmit} 
-        initialValues={{ title: "" }} 
-        Tasks={[]} 
-        onAdd={onAdd} 
-        onDelete={onDelete} 
-        onUpdateTitle={onUpdateTitle} 
-        Id={ newTargetId } 
-        onUpdateStatus={onUpdateStatus}
-        onfinal={onfinal}
-        targetDate={targetDate}
-        setTrigger={setTrigger}/>
+        <TargetForm
+          onSubmit={onSubmit}
+          initialValues={{ title: "" }}
+          Tasks={[]}
+          onAdd={onAdd}
+          onDelete={onDelete}
+          onUpdateTitle={onUpdateTitle}
+          Id={newTargetId}
+          onUpdateStatus={onUpdateStatus}
+          onfinal={onfinal}
+          targetDate={targetDate}
+          setTrigger={setTrigger}
+        />
       </DialogContent>
     </Dialog>
   );

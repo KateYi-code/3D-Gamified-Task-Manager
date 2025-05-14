@@ -32,15 +32,16 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
     <div className="grid grid-cols-1 gap-1 md:grid-cols-3 xl:grid-cols-7 rounded-t-md">
       {weekDays.map((date) => {
         const isCurrentDay = isToday(date);
+        const dayOfWeek = format(date, "EEE");
         return (
-          <div key={date.toString()}>
+          <div key={date.toString()} data-testid={`weekly-grid-day-${dayOfWeek}`}>
             {/*Day*/}
             <div
               className={`text-center text-lg font-semibold p-2 rounded-t-md ${
                 isCurrentDay ? "bg-primary" : "bg-accent"
               }`}
             >
-              <div>{format(date, "EEE")}</div>
+              <div>{dayOfWeek}</div>
               <div className="text-xl">{format(date, "d")}</div>
             </div>
 
@@ -63,6 +64,7 @@ export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
 
               {/* Add Target Button */}
               <Button
+                data-testid="add-target-button"
                 variant="default"
                 size="sm"
                 onClick={() => openModal({ targetDate: date })}

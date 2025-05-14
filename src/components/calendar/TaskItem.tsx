@@ -25,6 +25,7 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
   return (
     <div
       key={task.id}
+      data-testid={`task-item`}
       className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6"
     >
       <div className={"flex items-center gap-1"}>
