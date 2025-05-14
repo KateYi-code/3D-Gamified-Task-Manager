@@ -25,15 +25,12 @@ export const TaskTimerDialog = ({ taskId }: Props) => {
   const [startDate, setStartDate] = useState<Date | undefined>(
     presetStart ? new Date(presetStart) : new Date(),
   );
-  const [startTime, setStartTime] = useState<Date | undefined>(
-    presetStart ? new Date(presetStart) : new Date(),
-  );
   const [endDate, setEndDate] = useState<Date | undefined>(
     presetEnd ? new Date(presetEnd) : undefined,
   );
-  const [endTime, setEndTime] = useState<Date | undefined>(
-    presetEnd ? new Date(presetEnd) : undefined,
-  );
+
+  const [startTime, setStartTime] = useState<Date | undefined>(undefined);
+  const [endTime, setEndTime] = useState<Date | undefined>(undefined);
 
   const handleStartDateSelect = (date: Date | undefined) => {
     setStartDate(date);
@@ -44,13 +41,23 @@ export const TaskTimerDialog = ({ taskId }: Props) => {
   };
 
   const handleStartTimeSelect = (time: string | null) => {
-    if (!time) return;
-    setStartTime(new Date(time));
+    if (!time || !startDate) return;
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    const updated = new Date(startDate);
+    updated.setHours(hours);
+    updated.setMinutes(minutes);
+    updated.setSeconds(seconds || 0);
+    setStartTime(updated);
   };
 
   const handleEndTimeSelect = (time: string | null) => {
-    if (!time) return;
-    setEndTime(new Date(time));
+    if (!time || !endDate) return;
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    const updated = new Date(endDate);
+    updated.setHours(hours);
+    updated.setMinutes(minutes);
+    updated.setSeconds(seconds || 0);
+    setEndTime(updated);
   };
 
   const handleConfirm = () => {
@@ -106,12 +113,12 @@ export const TaskTimerDialog = ({ taskId }: Props) => {
           <TimePicker
             className="custom-time-picker"
             onChange={handleStartTimeSelect}
-            value={startTime}
+            value={startTime ? format(startTime, "HH:mm:ss") : ""}
             format="HH:mm:ss"
             disableClock
             clearIcon={null}
           />
-          {startTime && (
+          {startTime instanceof Date && !isNaN(startTime.getTime()) && (
             <p className="text-sm text-muted-foreground mt-1">
               Selected: {format(startTime, "pp")}
             </p>
@@ -131,12 +138,12 @@ export const TaskTimerDialog = ({ taskId }: Props) => {
           <TimePicker
             className="custom-time-picker"
             onChange={handleEndTimeSelect}
-            value={endTime}
+            value={endTime ? format(endTime, "HH:mm:ss") : ""}
             format="HH:mm:ss"
             disableClock
             clearIcon={null}
           />
-          {endTime && (
+          {endTime instanceof Date && !isNaN(endTime.getTime()) && (
             <p className="text-sm text-muted-foreground mt-1">Selected: {format(endTime, "pp")}</p>
           )}
         </div>
