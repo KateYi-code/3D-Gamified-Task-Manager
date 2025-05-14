@@ -227,6 +227,63 @@ we use `react-icons` in this project, you can add icons by following these steps
 
 Please refer to `src/components/target/TargetCreateModal.tsx` before you get started.
 
+### How to write e2e tests?
+
+We use Playwright for end-to-end testing. To write a new e2e test:
+
+1. Create a new test file in the `e2e` directory with the `.spec.ts` extension
+   ```typescript
+   // e2e/example.spec.ts
+   import { test, expect } from "@playwright/test";
+
+   test("test description", async ({ page }) => {
+     // Your test code here
+   });
+   ```
+
+2. Navigate to a page in your application
+   ```typescript
+   await page.goto("http://localhost:3000/your-page");
+   ```
+
+3. Interact with elements using Playwright's API OR `npx playwright codegen` to help you generate code
+   ```typescript
+   // Click on elements
+   await page.getByRole("button", { name: "Submit" }).click();
+
+   // Fill form fields
+   await page.getByRole("textbox", { name: "Username" }).fill("testuser");
+
+   // Press keyboard keys
+   await page.getByRole("textbox", { name: "Search" }).press("Enter");
+   ```
+
+4. Add assertions to verify expected behavior
+   ```typescript
+   // Check if an element is visible
+   await expect(page.getByText("Success message")).toBeVisible();
+
+   // Check if an element contains specific text
+   await expect(page.locator(".error-message")).toContainText("Invalid input");
+   ```
+
+5. Run your tests using one of these commands:
+   ```bash
+   # Run all tests
+   npx playwright test
+
+   # Run a specific test file
+   npx playwright test example.spec.ts
+
+   # Run tests with UI mode
+   npx playwright test --ui
+
+   # Run tests in debug mode
+   npx playwright test --debug
+   ```
+
+For more complex scenarios, refer to the existing test in `e2e/login.spec.ts` and the [Playwright documentation](https://playwright.dev/docs/intro).
+
 ## Helpful resources
 
 - [Prisma ER diagram](https://prisma-erd.simonknott.de/)
