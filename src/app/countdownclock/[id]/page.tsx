@@ -52,6 +52,7 @@ export default function CountdownClockPage() {
     <div className="p-6 flex flex-col items-center space-y-6">
       <h1 className="text-3xl font-bold text-center">Countdown for Task: {taskId}</h1>
       <CountDownClock
+        taskId={taskId as string}
         initialMinutes={initialMinutes}
         initialSeconds={initialSeconds}
         onComplete={() => {

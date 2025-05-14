@@ -31,6 +31,7 @@ interface CountDownClockProps {
   initialSeconds?: number;
   onComplete?: () => void;
   size?: number;
+  taskId: string;
 }
 
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
@@ -40,6 +41,7 @@ export const CountDownClock = ({
   initialMinutes = 25,
   initialSeconds = 0,
   onComplete,
+  taskId,
 }: CountDownClockProps) => {
   const router = useRouter();
   const totalInitialTime = initialMinutes * 60 + initialSeconds;
@@ -268,7 +270,7 @@ export const CountDownClock = ({
               onClick={() => {
                 toast.success("✅ Shared!");
                 setShowModal(false);
-                router.push(`/taskcomplete?duration=${usedTime}`);
+                router.push(`/taskcomplete?duration=${usedTime}&taskId=${taskId}`);
               }}
             >
               Share Now

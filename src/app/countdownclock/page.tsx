@@ -3,14 +3,6 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 export default function CountdownClockPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ClockPage />
-    </Suspense>
-  );
-}
-
-const ClockPage = () => {
   const params = useSearchParams();
   const taskId = params.get("taskId");
   const start = params.get("start");
@@ -60,4 +52,4 @@ const ClockPage = () => {
       )}
     </div>
   );
-};
+}
