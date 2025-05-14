@@ -38,6 +38,8 @@ interface CountDownClockProps {
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
 export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
+
+
   const router = useRouter();
   const totalInitialTime = (() => {
     if (task.startAt && task.finishAt) {
@@ -340,7 +342,8 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
             <Button
               onClick={() => {
                 setShowConfirmModal(false);
-                handleTaskComplete();
+                //handleTaskComplete();
+                router.push("/");
               }}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >

@@ -159,6 +159,7 @@ model Task {
   finishAt    DateTime? 
   repeatKey   RepeatRule?      // daily | weekly | monthly | null
   placedAt    DateTime?
+  timeLeft    String?
 }
 
 model PlanetObject {
