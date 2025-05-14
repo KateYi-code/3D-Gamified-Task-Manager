@@ -148,25 +148,27 @@ export function Navbar() {
 
         {/* Mobile Search Bar */}
         {/*  <button onClick={() => setSearchOpen(true)} className="text-gray-600">*/}
-        <MobileSearchTrigger />
+        <div className="flex items-center space-x-3">
+          <MobileSearchTrigger />
 
-        <If condition={!loading && !!user}>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="focus:outline-none">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
-                  {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
-                </div>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-50">{profileMenus()}</PopoverContent>
-          </Popover>
-        </If>
-        {!loading && !user && (
-          <Link href="/auth" className="font-medium py-1.5 px-3 text-sm rounded-md">
-            Login
-          </Link>
-        )}
+          <If condition={!loading && !!user}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="focus:outline-none">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+                    {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                  </div>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-50">{profileMenus()}</PopoverContent>
+            </Popover>
+          </If>
+          {!loading && !user && (
+            <Link href="/auth" className="font-medium py-1.5 px-3 text-sm rounded-md">
+              Login
+            </Link>
+          )}
+        </div>
       </div>
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden bg-background shadow-lg fixed bottom-0 w-full z-50 border-t">
