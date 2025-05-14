@@ -5,9 +5,11 @@ import { Confirm } from "@/components/target/confirm";
 import { CreatePostModal } from "./moment/createPostModal";
 import { InfoModal } from "./moment/infoModal";
 import { DetailPostModal } from "@/components/moment/detail-post-modal";
+import { TaskEditModel } from "./task/TaskEditModel";
 export interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
 }
 
 export const modals = {
@@ -17,6 +19,7 @@ export const modals = {
   CreatePostModal,
   InfoModal,
   DetailPostModal,
+  TaskEditModel
 };
 
 export type Modals = typeof modals;
@@ -49,5 +52,7 @@ export const useModal = <T extends ModalTypes>(name: T) => {
     openModal,
     closeModal,
     modal,
+    open,
+    //setOpen,
   };
 };

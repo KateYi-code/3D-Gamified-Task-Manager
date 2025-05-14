@@ -2,6 +2,7 @@ import { getSession } from "@/endpoints/handler";
 import { prisma } from "@/db";
 import { Task, TaskStatus } from "@prisma/client";
 import { Target } from "@prisma/client";
+import { RepeatRule } from "@prisma/client";
 
 
 
@@ -134,5 +135,40 @@ export const getTaskAndTargetByTaskId = async (
   }
 
   return task;
+};
+
+export const UpdateMyTaskAdvanced = async (
+  taskId: string,
+  startAt?: Date,
+  finishAt?: Date,
+  repeatKey?: RepeatRule | null
+): Promise<Task> => {
+  const session = getSession();
+  const user = session?.user;
+  if (!user) {
+    throw new Error("Login required");
+  }
+
+  const existingTask = await prisma.task.findUnique({
+    where: { id: taskId },
+  });
+
+  if (!existingTask || existingTask.userId !== user.id) {
+    throw new Error("Task not found or unauthorized");
+  }
+
+  const updateData: any = {};
+
+  if (startAt != null && finishAt != null) {
+    updateData.startAt = startAt;
+    updateData.finishAt = finishAt;
+  }
+
+  updateData.repeatKey = repeatKey;
+
+  return prisma.task.update({
+    where: { id: taskId },
+    data: updateData,
+  });
 };
 

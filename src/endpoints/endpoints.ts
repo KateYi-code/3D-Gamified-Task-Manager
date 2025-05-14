@@ -53,6 +53,7 @@ import {
   getMyTaskById,
   getTaskById,
   getTaskAndTargetByTaskId,
+  UpdateMyTaskAdvanced
 } from "@/endpoints/task/services/task.service";
 
 import { search } from "@/endpoints/search/services/search.service";
@@ -87,7 +88,8 @@ export const authEndpoints = shaped<APIs>()({
   getMyTasks,
   createNewPost,
   getLikeState,
-  getTaskAndTargetByTaskId
+  getTaskAndTargetByTaskId,
+  UpdateMyTaskAdvanced,
 });
 
 export const unauthEndpoints = shaped<APIs>()({

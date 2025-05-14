@@ -112,6 +112,7 @@ model Target {
   @@unique([userId, title])
 }
 
+
 model Planet {
   id        String   @id @default(cuid()) @map("_id")
   createdAt DateTime @default(now())
@@ -132,6 +133,12 @@ enum TaskStatus {
   COMPLETED
 }
 
+enum RepeatRule {
+  daily
+  weekly
+  monthly
+}
+
 model Task {
   id          String     @id @default(cuid()) @map("_id")
   title       String
@@ -147,6 +154,11 @@ model Task {
   target       Target         @relation(fields: [targetId], references: [id], onDelete: Cascade)
   posts        Post[]
   PlanetObject PlanetObject[]
+
+  startAt     DateTime?  
+  finishAt    DateTime? 
+  repeatKey   RepeatRule?      // daily | weekly | monthly | null
+  placedAt    DateTime?
 }
 
 model PlanetObject {
