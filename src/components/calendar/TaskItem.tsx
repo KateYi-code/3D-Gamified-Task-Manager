@@ -1,39 +1,37 @@
-import { Task , TaskStatus} from "@prisma/client";
-import { FC } from "react";
+
+import { Task, TaskStatus } from "@prisma/client";
+import { FC, useState } from "react";
 import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
 import { useState ,} from "react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
   task: Task;
-  onUpdate: () => void;
   onUpdateTaskStatus: (taskId: string, status: TaskStatus) => Promise<void>;
 }
 
-const STATUS_ORDER: TaskStatus[] = [
-    "PENDING",
-    "IN_PROGRESS",
-    "COMPLETED",
-  ];
+const STATUS_ORDER: TaskStatus[] = ["PENDING", "IN_PROGRESS", "COMPLETED"];
 
-export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus}) => {
+export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
+  const router = useRouter();
   const [isHovering, setIsHovering] = useState(false);
 
   const onStartTask = () => {
-      // TODO: Add start task. @Kate
+    onUpdateTaskStatus(task.id, "IN_PROGRESS").then(() => {
+      router.push(`/timerdialog/${task.id}`);
+    });
   };
-  
 
   return (
     <div key={task.id} className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6">
       <div className={"flex items-center gap-1"}>
         <TaskStatusToggle
-            status={task.status}
-            onClick={() => {
-               const idx = STATUS_ORDER.indexOf(task.status);
-               const next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length];
-               onUpdateTaskStatus(task.id, next);
-              }}
+          status={task.status}
+          onClick={() => {
+            const idx = STATUS_ORDER.indexOf(task.status);
+            const next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length];
+            onUpdateTaskStatus(task.id, next);
+          }}
         />
         {task.status === "COMPLETED"
               ? 
@@ -56,9 +54,8 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus}) => {
                 )}
               </div>
         }
-      </div>
 
+      </div>
     </div>
   );
 };
-

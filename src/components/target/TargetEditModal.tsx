@@ -1,6 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FC } from "react";
-import { ModalProps, useModal } from "@/components/modals";
+import { FC, useEffect, useState } from "react";
+import { ModalProps } from "@/components/modals";
 import { toast } from "sonner";
 import { client } from "@/endpoints/client";
 import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
@@ -28,6 +27,16 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUp
   }, [trigger]);
   const invalidate = useInvalidateQuery();
   const { data: target, refetch } = useQuery("getMyTargetById", targetId);
+
+  // State to track task completion
+  const [allTasksCompleted, setAllTasksCompleted] = useState(false);
+
+  // Check if all tasks are completed
+  const checkAllTasksCompleted = (tasks: Task[]) => {
+    const allCompleted = tasks.every(task => task.status === "COMPLETED");
+    setAllTasksCompleted(allCompleted);
+  };
+
   const onSubmit = async (data: TargetFormType) => {
     await client.authed.updateMyTarget(targetId, data.title);
     await refetch();
@@ -40,28 +49,42 @@ export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId, setUp
     }
   }, [open, targetId, refetch]);
 
-  const onfinal = async() => {
+  useEffect(() => {
+    if (LocalTasks.length > 0) {
+      checkAllTasksCompleted(LocalTasks);
+    }
+  }, [LocalTasks]);
+
+  const onfinal = async () => {
     onOpenChange(false);
     await invalidate("getMyTargets");
     setUpdate(true);
-  }
+  };
 
-  const onAdd = async (targetid: string,title: string) => {
+  const onAdd = async (targetid: string, title: string) => {
     await client.authed.createMyTask(targetid, title);
-  }
+  };
 
   const onDelete = async (taskId: string) => {
     await client.authed.deleteMyTask(taskId);
   };
+
   const onUpdateTitle = async (taskId: string, title: string) => {
     await client.authed.updateMyTaskTitle(taskId, title);
   };
-  
+
   const onUpdateStatus = async (taskId: string, status: TaskStatus) => {
     await client.authed.updateMyTaskStatus(taskId, status);
   };
 
-  const { modal, openModal } = useModal("Confirm");
+  // If all tasks are completed, show a toast message
+  useEffect(() => {
+    if (allTasksCompleted) {
+      toast.success("🎉 All tasks completed! Please place the reward on the planet!");
+      onfinal(); // Optionally, finalize once all tasks are complete
+    }
+  }, [allTasksCompleted]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">

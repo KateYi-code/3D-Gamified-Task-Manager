@@ -45,20 +45,19 @@ export const CountDownClock = ({
   const totalInitialTime = initialMinutes * 60 + initialSeconds;
   const [timeLeft, setTimeLeft] = useState(totalInitialTime);
   const [isRunning, setIsRunning] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [usedTime, setUsedTime] = useState(0);
   const [volume, setVolume] = useState(0.5);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [usedTime, setUsedTime] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (time % 60).toString().padStart(2, "0");
-    return `${minutes}:${seconds}`;
+  const formatTime = (time: number) =>
+    `${String(Math.floor(time / 60)).padStart(2, "0")}:${String(time % 60).padStart(2, "0")}`;
+
+  const clearTimer = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
   const stopAudio = useCallback(() => {
@@ -70,45 +69,43 @@ export const CountDownClock = ({
   }, [audio]);
 
   const handleCompletion = useCallback(() => {
+    clearTimer();
     setIsRunning(false);
-    const formatted = formatTime(totalInitialTime);
     setUsedTime(totalInitialTime);
+    const formatted = formatTime(totalInitialTime);
     toast(`🎉 Task completed! Total time used: ${formatted}`);
     addStory(totalInitialTime, formatted);
     stopAudio();
     onComplete?.();
     setShowModal(true);
-  }, [totalInitialTime, stopAudio, onComplete]);
+  }, [totalInitialTime, onComplete, stopAudio]);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            clearInterval(intervalRef.current!);
+            clearTimer();
             handleCompletion();
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    } else {
+      clearTimer();
     }
-    return () => clearInterval(intervalRef.current!);
+
+    return () => clearTimer();
   }, [isRunning, handleCompletion]);
 
   useEffect(() => {
-    if (audio) {
-      audio.volume = volume;
-    }
+    if (audio) audio.volume = volume;
   }, [volume, audio]);
 
-  const handlePause = () => setIsRunning(false);
-
   const handleStop = () => {
+    clearTimer();
     setIsRunning(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
     const used = totalInitialTime - timeLeft;
     const formatted = formatTime(used);
     setUsedTime(used);
@@ -122,24 +119,12 @@ export const CountDownClock = ({
     if (audio) {
       if (isAudioPlaying) {
         audio.pause();
+        audio.currentTime = 0;
       } else {
         audio.play();
       }
       setIsAudioPlaying(!isAudioPlaying);
     }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      playAudio(url);
-    }
-  };
-
-  const handleRandomPlay = () => {
-    const randomUrl = whiteNoiseList[Math.floor(Math.random() * whiteNoiseList.length)];
-    playAudio(randomUrl);
   };
 
   const playAudio = (url: string) => {
@@ -152,16 +137,30 @@ export const CountDownClock = ({
     setIsAudioPlaying(true);
   };
 
+  const handleRandomPlay = () => {
+    const randomUrl = whiteNoiseList[Math.floor(Math.random() * whiteNoiseList.length)];
+    playAudio(randomUrl);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      playAudio(url);
+    }
+  };
+
   const percentage = timeLeft / totalInitialTime;
 
   return (
     <>
       <div className="flex flex-col items-center gap-4">
+        {/* Timer Circle */}
         <div
           className="shadow-2xl rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-4 relative flex justify-center items-center"
           style={{ width: size, height: size }}
         >
-          <div className="absolute z-10 flex flex-col items-center">
+          <div className="absolute z-10 flex flex-col items-center text-white font-semibold">
             <GiAlarmClock size={36} />
             <div>{formatTime(timeLeft)}</div>
           </div>
@@ -177,11 +176,12 @@ export const CountDownClock = ({
           />
         </div>
 
-        <div className="flex gap-4">
+        {/* Control Buttons */}
+        <div className="flex gap-4 mt-2">
           <Button onClick={() => setIsRunning(true)} variant="default" size="lg">
             <FaPlay className="mr-2" /> Start
           </Button>
-          <Button onClick={handlePause} variant="secondary" size="lg">
+          <Button onClick={() => setIsRunning(false)} variant="secondary" size="lg">
             <FaPause className="mr-2" /> Pause
           </Button>
           <Button onClick={handleStop} variant="destructive" size="lg">
@@ -189,9 +189,10 @@ export const CountDownClock = ({
           </Button>
         </div>
 
+        {/* Audio Upload + White Noise */}
         <div className="flex flex-col items-center gap-4 mt-6">
           <div
-            className="border-2 border-dashed border-gray-300 p-4 w-64 text-center rounded-lg"
+            className="border-2 border-dashed border-gray-300 p-4 w-64 text-center rounded-lg cursor-pointer"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -211,7 +212,7 @@ export const CountDownClock = ({
               id="audio-upload"
             />
             <label htmlFor="audio-upload" className="cursor-pointer text-sm text-gray-500">
-              Drag & Drop MP3 file here or click to select file
+              Drag & drop or click to upload audio
             </label>
           </div>
 
@@ -232,10 +233,11 @@ export const CountDownClock = ({
             </Button>
           </div>
 
+          {/* Volume Control */}
           <div className="w-64 mt-4">
             <label className="flex items-center gap-2 text-sm mb-1">
               {volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
-              Volume Control
+              Volume
             </label>
             <Slider
               min={0}
@@ -249,13 +251,13 @@ export const CountDownClock = ({
         </div>
       </div>
 
+      {/* Completion Dialog */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>🎉 Task Completed!</DialogTitle>
             <DialogDescription>
-              You used <strong>{formatTime(usedTime)}</strong> for this session. Do you want to
-              share your achievement to the community?
+              You used <strong>{formatTime(usedTime)}</strong>. Share it with the community?
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
@@ -264,7 +266,7 @@ export const CountDownClock = ({
             </Button>
             <Button
               onClick={() => {
-                toast.success("✅ Shared to community!");
+                toast.success("✅ Shared!");
                 setShowModal(false);
                 router.push(`/taskcomplete?duration=${usedTime}`);
               }}

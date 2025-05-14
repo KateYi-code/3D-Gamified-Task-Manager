@@ -11,7 +11,7 @@ export default function TaskLogPage() {
 
     useEffect(() => {
         const logs = getStories();
-        setStories(logs.reverse()); // 最近的在前面
+        setStories(logs.reverse());
     }, []);
 
     return (
