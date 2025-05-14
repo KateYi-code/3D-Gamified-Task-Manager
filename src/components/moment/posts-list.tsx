@@ -52,7 +52,7 @@ export const PostsList = ({ userIds }: Props) => {
   }
 
   return (
-    <div className="flex flex-col items-center mt-6 self-center px-4 md:w-[800px] lg:w-[1000px] xl:w-[1200px]">
+    <div className="flex flex-col items-center mt-6 self-center px-4 md:w-[800px] lg:w-[1000px] xl:w-[1200px] pb-20 sm:pb-0">
       {detailPostModal}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {posts?.items?.map((post) => (

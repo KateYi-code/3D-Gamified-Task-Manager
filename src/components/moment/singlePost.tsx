@@ -8,6 +8,7 @@ import { client } from "@/endpoints/client";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Post, Task, User } from "@prisma/client";
+import { TextAvatar } from "@/components/profile/TextAvatar";
 
 interface Props {
   post: Post & {
@@ -48,25 +49,9 @@ export default function SinglePost(props: Props) {
       )}
     >
       <CardHeader>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "Top", gap: "10px" }}>
-            <div
-              style={{
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                backgroundColor: "pink",
-                display: "inline-block",
-                marginLeft: "-14px",
-              }}
-            ></div>
+        <div className="flex flex-row items-center gap-2.5 justify-between">
+          <div className="flex flex-row items-center gap-2.5">
+            <TextAvatar name={post.user.name ?? post.user.email} size={"small"} />
             <span>{post.user.name}</span>
           </div>
           <TooltipProvider>

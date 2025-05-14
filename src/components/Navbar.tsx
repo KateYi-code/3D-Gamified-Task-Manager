@@ -10,6 +10,7 @@ import { ToggleThemeButton } from "@/components/profile/ToggleThemeButton";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { If } from "@/lib/If";
+import { TextAvatar } from "@/components/profile/TextAvatar";
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -118,10 +119,7 @@ export function Navbar() {
                   <div className="relative">
                     <PopoverTrigger asChild>
                       <Button variant={"ghost"}>
-                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                          {user.name?.charAt(0).toUpperCase() ||
-                            user.email?.charAt(0).toUpperCase()}
-                        </div>
+                        <TextAvatar name={user.name ?? user.email} size={"small"} />
                         <span>My Profile</span>
                       </Button>
                     </PopoverTrigger>
