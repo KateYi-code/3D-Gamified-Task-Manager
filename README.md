@@ -96,14 +96,87 @@ This project includes a GitHub workflow that automatically runs on push to main 
 
 The workflow configuration is in `.github/workflows/build.yml`.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+### Deploy on Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
-more details.
+Vercel is the easiest way to deploy your Next.js app, as it's built by the creators of Next.js.
+
+1. **Create a Vercel Account**
+   - Sign up at [vercel.com](https://vercel.com/signup) if you don't have an account
+
+2. **Connect Your Repository**
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Import your GitHub repository
+   - Authorize Vercel to access your repository if prompted
+
+3. **Configure Project**
+   - Project Name: Enter a name for your deployment
+   - Framework Preset: Next.js (should be auto-detected)
+   - Root Directory: `./` (default)
+
+4. **Environment Variables**
+   - Add the following environment variables:
+     - `DATABASE_URL`: Your MongoDB connection string
+     - `BACKEND_URL`: The URL of your deployed application (will be provided by Vercel after deployment)
+
+5. **Deploy**
+   - Click "Deploy"
+   - Wait for the build and deployment to complete
+   - Once deployed, Vercel will provide you with a URL for your application
+
+6. **Update Environment Variables (if needed)**
+   - After deployment, go to your project settings in Vercel
+   - Update the `BACKEND_URL` to match your deployment URL
+   - Redeploy the application for changes to take effect
+
+### Deploy with Docker
+
+You can also deploy the application using Docker, which allows you to run it on any platform that supports Docker containers.
+
+1. **Prerequisites**
+   - Install [Docker](https://docs.docker.com/get-docker/) on your machine
+   - Make sure you have access to a MongoDB instance (local or cloud-based)
+
+2. **Build the Docker Image**
+   ```bash
+   # Clone the repository (if you haven't already)
+   git clone git@github.com:UOA-CS732-S1-2025/group-project-virtualdominated.git
+   cd group-project-virtualdominated
+
+   # Build the Docker image
+   docker build -t virtualdominated .
+   ```
+
+3. **Run the Docker Container**
+   ```bash
+   # Run the container with environment variables
+   docker run -d \
+     -p 3000:3000 \
+     -e DATABASE_URL="mongodb+srv://your-username:your-password@your-cluster-url/your-database" \
+     -e BACKEND_URL="http://localhost:3000" \
+     --name virtualdominated-app \
+     virtualdominated
+   ```
+
+4. **Access the Application**
+   - Open your browser and navigate to `http://localhost:3000`
+
+5. **Stop and Remove the Container (when needed)**
+   ```bash
+   docker stop virtualdominated-app
+   docker rm virtualdominated-app
+   ```
+
+6. **Deployment to Cloud Platforms**
+   - You can deploy this Docker image to any cloud platform that supports Docker containers:
+     - AWS ECS/ECR
+     - Google Cloud Run
+     - Azure Container Instances
+     - Digital Ocean App Platform
+     - Heroku (with Docker support)
+
+   Make sure to set the appropriate environment variables when deploying to these platforms.
 
 ## FAQ
 

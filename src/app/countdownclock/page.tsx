@@ -2,7 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
-export default function CountdownClockPage() {
+const CountdownClock = () => {
   const params = useSearchParams();
   const taskId = params.get("taskId");
   const start = params.get("start");
@@ -51,5 +51,12 @@ export default function CountdownClockPage() {
         <p>Loading countdown...</p>
       )}
     </div>
+  );
+};
+export default function CountdownClockPage() {
+  return (
+    <Suspense>
+      <CountdownClock />
+    </Suspense>
   );
 }
