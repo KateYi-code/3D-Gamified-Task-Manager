@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { endOfWeek, format, startOfWeek } from "date-fns";
+import { endOfWeek, format, isSameWeek, startOfWeek } from "date-fns";
 import { FC, useMemo } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { GrRevert } from "react-icons/gr";
+import { useWeek } from "@/atoms/week";
 
 interface Props {
-  currentDate: Date;
   onNavigate: (direction: "prev" | "next" | "current") => void;
 }
-export const NavigationControl: FC<Props> = ({ onNavigate, currentDate }) => {
+export const NavigationControl: FC<Props> = ({ onNavigate }) => {
+  const { week: weekCurrent } = useWeek();
   const weekNow = useMemo(() => startOfWeek(new Date()), []);
-  const weekCurrent = useMemo(() => startOfWeek(currentDate), [currentDate]);
   return (
     <div className="flex items-center justify-between mb-6">
       <Button
@@ -25,9 +25,9 @@ export const NavigationControl: FC<Props> = ({ onNavigate, currentDate }) => {
 
       <div className={"flex flex-col items-center"}>
         <h2 className="text-base md:text-lg font-semibold">
-          {`${format(startOfWeek(currentDate), "MMM d")} - ${format(endOfWeek(currentDate), "MMM d, yyyy")}`}
+          {`${format(startOfWeek(weekNow), "MMM d")} - ${format(endOfWeek(weekNow), "MMM d, yyyy")}`}
         </h2>
-        {weekNow.getTime() !== weekCurrent.getTime() && (
+        {!isSameWeek(weekNow, weekCurrent) && (
           <Button
             variant={"outline"}
             size={"sm"}

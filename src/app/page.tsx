@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { addWeeks } from "date-fns";
 import { NavigationControl } from "@/components/calendar/NavigationControl";
 import { WeeklyGrid } from "@/components/calendar/WeeklyGrid";
@@ -9,17 +8,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { IoMdAdd } from "react-icons/io";
 import { useModal } from "@/components/modals";
+import { useWeek } from "@/atoms/week";
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date());
 
+  const { setWeek } = useWeek();
   const navigateWeek = (direction: "prev" | "next" | "current") => {
     if (direction === "current") {
-      setCurrentDate(new Date());
+      setWeek(new Date());
       return;
     }
-    setCurrentDate((date) => addWeeks(date, direction === "next" ? 1 : -1));
+    setWeek((date) => addWeeks(date, direction === "next" ? 1 : -1));
   };
 
   const { modal, openModal } = useModal("TargetCreateModal");
@@ -68,10 +68,10 @@ export default function Home() {
 
       <div className="rounded-lg shadow p-6 border">
         {/* Navigation Controls */}
-        <NavigationControl onNavigate={navigateWeek} currentDate={currentDate} />
+        <NavigationControl onNavigate={navigateWeek} />
 
         {/* Weekly Grid */}
-        <WeeklyGrid currentDate={currentDate} />
+        <WeeklyGrid />
       </div>
     </div>
   );

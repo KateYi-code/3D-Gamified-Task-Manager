@@ -128,6 +128,37 @@ export const getTaskAndTargetByTaskId = async (
   return task;
 };
 
+export const updateMyTask = async (props: {
+  id: string;
+  title: string;
+  duration: number;
+  date: Date;
+  targetId: string;
+}) => {
+  const session = getSession();
+  const user = session?.user;
+  if (!user) {
+    throw new Error("Login required");
+  }
+
+  const task = await prisma.task.findUnique({
+    where: { id: props.id },
+  });
+
+  if (!task || task.userId !== user.id) {
+    throw new Error("Task not found or unauthorized");
+  }
+
+  return prisma.task.update({
+    where: { id: props.id, userId: user.id },
+    data: {
+      title: props.title,
+      taskDuration: props.duration,
+      date: props.date,
+      targetId: props.targetId,
+    },
+  });
+};
 export const UpdateMyTaskAdvanced = async (
   taskId: string,
   startAt?: Date,

@@ -5,7 +5,7 @@ import "react-time-picker/dist/TimePicker.css";
 import { TaskForm, TaskFormType } from "@/components/task/TaskForm";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
-import { useInvalidateQuery } from "@/hooks/useQuery";
+import { useInvalidateGrid } from "@/hooks/useInvalidateGrid";
 
 type TaskEditModelProps = ModalProps & {
   initialDate: Date;
@@ -18,11 +18,11 @@ export const TaskCreateModel: FC<TaskEditModelProps> = ({
   initialDuration,
   initialDate,
 }) => {
-  const invalidate = useInvalidateQuery();
+  const invalidate = useInvalidateGrid();
   const onCreate = useCallback(
     async (data: TaskFormType) => {
       await client.authed.createMyTask(data.targetId, data.title, data.date, data.taskDuration);
-      await invalidate("getMyTasksOfWeek");
+      await invalidate();
       onOpenChange(false);
       toast("Task created successfully");
     },

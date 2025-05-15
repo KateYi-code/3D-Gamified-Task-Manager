@@ -11,7 +11,17 @@ export const CreatePostButton = ({ className }: Props) => {
     <>
       {postModal}
       <div className={`flex flex-col items-end w-full ${className}`}>
-        <Button onClick={() => openPostModal({})}>Post Moment +</Button>
+        <Button
+          onClick={() =>
+            openPostModal({
+              initialDescription: "",
+              shouldRedirectToPlanet: false,
+              taskId: undefined,
+            })
+          }
+        >
+          Post Moment +
+        </Button>
       </div>
     </>
   );

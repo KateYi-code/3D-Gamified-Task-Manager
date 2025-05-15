@@ -589,7 +589,7 @@ const PlanetContent = () => {
   }
 
   return (
-    <div className="h-screen-minus-nav">
+    <div className="h-screen-minus-nav" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}>
       <div 
         ref={containerRef} 
         className="w-full h-screen-minus-nav bg-black no-scrollbar flex-1 select-none touch-none"
