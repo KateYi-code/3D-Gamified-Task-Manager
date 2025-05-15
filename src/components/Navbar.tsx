@@ -140,7 +140,10 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden bg-background/80 backdrop-filter backdrop-blur-md shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
+      <div
+        className="md:hidden bg-background/80 backdrop-filter backdrop-blur-md shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4"
+        style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
+      >
         <Link href="/" className="flex items-center space-x-2">
           <Image src="/globe.svg" alt="Planet Logo" width={28} height={28} />
           <span className="text-lg font-bold text-primary">Planet</span>
@@ -172,7 +175,9 @@ export function Navbar() {
       </div>
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden bg-background/80 backdrop-filter backdrop-blur-md shadow-lg fixed bottom-0 w-full z-50 border-t">
-        <div className="flex flex-row justify-evenly">
+        <div className="flex flex-row justify-evenly"
+             style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
+        >
           {navItems.map((item) => (
             <Link
               key={item.path}

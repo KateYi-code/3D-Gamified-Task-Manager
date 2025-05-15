@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export const CreatePostModal = ({ 
   open, 
   onOpenChange, 
-  taskId: initialTaskId,
+  taskId: initialTaskId = "",
   shouldRedirectToPlanet = false,
   initialDescription = ""
 }) => {

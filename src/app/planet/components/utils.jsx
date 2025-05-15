@@ -18,8 +18,8 @@ function initThree(containerRef){
 
   let ratio = containerRef.current.clientWidth / containerRef.current.clientHeight
   camera = new THREE.PerspectiveCamera(50,ratio,0.1,2000)
-  camera.position.z = 30
-  camera.position.y = 15
+  camera.position.z = 45
+  camera.position.y = 45
   // camera.lookAt(new THREE.Vector3(99, 99, 99))
   // scene.add(camera)
 
@@ -42,6 +42,54 @@ function initThree(containerRef){
 
   const controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
+  controls.dampingFactor = 0.05
+  controls.minDistance = 20
+  controls.maxDistance = 100
+  controls.maxPolarAngle = Math.PI * 1.8
+  controls.minPolarAngle = 0
+  controls.enablePan = false
+  controls.target.set(0, 0, 0)
+
+  const initialCameraPosition = new THREE.Vector3(0, 45, 45)
+
+  const originalUpdate = controls.update
+  controls.update = function () {
+    const center = new THREE.Vector3(0, 0, 0)
+    const distance = camera.position.distanceTo(center)
+    const minDist = controls.minDistance
+    const maxDist = controls.maxDistance
+    const t = (distance - minDist) / (maxDist - minDist)
+
+    const cameraToCenter = new THREE.Vector3().subVectors(center, camera.position).normalize()
+    const planetRadius = 15
+
+    const surfacePoint = cameraToCenter.clone().multiplyScalar(planetRadius)
+    const horizontalOffset = new THREE.Vector3(cameraToCenter.x, 0, cameraToCenter.z).normalize().multiplyScalar(20)
+    const lookAtPoint = surfacePoint.clone().add(horizontalOffset)
+
+    let smoothT
+    if (t < 0.5) {
+      smoothT = Math.pow(1 - t * 2, 2)
+    } else if (t < 0.95) {
+      smoothT = Math.pow((t - 0.5) * 2, 2)
+    } else {
+      smoothT = 1
+    }
+
+    const dynamicTarget = new THREE.Vector3().lerpVectors(center, lookAtPoint, smoothT)
+    controls.target.copy(dynamicTarget)
+
+    if (t >= 0.5) {
+      const positionT = (t - 0.5) * 2
+      camera.position.lerp(initialCameraPosition, positionT)
+      controls.target.lerp(center, positionT)
+    }
+    if (t >= 0.95) {
+      controls.target.set(0, 0, 0)
+    }
+
+    originalUpdate.call(this)
+  }
 
   const mainLight = new THREE.DirectionalLight(0xffffff, 2.5)
   mainLight.position.set(50, 50, 50)
