@@ -1,6 +1,6 @@
 import { FC } from "react";
-import { TaskStatus } from "./TaskDraft";
 import { IoIosRadioButtonOff, IoIosRadioButtonOn, IoIosCheckmarkCircle } from "react-icons/io";
+import { TaskStatus } from "@prisma/client";
 
 interface TaskStatusToggleProps {
   status: TaskStatus;

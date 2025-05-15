@@ -34,16 +34,20 @@ type Props = {
   initial: {
     date: Date;
     duration: number;
+    title?: string;
+    targetId?: string;
   };
   onSubmit?: (data: TaskFormType) => Promise<void>;
 };
 
-export const TaskForm: FC<Props> = ({ initial: { date, duration }, onSubmit }) => {
+export const TaskForm: FC<Props> = ({ initial: { date, duration, title, targetId }, onSubmit }) => {
   const form = useForm<TaskFormType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       date: date,
       taskDuration: duration,
+      title,
+      targetId,
     },
   });
 
@@ -106,7 +110,6 @@ export const TaskForm: FC<Props> = ({ initial: { date, duration }, onSubmit }) =
           control={form.control}
           name="date"
           render={({ field }) => {
-            console.log({ field });
             return (
               <FormItem>
                 <FormLabel>Task Date</FormLabel>

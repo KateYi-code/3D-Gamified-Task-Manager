@@ -6,6 +6,7 @@ import { CreatePostModal } from "./moment/createPostModal";
 import { InfoModal } from "./moment/infoModal";
 import { DetailPostModal } from "@/components/moment/detail-post-modal";
 import { TaskCreateModel } from "@/components/task/TaskCreateModal";
+import { TaskEditModel } from "@/components/task/TaskEditModal";
 export interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -19,6 +20,7 @@ export const modals = {
   InfoModal,
   DetailPostModal,
   TaskCreateModel,
+  TaskEditModel,
 };
 
 export type Modals = typeof modals;

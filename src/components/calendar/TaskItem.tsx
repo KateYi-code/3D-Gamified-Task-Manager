@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { FaPlay } from "react-icons/fa";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useModal } from "@/components/modals";
 
 interface Props {
   task: Task;
@@ -25,12 +26,14 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
     });
   };
 
+  const { modal, openModal } = useModal("TaskEditModel");
   return (
     <div
       key={task.id}
       data-testid={`task-item`}
       className="group/task flex flex-col space-y-3 items-stretch overflow-visible w-full relative h-6"
     >
+      {modal}
       <div className={"flex items-center gap-1"}>
         <TaskStatusToggle
           status={task.status}
@@ -48,7 +51,16 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
             onMouseLeave={() => setIsHovering(false)}
             className="flex-1 min-w-0 relative overflow-visible"
           >
-            <span className="block truncate">{task.title}</span>
+            <Button
+              onClick={() => {
+                openModal({
+                  id: task.id,
+                });
+              }}
+              variant="link"
+            >
+              {task.title}
+            </Button>
             {isHovering && (
               <div>
                 <Tooltip>

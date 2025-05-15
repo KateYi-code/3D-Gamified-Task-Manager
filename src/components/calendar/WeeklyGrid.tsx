@@ -1,27 +1,22 @@
-import { addDays, format, isToday, startOfWeek } from "date-fns";
+import { format, isSameDay, isToday } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { FC, useCallback, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { useQuery } from "@/hooks/useQuery";
 import { TargetItem } from "@/components/calendar/TargetItem";
 import { useModal } from "@/components/modals";
-import { isSameDay } from "date-fns";
 import lodash from "lodash";
+import { useWeek } from "@/atoms/week";
 
-interface Props {
-  currentDate: Date;
-}
-
-export const WeeklyGrid: FC<Props> = ({ currentDate }) => {
+export const WeeklyGrid = () => {
   // Generate array of dates for the current week (Sunday to Saturday)
-  const getWeekDays = useCallback((date: Date): Date[] => {
-    const start = startOfWeek(date);
-    return Array.from({ length: 7 }).map((_, i) => addDays(start, i));
-  }, []);
+  const { weekDays, weekStart, weekEnd } = useWeek();
 
-  const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate, getWeekDays]);
+  const { data: tasks, refetch } = useQuery("getMyTasksOfWeek", weekStart, weekEnd);
 
-  const { data: tasks, refetch } = useQuery("getMyTasksOfWeek", weekDays[0], weekDays[6]);
+  useEffect(() => {
+    console.log({ tasks });
+  }, [tasks]);
 
   const targets = useMemo(() => {
     return weekDays.map((date) => {

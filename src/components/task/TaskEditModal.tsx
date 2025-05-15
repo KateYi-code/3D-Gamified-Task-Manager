@@ -5,28 +5,30 @@ import "react-time-picker/dist/TimePicker.css";
 import { TaskForm, TaskFormType } from "@/components/task/TaskForm";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
+import { useQuery } from "@/hooks/useQuery";
 import { useInvalidateGrid } from "@/hooks/useInvalidateGrid";
 
 type TaskEditModelProps = ModalProps & {
-  initialDate: Date;
-  initialDuration: number;
+  id: string;
 };
 
-export const TaskCreateModel: FC<TaskEditModelProps> = ({
-  open,
-  onOpenChange,
-  initialDuration,
-  initialDate,
-}) => {
+export const TaskEditModel: FC<TaskEditModelProps> = ({ open, onOpenChange, id }) => {
+  const { data: task } = useQuery("getMyTaskById", id);
   const invalidate = useInvalidateGrid();
-  const onCreate = useCallback(
+  const onSave = useCallback(
     async (data: TaskFormType) => {
-      await client.authed.createMyTask(data.targetId, data.title, data.date, data.taskDuration);
+      await client.authed.updateMyTask({
+        id,
+        title: data.title,
+        duration: data.taskDuration,
+        date: data.date,
+        targetId: data.targetId,
+      });
       await invalidate();
       onOpenChange(false);
-      toast("Task created successfully");
+      toast("Task update successfully");
     },
-    [invalidate, onOpenChange],
+    [id, invalidate, onOpenChange],
   );
 
   return (
@@ -35,13 +37,17 @@ export const TaskCreateModel: FC<TaskEditModelProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Task</DialogTitle>
         </DialogHeader>
-        <TaskForm
-          initial={{
-            duration: initialDuration,
-            date: initialDate,
-          }}
-          onSubmit={onCreate}
-        />
+        {task && (
+          <TaskForm
+            initial={{
+              duration: task?.taskDuration,
+              date: task?.date,
+              title: task?.title,
+              targetId: task?.targetId,
+            }}
+            onSubmit={onSave}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RedirectToAuth } from "@/components/auth/redirect-to-auth";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { Provider } from "jotai";
 
 export const metadata: Metadata = {
   title: "Planet App",
@@ -34,24 +35,26 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/pwa/favicon.png?v=xxx" />
       </head>
       <body className="max-h-screen min-h-screen bg-background">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <QueryProvider>
-            <AuthProvider>
-              <ServiceWorkerRegistration />
-              <RedirectToAuth />
-              <Navbar />
-              <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">
-                {children}
-              </main>
-            </AuthProvider>
-          </QueryProvider>
-          <Toaster />
-        </ThemeProvider>
+        <Provider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <QueryProvider>
+              <AuthProvider>
+                <ServiceWorkerRegistration />
+                <RedirectToAuth />
+                <Navbar />
+                <main className="pt-14 md:pt-16 pb-16 md:pb-0 h-screen flex flex-col">
+                  {children}
+                </main>
+              </AuthProvider>
+            </QueryProvider>
+            <Toaster />
+          </ThemeProvider>
+        </Provider>
       </body>
     </html>
   );
