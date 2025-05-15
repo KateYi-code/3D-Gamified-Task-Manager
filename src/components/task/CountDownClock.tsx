@@ -42,11 +42,8 @@ const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest
 export const CountDownClock = ({ task, onComplete, shouldRedirectToPlanet = true }: CountDownClockProps) => {
   const router = useRouter();
   const totalInitialTime = (() => {
-    if (task.startAt && task.finishAt) {
-      const start = new Date(task.startAt).getTime();
-      const end = new Date(task.finishAt).getTime();
-      const duration = Math.floor((end - start) / 1000);
-      return duration > 0 ? duration : 1500;
+    if (task.taskDuration) {
+      return task.taskDuration;
     }
     return 1500;
   })();

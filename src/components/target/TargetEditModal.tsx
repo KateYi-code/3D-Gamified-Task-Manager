@@ -5,7 +5,6 @@ import { client } from "@/endpoints/client";
 import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { TargetForm, TargetFormType } from "@/components/target/TargetForm";
 import { Button } from "@/components/ui/button";
-import { TaskStatus } from "@prisma/client";
 import { Task, Target } from "@prisma/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
@@ -17,13 +16,7 @@ type Props = ModalProps & {
   LocalTasks: Task[];
 };
 
-export const TargetEditModal: FC<Props> = ({
-  open,
-  onOpenChange,
-  targetId,
-  setUpdate,
-  LocalTasks,
-}) => {
+export const TargetEditModal: FC<Props> = ({ open, onOpenChange, targetId }) => {
   const [trigger, setTrigger] = useState(false);
   useEffect(() => {
     if (trigger) {
@@ -31,64 +24,18 @@ export const TargetEditModal: FC<Props> = ({
     }
   }, [trigger]);
   const invalidate = useInvalidateQuery();
-  const { data: target, refetch } = useQuery("getMyTargetById", targetId);
-
-  // State to track task completion
-  const [allTasksCompleted, setAllTasksCompleted] = useState(false);
-
-  // Check if all tasks are completed
-  const checkAllTasksCompleted = (tasks: Task[]) => {
-    const allCompleted = tasks.every((task) => task.status === "COMPLETED");
-    setAllTasksCompleted(allCompleted);
-  };
+  const { data: target } = useQuery("getMyTargetById", targetId);
 
   const onSubmit = async (data: TargetFormType) => {
-    await client.authed.updateMyTarget(targetId, data.title);
-    await refetch();
+    if (!data.id) {
+      toast.error("Target ID is missing");
+      return;
+    }
+    await client.authed.updateMyTarget(data.id!, data.title);
     toast("Target updated successfully");
-  };
-
-  useEffect(() => {
-    if (open && targetId) {
-      refetch();
-    }
-  }, [open, targetId, refetch]);
-
-  useEffect(() => {
-    if (LocalTasks.length > 0) {
-      checkAllTasksCompleted(LocalTasks);
-    }
-  }, [LocalTasks]);
-
-  const onfinal = async () => {
     onOpenChange(false);
-    await invalidate("getMyTargets");
-    setUpdate(true);
+    invalidate("getMyTasksOfWeek");
   };
-
-  const onAdd = async (targetid: string, title: string) => {
-    await client.authed.createMyTask(targetid, title);
-  };
-
-  const onDelete = async (taskId: string) => {
-    await client.authed.deleteMyTask(taskId);
-  };
-
-  const onUpdateTitle = async (taskId: string, title: string) => {
-    await client.authed.updateMyTaskTitle(taskId, title);
-  };
-
-  const onUpdateStatus = async (taskId: string, status: TaskStatus) => {
-    await client.authed.updateMyTaskStatus(taskId, status);
-  };
-
-  // If all tasks are completed, show a toast message
-  useEffect(() => {
-    if (allTasksCompleted) {
-      toast.success("🎉 All tasks completed! Please place the reward on the planet!");
-      onfinal(); // Optionally, finalize once all tasks are complete
-    }
-  }, [allTasksCompleted, onfinal]);
 
   const { modal, openModal } = useModal("Confirm");
   return (
@@ -97,20 +44,7 @@ export const TargetEditModal: FC<Props> = ({
         <DialogHeader>
           <DialogTitle>Edit Target</DialogTitle>
         </DialogHeader>
-        {target && (
-          <TargetForm
-            onSubmit={onSubmit}
-            initialValues={target}
-            Tasks={LocalTasks}
-            onAdd={onAdd}
-            onDelete={onDelete}
-            onUpdateTitle={onUpdateTitle}
-            Id={targetId}
-            onUpdateStatus={onUpdateStatus}
-            onfinal={onfinal}
-            setTrigger={setTrigger}
-          />
-        )}
+        {target && <TargetForm initialValues={target} onChange={onSubmit} />}
         <Button
           onClick={() => {
             openModal({
@@ -119,7 +53,7 @@ export const TargetEditModal: FC<Props> = ({
               onConfirm: async () => {
                 await client.authed.deleteMyTarget(targetId);
                 onOpenChange(false);
-                await invalidate("getMyTargets");
+                await invalidate("getMyTasksOfWeek");
                 toast("Target deleted successfully");
               },
             });

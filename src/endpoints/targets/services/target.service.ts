@@ -14,6 +14,25 @@ export const getMyTargets = async () => {
   });
 };
 
+export const getMyTasksOfWeek = async (startDate: Date, endDate: Date) => {
+  const user = getSession().user;
+  if (!user) {
+    throw new Error("login required");
+  }
+  return prisma.task.findMany({
+    where: {
+      userId: user.id,
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      target: true,
+    },
+  });
+};
+
 export const getMyTargetById = async (id: string) => {
   const user = getSession().user;
   if (!user) {
@@ -39,7 +58,7 @@ export const updateMyTarget = async (id: string, title: string) => {
     },
   });
 };
-export const createMyTarget = async (title: string, targetdate: Date) => {
+export const createMyTarget = async (title: string) => {
   const user = getSession().user;
   if (!user) {
     throw new Error("login required");
@@ -48,7 +67,6 @@ export const createMyTarget = async (title: string, targetdate: Date) => {
     data: {
       title,
       userId: user.id,
-      placedAt: targetdate,
     },
   });
 };

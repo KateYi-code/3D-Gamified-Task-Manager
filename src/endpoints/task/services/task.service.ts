@@ -4,12 +4,12 @@ import { Task, TaskStatus } from "@prisma/client";
 import { Target } from "@prisma/client";
 import { RepeatRule } from "@prisma/client";
 
-
-
 export const createMyTask = async (
   targetId: string,
   title: string,
-  description = ""
+  date: Date,
+  duration: number,
+  description = "",
 ): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
@@ -19,6 +19,8 @@ export const createMyTask = async (
 
   return prisma.task.create({
     data: {
+      date,
+      taskDuration: duration,
       title,
       description,
       target: { connect: { id: targetId } },
@@ -26,7 +28,6 @@ export const createMyTask = async (
     },
   });
 };
-
 
 export const deleteMyTask = async (taskId: string): Promise<Task> => {
   const session = getSession();
@@ -42,10 +43,7 @@ export const deleteMyTask = async (taskId: string): Promise<Task> => {
   });
 };
 
-export const updateMyTaskTitle = async (
-  taskId: string,
-  title: string
-): Promise<Task> => {
+export const updateMyTaskTitle = async (taskId: string, title: string): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
   if (!user) {
@@ -60,10 +58,7 @@ export const updateMyTaskTitle = async (
   });
 };
 
-export const updateMyTaskStatus = async (
-  taskId: string,
-  status: TaskStatus
-): Promise<Task> => {
+export const updateMyTaskStatus = async (taskId: string, status: TaskStatus): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
   if (!user) {
@@ -76,12 +71,10 @@ export const updateMyTaskStatus = async (
     where: { id: taskId },
     data: { status },
   });
-}
+};
 
 //get tasks by Id
-export const getMyTaskById = async (
-  taskId: string
-): Promise<Task> => {
+export const getMyTaskById = async (taskId: string): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
   if (!user) throw new Error("Login required");
@@ -94,9 +87,7 @@ export const getMyTaskById = async (
   });
 };
 
-export const getTaskById = async (
-  taskId: string
-): Promise<Task> => {
+export const getTaskById = async (taskId: string): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
   if (!user) throw new Error("Login required");
@@ -115,7 +106,7 @@ export const getTaskById = async (
 };
 
 export const getTaskAndTargetByTaskId = async (
-  taskId: string
+  taskId: string,
 ): Promise<Task & { target: Target }> => {
   const session = getSession();
   const user = session?.user;
@@ -126,8 +117,8 @@ export const getTaskAndTargetByTaskId = async (
       id: taskId,
     },
     include: {
-      target: true
-    }
+      target: true,
+    },
   });
 
   if (!task) {
@@ -141,7 +132,7 @@ export const UpdateMyTaskAdvanced = async (
   taskId: string,
   startAt?: Date,
   finishAt?: Date,
-  repeatKey?: RepeatRule | null
+  repeatKey?: RepeatRule | null,
 ): Promise<Task> => {
   const session = getSession();
   const user = session?.user;
@@ -171,5 +162,3 @@ export const UpdateMyTaskAdvanced = async (
     data: updateData,
   });
 };
-
-

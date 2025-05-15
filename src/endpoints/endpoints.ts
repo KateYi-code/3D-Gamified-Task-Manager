@@ -22,6 +22,7 @@ import {
   deleteMyTarget,
   getMyTargetById,
   getMyTargets,
+  getMyTasksOfWeek,
   updateMyTarget,
 } from "@/endpoints/targets/services/target.service";
 import {
@@ -53,7 +54,7 @@ import {
   getMyTaskById,
   getTaskById,
   getTaskAndTargetByTaskId,
-  UpdateMyTaskAdvanced
+  UpdateMyTaskAdvanced,
 } from "@/endpoints/task/services/task.service";
 
 import { search } from "@/endpoints/search/services/search.service";
@@ -65,6 +66,7 @@ export const authEndpoints = shaped<APIs>()({
   getMyFollowings,
   getMyFollowers,
   getMyTargets,
+  getMyTasksOfWeek,
   createMyTarget,
   getMyTargetById,
   updateMyTarget,

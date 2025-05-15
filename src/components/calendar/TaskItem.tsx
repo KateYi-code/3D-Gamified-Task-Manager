@@ -3,6 +3,8 @@ import { FC, useState } from "react";
 import { TaskStatusToggle } from "@/components/task/TaskStatusToggle";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { FaPlay } from "react-icons/fa";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   task: Task;
@@ -48,18 +50,24 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
           >
             <span className="block truncate">{task.title}</span>
             {isHovering && (
-              <Button
-                type="button"
-                variant="default"
-                className=" absolute 
-                  top-1/2 w-full
-                  transform -translate-y-1/2 
-                  bg-primary text-white rounded text-sm
-                  z-10 "
-                onClick={onStartTask}
-              >
-                <span>Start Task</span>
-              </Button>
+              <div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      size={"sm"}
+                      variant="default"
+                      className="absolute top-0 right-0"
+                      onClick={onStartTask}
+                    >
+                      <FaPlay />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Start Task</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             )}
           </div>
         )}

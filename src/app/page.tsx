@@ -6,6 +6,9 @@ import { NavigationControl } from "@/components/calendar/NavigationControl";
 import { WeeklyGrid } from "@/components/calendar/WeeklyGrid";
 import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { IoMdAdd } from "react-icons/io";
+import { useModal } from "@/components/modals";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -19,6 +22,7 @@ export default function Home() {
     setCurrentDate((date) => addWeeks(date, direction === "next" ? 1 : -1));
   };
 
+  const { modal, openModal } = useModal("TargetCreateModal");
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -50,9 +54,17 @@ export default function Home() {
       </div>
     );
   }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Weekly Calendar</h1>
+      {modal}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold mb-6">Weekly Calendar</h1>
+        <Button onClick={() => openModal({})}>
+          <IoMdAdd size={24} />
+          <span>Create Target</span>
+        </Button>
+      </div>
 
       <div className="rounded-lg shadow p-6 border">
         {/* Navigation Controls */}

@@ -102,7 +102,6 @@ model Target {
   title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  placedAt  DateTime
   userId    String
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -111,7 +110,6 @@ model Target {
 
   @@unique([userId, title])
 }
-
 
 model Planet {
   id        String   @id @default(cuid()) @map("_id")
@@ -140,26 +138,22 @@ enum RepeatRule {
 }
 
 model Task {
-  id          String     @id @default(cuid()) @map("_id")
-  title       String
-  description String     @default("")
-  status      TaskStatus @default(PENDING)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  completedAt DateTime?
-  targetId    String
-  userId      String
+  id           String     @id @default(cuid()) @map("_id")
+  title        String
+  description  String     @default("")
+  status       TaskStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  completedAt  DateTime?
+  targetId     String
+  userId       String
+  date         DateTime   @default(now())
+  taskDuration Int        @default(20)
 
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   target       Target         @relation(fields: [targetId], references: [id], onDelete: Cascade)
   posts        Post[]
   PlanetObject PlanetObject[]
-
-  startAt     DateTime?  
-  finishAt    DateTime? 
-  repeatKey   RepeatRule?      // daily | weekly | monthly | null
-  placedAt    DateTime?
-  timeLeft    String?
 }
 
 model PlanetObject {
