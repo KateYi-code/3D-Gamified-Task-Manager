@@ -60,6 +60,8 @@ function initThree(containerRef){
     const maxDist = controls.maxDistance
     const t = (distance - minDist) / (maxDist - minDist)
 
+    if (distance < minDist) return
+
     const cameraToCenter = new THREE.Vector3().subVectors(center, camera.position).normalize()
     const planetRadius = 15
 
