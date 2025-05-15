@@ -31,7 +31,7 @@ export default function ProfileContent({ id }: Props) {
   return (
     <div className="flex flex-col items-center h-[100%] py-10 w-full self-center md:w-[800px] lg:w-[1000px] xl:w-[1200px]">
       {isMe && <CreatePostButton />}
-      <PostsList userIds={[user.id]} />
+      <PostsList userIds={[id]} />
     </div>
   );
 }
