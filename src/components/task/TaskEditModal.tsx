@@ -5,7 +5,7 @@ import "react-time-picker/dist/TimePicker.css";
 import { TaskForm, TaskFormType } from "@/components/task/TaskForm";
 import { client } from "@/endpoints/client";
 import { toast } from "sonner";
-import { useQuery } from "@/hooks/useQuery";
+import { useInvalidateQuery, useQuery } from "@/hooks/useQuery";
 import { useInvalidateGrid } from "@/hooks/useInvalidateGrid";
 
 type TaskEditModelProps = ModalProps & {
@@ -15,6 +15,7 @@ type TaskEditModelProps = ModalProps & {
 export const TaskEditModel: FC<TaskEditModelProps> = ({ open, onOpenChange, id }) => {
   const { data: task } = useQuery("getMyTaskById", id);
   const invalidate = useInvalidateGrid();
+  const invalidateQuery = useInvalidateQuery();
   const onSave = useCallback(
     async (data: TaskFormType) => {
       await client.authed.updateMyTask({
@@ -25,6 +26,7 @@ export const TaskEditModel: FC<TaskEditModelProps> = ({ open, onOpenChange, id }
         targetId: data.targetId,
       });
       await invalidate();
+      await invalidateQuery("getMyTaskById", id);
       onOpenChange(false);
       toast("Task update successfully");
     },

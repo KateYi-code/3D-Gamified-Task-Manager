@@ -77,7 +77,7 @@ export const TaskForm: FC<Props> = ({ initial: { date, duration, title, targetId
           render={({ field }) => (
             <FormItem>
               <FormLabel>Task Title</FormLabel>
-              <Input {...field} />
+              <Input value={field.value} onChange={(v) => field.onChange(v.target.value)} />
               <FormMessage />
             </FormItem>
           )}
