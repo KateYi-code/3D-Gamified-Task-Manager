@@ -95,7 +95,7 @@ export default function SinglePost(props: Props) {
         {post.text}
         <div className="grid grid-cols-2 gap-2.5 mt-2.5">
           {post.images.map((image, index) => {
-            return <img key={index} src={image} alt="" className="aspect-square max-w-36" />;
+            return <img key={index} src={image} alt="" className="aspect-auto" />;
           })}
         </div>
       </CardContent>

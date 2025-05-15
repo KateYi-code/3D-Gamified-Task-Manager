@@ -66,7 +66,7 @@ export function Navbar() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="bg-background shadow-md fixed w-full z-50 top-0 hidden md:block">
+      <nav className="bg-background/80 backdrop-filter backdrop-blur-md shadow-md fixed w-full z-50 top-0 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-10">
@@ -140,7 +140,7 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden bg-background shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
+      <div className="md:hidden bg-background/80 backdrop-filter backdrop-blur-md shadow-md fixed w-full z-50 top-0 h-14 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
           <Image src="/globe.svg" alt="Planet Logo" width={28} height={28} />
           <span className="text-lg font-bold text-primary">Planet</span>
@@ -171,7 +171,7 @@ export function Navbar() {
         </div>
       </div>
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden bg-background shadow-lg fixed bottom-0 w-full z-50 border-t">
+      <nav className="md:hidden bg-background/80 backdrop-filter backdrop-blur-md shadow-lg fixed bottom-0 w-full z-50 border-t">
         <div className="flex flex-row justify-evenly">
           {navItems.map((item) => (
             <Link

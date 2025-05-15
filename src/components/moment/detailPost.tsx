@@ -8,6 +8,7 @@ import { client } from "@/endpoints/client";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/providers/auth-provider";
+import { TextAvatar } from "@/components/profile/TextAvatar";
 
 interface Props {
   postId: string;
@@ -40,15 +41,8 @@ export default function DetailPost(props: Props) {
     <Card className={clsx("w-full shadow-none border-none", props.className)}>
       <CardHeader>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <div
-              style={{
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                backgroundColor: "pink",
-              }}
-            />
+          <div className="flex flex-row items-center gap-2.5">
+            <TextAvatar name={post.user.name ?? post.user.email} size={"small"} />
             <span>{post.user?.name}</span>
           </div>
           <div>
@@ -83,9 +77,9 @@ export default function DetailPost(props: Props) {
           <h2>Task Title: {task?.title} </h2>
           <p>Task Description: {task?.description}</p>
         </div>
-        <div className="flex gap-2.5 mt-2.5 flex-wrap">
+        <div className="grid grid-cols-2 gap-2.5 mt-2.5">
           {post.images?.map((src, index) => (
-            <img key={index} src={src} alt="" style={{ width: "150px", height: "150px" }} />
+            <img key={index} src={src} alt="" className="aspect-auto" />
           ))}
         </div>
       </CardContent>

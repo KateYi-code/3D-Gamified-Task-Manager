@@ -16,7 +16,8 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
   const [isHovering, setIsHovering] = useState(false);
   const url = `/clock/${task.id}`;
 
-  const onStartTask = () => {
+  const onStartTask = (e: any) => {
+    e.stopPropagation();
     onUpdateTaskStatus(task.id, "IN_PROGRESS").then(() => {
       router.push(url);
     });

@@ -10,7 +10,7 @@ type Props = ModalProps & {
 export const DetailPostModal = ({ open, postId, onOpenChange }: Props) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[700px] sm:max-w-[700px]">
+      <DialogContent className="w-[700px] sm:max-w-[700px] max-h-4/5 overflow-auto">
         <VisuallyHidden>
           <DialogTitle>hello</DialogTitle>
         </VisuallyHidden>
