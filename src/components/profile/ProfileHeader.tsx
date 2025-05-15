@@ -10,6 +10,7 @@ import { EditProfileDialog } from "@/components/profile/EditProfileDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@/hooks/useQuery";
 import { TextAvatar } from "@/components/profile/TextAvatar";
+import Link from "next/link";
 
 interface Props {
   id: string;
@@ -95,7 +96,11 @@ export default function ProfileHeader({ id }: Props) {
         <p className="text-sm text-gray-500 dark:text-gray-400">📮: {profile.email}</p>
       </div>
 
-      <div className="flex justify-center sm:justify-end">
+      <div className="flex justify-center sm:justify-end gap-3 flex-wrap">
+        <Link href={`/planet?user=${profile.id}`}>
+          <Button variant="default">Go to Planet</Button>
+        </Link>
+
         {isSelf ? (
           <Button variant="outline" onClick={() => setEditOpen(true)}>
             Edit Profile
