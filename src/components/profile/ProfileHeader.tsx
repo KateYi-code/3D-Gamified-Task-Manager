@@ -98,7 +98,7 @@ export default function ProfileHeader({ id }: Props) {
 
       <div className="flex justify-center sm:justify-end gap-3 flex-wrap">
         <Link href={`/planet?user=${profile.id}`}>
-          <Button variant="default">Go to Planet</Button>
+          <Button variant="default">Visit Planet</Button>
         </Link>
 
         {isSelf ? (

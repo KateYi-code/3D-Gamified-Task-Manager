@@ -16,7 +16,7 @@ import { client } from "../../endpoints/client"
 import { useSearchParams } from 'next/navigation'
 
 
-const PlanetContent = () => {
+const PlanetContent = ({ id }) => {
   const searchParams = useSearchParams()
   const finishedTaskId = searchParams.get('finished')
   const viewUserId = searchParams.get('user')
@@ -130,7 +130,15 @@ const PlanetContent = () => {
   }
 
   useEffect(() => {
-    if (viewUserId && viewUserId !== user?.id) {
+    if (id) {
+      setTargetUserId(id)
+      client.unauth.getUserById(id).then(userData => {
+        setViewUser(userData)
+      }).catch(err => {
+        console.error('Failed to load user data',err)
+        setError('Failed to load user data')
+      })
+    } else if (viewUserId && viewUserId !== user?.id) {
       setTargetUserId(viewUserId)
       client.unauth.getUserById(viewUserId).then(userData => {
         setViewUser(userData)
@@ -142,7 +150,7 @@ const PlanetContent = () => {
     }else {
       setTargetUserId(user?.id)
     }
-  }, [viewUserId, user])
+  }, [id, viewUserId, user])
 
   useEffect(() => {
     if (finishedTaskId) {
@@ -160,8 +168,8 @@ const PlanetContent = () => {
 
   const loadSavedObjects = async () => {
     try {
-      setTargetUserId(viewUserId || user.id)
-      let targetUserId = viewUserId || user.id
+      setTargetUserId(id || viewUserId || user?.id || "")
+      let targetUserId = id || viewUserId || user?.id || ""
       let objects = await client.authed.getPlanetObjects(targetUserId)
       
       const loadPromises = objects.map(async (obj) => {
@@ -188,6 +196,7 @@ const PlanetContent = () => {
       await Promise.all(loadPromises)
     } catch (error) {
       console.error('Failed to load saved objects:', error)
+      setError('Failed to load planet objects')
     }
   }
 
@@ -196,7 +205,7 @@ const PlanetContent = () => {
     if (hasLoadedRef.current) return
     hasLoadedRef.current = true
 
-    const { renderer, camera, scene, controls } = initThree(containerRef)
+    const { renderer, camera, scene, controls } = initThree(containerRef, !!id)
     sceneRef.current = scene
     cameraRef.current = camera
     rendererRef.current = renderer
@@ -243,7 +252,18 @@ const PlanetContent = () => {
     return () => {
       renderer.dispose()
     }
-  }, [user, loading, selectedReward])
+  }, [user, loading, selectedReward, id])
+
+  useEffect(() => {
+    if (hasLoadedRef.current && planetGroupRef.current) {
+      while(planetGroupRef.current.children.length > 1) {
+        const child = planetGroupRef.current.children[1]
+        planetGroupRef.current.remove(child)
+      }
+      objectsRef.current.clear()
+      loadSavedObjects()
+    }
+  }, [id])
 
   useEffect(() => {
     if (!selectedReward || !cubeRef.current || !previewRef.current) return
@@ -589,14 +609,13 @@ const PlanetContent = () => {
   }
 
   return (
-    <div className="h-screen-minus-nav" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}>
+    <div className="w-full h-full" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}>
       <div 
         ref={containerRef} 
-        className="w-full h-screen-minus-nav bg-black no-scrollbar flex-1 select-none touch-none"
+        className="w-full h-full bg-black no-scrollbar flex-1 select-none touch-none"
         onContextMenu={(e) => e.preventDefault()}
         onSelect={(e) => e.preventDefault()}
         onClick={handleBackgroundClick}
-        style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', KhtmlUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none', userSelect: 'none', touchAction: 'none'}}
       />
 
       {objectTaskInfo && selectedObject && (
@@ -697,7 +716,7 @@ const PlanetContent = () => {
   )
 }
 
-const Planet = () => {
+const Planet = ({ id }) => {
   return (
     <Suspense fallback={
       <div className="h-screen flex items-center justify-center">
@@ -707,7 +726,7 @@ const Planet = () => {
         </div>
       </div>
     }>
-      <PlanetContent />
+      <PlanetContent id={id} />
     </Suspense>
   )
 }
