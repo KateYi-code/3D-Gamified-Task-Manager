@@ -65,48 +65,49 @@ export const PostsList = ({ userIds }: Props) => {
 
   return (
     <div className="flex flex-col items-center mt-6 self-center px-4 md:w-[800px] lg:w-[1000px] xl:w-[1200px] pb-20 sm:pb-0 w-full">
-      <div className="flex flex-col items-center flex-1">
-        {detailPostModal}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          {posts?.items?.map((post) => (
-            <div key={`${post.id}`} className="flex flex-col md:max-h-[400px] md:min-h-[400px]">
-              <SinglePost
-                onClick={() => {
-                  openPostModal({
-                    postId: post.id,
-                  });
-                }}
-                className="hover:bg-secondary cursor-pointer"
-                post={{
-                  ...post,
-                  user: post.user,
-                }}
-              />
-            </div>
-          ))}
-        </div>
-        <If condition={!isEnd}>
-          <Button
-            hidden={isEnd}
-            className="mt-4"
-            variant="outline"
-            disabled={isLoading}
-            onClick={() => onLoadMore()}
-          >
-            Load More...
-          </Button>
-        </If>
-        <If condition={isEnd}>
-          <div className="text-center self-stretch mb-12 mt-12 border-t pt-6">
-            No more posts to load.
+      <div className="flex w-full gap-8">
+        <div className="flex flex-col items-center flex-1">
+          {detailPostModal}
+          <div className="grid grid-cols-1 gap-4 w-full">
+            {posts?.items?.map((post) => (
+              <div key={`${post.id}`} className="flex flex-col md:max-h-[400px] md:min-h-[400px]">
+                <SinglePost
+                  onClick={() => {
+                    openPostModal({
+                      postId: post.id,
+                    });
+                  }}
+                  className="hover:bg-secondary cursor-pointer"
+                  post={{
+                    ...post,
+                    user: post.user,
+                  }}
+                />
+              </div>
+            ))}
           </div>
-        </If>
-      </div>
+          <If condition={!isEnd}>
+            <Button
+              hidden={isEnd}
+              className="mt-4"
+              variant="outline"
+              disabled={isLoading}
+              onClick={() => onLoadMore()}
+            >
+              Load More...
+            </Button>
+          </If>
+          <If condition={isEnd}>
+            <div className="text-center self-stretch mb-12 mt-12 border-t pt-6">
+              No more posts to load.
+            </div>
+          </If>
+        </div>
 
-      <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
-        <div className="w-full h-full">
-          <PlanetView id={params.id} />
-          {/*{params.id}*/}
+        <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
+          <div className="w-full h-full">
+            <PlanetView id={params.id} />
+          </div>
         </div>
       </div>
     </div>
