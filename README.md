@@ -1,8 +1,71 @@
-# Focus Planet (Next.js + Prisma + MongoDB)
+# Focus Planet🌏 (Next.js + Three.js + Prisma + MongoDB)
 
 ## Project Overview
 
-Focus Planet is a online To Do List website which is mainly used for inspiraing people to learn or finish important daily tasks with focus. The website offers visual rewards and bring emotional engagement to user. Compared with normal to do list, the website not just allow user to set up a task with a timer. They are also get rewards points for finishing a task. The reward of finishing a task allow them to implement some new item/features to their own unique planet. (I believe this bring motivation to user to use own app) After that, they can share their achievements on the their moment and whoever followed him/her are allow to see the post of their achievement.
+Focus Planet is an innovative personal task management web application that transforms the traditional to-do list into an engaging and visually rewarding experience. The application is now live at [https://group-project-virtualdominated.vercel.app](https://group-project-virtualdominated.vercel.app).
+
+### Core Concept
+
+Unlike conventional task management tools, Focus Planet introduces a unique gamification approach through a 3D virtual planet system. Users can:
+
+1. **Set Long-term Targets**: Create meaningful long-term goals (Targets) such as learning a new language, mastering an instrument, or developing a new skill.
+2. **Break Down into Tasks**: Divide these targets into daily manageable tasks.
+3. **Focus timers** Start a task with a Pomodoro-style timer (inspired by the Pomodoro Technique and Forest app), helping users maintain focus and track their productive time through visual countdown and progress indicators.
+3. **Earn Visual Rewards**: Complete tasks to earn decorative items for your personal 3D planet.
+4. **Build Your Universe**: Customize your planet with earned rewards, creating a visual representation of your achievements.
+5. **Social Interaction**: Visit friends' planets to see their progress and achievements.
+
+### Key Features
+
+#### 1. 3D Planet Visualization
+- Built with Three.js, each user gets their own unique 3D planet in space
+- Interactive 3D environment allowing rotation, zoom, and exploration
+- Real-time visual feedback for task completion
+- Customizable planet surface with earned decorative items
+
+#### 2. Focus Timer System
+- Pomodoro-style focus timer for each task
+- Visual countdown with progress tracking
+- Achievement tracking and statistics
+
+#### 3. Social Features
+- Share achievements on the moment feed
+- Visit friends' planets to see their progress
+- Interactive 3D planet viewing in social feeds
+
+#### 4. Progressive Web App (PWA)
+- Installable on mobile devices
+- Offline functionality
+- Native app-like experience
+- Push notifications for task reminders
+
+### Visual Journey
+
+![Home Page](images/1.png)
+*Home page with target and task management interface*
+
+![Focus Timer](images/4.png)
+*Focus timer interface for task completion*
+
+![Reward Collection](images/5.png)
+*Reward collection interface after task completion*
+
+![Decorated Planet](images/2.png)
+*Personal planet with earned decorative items*
+
+![Profile Page](images/3.png)
+*Profile page with interactive planet and achievement sharing*
+
+### Technical Innovation
+
+The project stands out through its innovative use of Three.js for creating an immersive 3D environment. The planet system serves as both a reward mechanism and a social platform, making task completion more engaging and meaningful. The 3D visualization allows users to:
+
+- See their progress through visual representation
+- Collect and place decorative items earned from completed tasks
+- Interact with their achievements in a 3D space
+- Share their progress with friends through an interactive 3D interface
+
+This unique approach to task management combines productivity tools with gaming elements, creating a more engaging and motivating experience for users to achieve their long-term goals.
 
 ## Getting Started
 
