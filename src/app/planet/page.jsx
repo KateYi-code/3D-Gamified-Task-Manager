@@ -515,25 +515,28 @@ const PlanetContent = ({ id }) => {
       const previewScene = new THREE.Scene()
       const previewCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
       const previewRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-      previewRenderer.setSize(200, 200)
+      const containerWidth = container.clientWidth
+      const containerHeight = container.clientHeight
+      previewRenderer.setSize(containerWidth, containerHeight)
       previewRenderer.setClearColor(0x000000, 0)
 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
       previewScene.add(ambientLight)
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2)
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 8)
       directionalLight.position.set(5, 5, 5)
       previewScene.add(directionalLight)
 
-      const loadedModel = await modelLoader(`/decorations/${model}`, { s: [0.5, 0.5, 0.5] })
+      const scale = Math.min(containerWidth, containerHeight) / 300
+      const loadedModel = await modelLoader(`/decorations/${model}`, { s: [scale, scale, scale] })
       
       loadedModel.position.set(0, 0, 0)
       loadedModel.rotation.set(0, Math.PI / 4, 0)
       
       previewScene.add(loadedModel)
       
-      previewCamera.position.z = 5
-      previewCamera.position.y = 2
+      previewCamera.position.z = 4
+      previewCamera.position.y = 1.5
       previewCamera.lookAt(0, 0, 0)
       
       previewRenderer.render(previewScene, previewCamera)
@@ -551,7 +554,7 @@ const PlanetContent = ({ id }) => {
         
         const { scene, camera, renderer, model: previewModel } = rewardPreviewRefs.current.get(model)
         if (previewModel) {
-          previewModel.rotation.y += 0.005 // 降低旋转速度
+          previewModel.rotation.y += 0.005
         }
         renderer.render(scene, camera)
         requestAnimationFrame(animate)
@@ -559,6 +562,28 @@ const PlanetContent = ({ id }) => {
       animate()
     }
   }
+
+  useEffect(() => {
+    const handleResize = () => {
+      rewardPreviewRefs.current.forEach(({ renderer, scene, camera, model }, modelName) => {
+        const container = document.getElementById(`preview-${modelName}`)
+        if (!container) return
+
+        const containerWidth = container.clientWidth
+        const containerHeight = container.clientHeight
+        
+        renderer.setSize(containerWidth, containerHeight)
+        camera.aspect = containerWidth / containerHeight
+        camera.updateProjectionMatrix()
+        
+        const scale = Math.min(containerWidth, containerHeight) / 300
+        model.scale.set(scale, scale, scale)
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -589,7 +614,7 @@ const PlanetContent = ({ id }) => {
 
   const lastInteractionTime = useRef(Date.now())
   const isAutoRotating = useRef(false)
-  const autoRotateSpeed = 0.00025
+  const autoRotateSpeed = 0.00015
   const idleTimeout = 8000
 
   const updateLastInteractionTime = () => {
