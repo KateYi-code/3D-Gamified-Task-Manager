@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useInvalidateQuery } from "@/hooks/useQuery";
 import { client } from "@/endpoints/client";
@@ -7,15 +7,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@/hooks/useQuery";
 import { fileToBase64 } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-export const CreatePostModal = ({ open, onOpenChange }) => {
+export const CreatePostModal = ({ 
+  open, 
+  onOpenChange, 
+  taskId: initialTaskId,
+  shouldRedirectToPlanet = false,
+  initialDescription = ""
+}) => {
+  const router = useRouter();
   const invalidate = useInvalidateQuery();
   const [errors, setErrors] = useState({});
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(initialDescription);
   const [images, setImages] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [taskId, setTaskId] = useState("");
+  const [taskId, setTaskId] = useState(initialTaskId || "");
   const { data: tasks = [] } = useQuery("getMyTasks");
+
+  useEffect(() => {
+    if (initialDescription) {
+      setDescription(initialDescription);
+    }
+  }, [initialDescription]);
+
+  useEffect(() => {
+    if (initialTaskId) {
+      setTaskId(initialTaskId);
+    }
+  }, [initialTaskId]);
+
   const onFileChange = (e) => {
     if (e.target.files) setImages(Array.from(e.target.files));
   };
@@ -32,7 +53,7 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
 
       const newErrors = {};
       if (!taskId) newErrors.task = "You must pick a completed task.";
-      if (!description.trim()) newErrors.desc = "Description can’t be blank.";
+      // if (!description.trim()) newErrors.desc = "Description can't be blank.";
       setErrors(newErrors);
       if (Object.keys(newErrors).length > 0) return;
       const data = await client.authed.createNewPost({ taskId, description, images: base64Images });
@@ -46,8 +67,12 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
       onOpenChange(false);
       setDescription("");
       setImages([]);
+
+      if (shouldRedirectToPlanet) {
+        router.push(`/planet?finished=${taskId}`);
+      }
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || "Failed to create post");
     } finally {
       setSubmitting(false);
     }
@@ -69,45 +94,47 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
                 setDescription(e.target.value);
                 setErrors((prev) => ({ ...prev, desc: undefined }));
               }}
-              placeholder="Tell your followers what’s up…"
-              rows={4}
+              placeholder="Tell your followers what's up…"
+              rows={6}
             />
             {errors.desc && <p className="mt-1 text-sm text-red-600">{errors.desc}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Related Task</label>
-            <select
-              value={taskId}
-              onChange={(e) => {
-                setTaskId(e.target.value);
-                setErrors((prev) => ({ ...prev, task: undefined }));
-              }}
-              className="w-full border rounded px-2 py-1"
-            >
-              <option value="">— none —</option>
-              {tasks.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title}
-                </option>
-              ))}
-            </select>
-            {errors.task && <p className="mt-1 text-sm text-red-600">{errors.task}</p>}
-          </div>
+          {!initialTaskId && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Related Task</label>
+              <select
+                value={taskId}
+                onChange={(e) => {
+                  setTaskId(e.target.value);
+                  setErrors((prev) => ({ ...prev, task: undefined }));
+                }}
+                className="w-full border rounded px-2 py-1"
+              >
+                <option value="">— none —</option>
+                {tasks.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+              {errors.task && <p className="mt-1 text-sm text-red-600">{errors.task}</p>}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1">Images</label>
 
             <div
               className="
-            relative 
-            border-2 border-dashed border-gray-300 
-            rounded-md 
-            h-32
-            flex items-center justify-center
-            cursor-pointer
-            hover:border-gray-400
-            "
+              relative
+              border-2 border-dashed border-gray-300
+              rounded-md
+              h-32
+              flex items-center justify-center
+              cursor-pointer
+              hover:border-gray-400
+              "
             >
               {/* Native input covers the entire box, but invisible */}
               <input
@@ -133,8 +160,12 @@ export const CreatePostModal = ({ open, onOpenChange }) => {
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
-            <Button className="hover;opacity-60" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? "Posting…" : "Post Moment"}
+            <Button 
+              className="hover;opacity-60"
+              onClick={handleSubmit} 
+              disabled={submitting}
+            >
+              {submitting ? "Sharing..." : shouldRedirectToPlanet ? "Share and Add Bonus Item to My Planet" : "Share Moment"}
             </Button>
           </div>
         </div>

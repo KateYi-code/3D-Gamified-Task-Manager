@@ -26,18 +26,20 @@ import {
 import { useModal } from "@/components/modals";
 import { addStory } from "@/lib/taskStories";
 import { Slider } from "@/components/ui/slider";
-import { NotificationManager } from "@/lib/notifications";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { NotificationManager, MAX_BACKGROUND_TIME, WARNING_INTERVAL } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import { Task } from "@prisma/client";
 
 interface CountDownClockProps {
   task: Task;
   onComplete?: () => void;
+  shouldRedirectToPlanet?: boolean;
 }
 
 const whiteNoiseList = ["/sounds/rain.mp3", "/sounds/ocean.mp3", "/sounds/forest.mp3"];
 
-export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
+export const CountDownClock = ({ task, onComplete, shouldRedirectToPlanet = true }: CountDownClockProps) => {
   const router = useRouter();
   const totalInitialTime = (() => {
     if (task.startAt && task.finishAt) {
@@ -61,6 +63,8 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const notificationManager = useRef(NotificationManager.getInstance());
+  const backgroundTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActiveTimeRef = useRef<number>(Date.now());
 
   const formatTime = (time: number) =>
     `${String(Math.floor(time / 60)).padStart(2, "0")}:${String(time % 60).padStart(2, "0")}`;
@@ -177,6 +181,44 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
 
   const percentage = timeLeft / totalInitialTime;
 
+  const handleVisibilityChange = useCallback(() => {
+    if (document.hidden) {
+      lastActiveTimeRef.current = Date.now();
+      if (isRunning) {
+        notificationManager.current.sendNotification("Task in Progress", {
+          body: "Please return to the page to continue your task! Or your task will fail in 1 minute.",
+        });
+
+        backgroundTimerRef.current = setInterval(() => {
+          const currentTime = Date.now();
+          const timeInBackground = Math.floor((currentTime - lastActiveTimeRef.current) / 1000);
+
+          if (timeInBackground >= MAX_BACKGROUND_TIME) {
+            clearInterval(backgroundTimerRef.current!);
+            handleTaskFailure();
+          } else if (timeInBackground % WARNING_INTERVAL === 0) {
+            notificationManager.current.sendWarningNotification(timeInBackground);
+          }
+        }, 1000);
+      }
+    } else {
+      if (backgroundTimerRef.current) {
+        clearInterval(backgroundTimerRef.current);
+        notificationManager.current.resetWarningTimer();
+      }
+    }
+  }, [isRunning]);
+
+  const handleTaskFailure = () => {
+    clearTimer();
+    setIsRunning(false);
+    stopAudio();
+    toast.error("Task Failed: Away for too long");
+    notificationManager.current.sendNotification("Task Failed", {
+      body: "Task has been terminated due to extended absence",
+    });
+  };
+
   const handleStart = async () => {
     if (!notificationManager.current.hasNotificationPermission()) {
       const granted = await notificationManager.current.requestPermission();
@@ -193,6 +235,35 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
     };
     init();
   }, []);
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (backgroundTimerRef.current) {
+        clearInterval(backgroundTimerRef.current);
+      }
+    };
+  }, [handleVisibilityChange]);
+
+  const getShareText = () => {
+    const timeUsed = formatTime(usedTime);
+    const taskTitle = task.title;
+    const taskDesc = task.description;
+    return `🎉 Just finished a focused task！\n📝 Task：${taskTitle}\n${taskDesc ? `📋 Description：${taskDesc}\n` : ''}⏱️ Duration of concentration：${timeUsed}\n\n#Focus  #Task Achievement  #DeepWork`;
+  };
+
+  const handleShare = () => {
+    if (task.id) {
+      openPostModal({ 
+        taskId: task.id,
+        shouldRedirectToPlanet,
+        initialDescription: getShareText()
+      });
+    } else {
+      toast.error("Missing task ID");
+    }
+  };
 
   return (
     <>
@@ -348,12 +419,12 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
             <Button
               onClick={() => {
                 setShowConfirmModal(false);
-                //handleTaskComplete();
-                router.push("/");
+                handleTaskComplete();
+                // router.push("/");
               }}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Yes, End Session Now
+              Yes, End Now, I confirm have finished the task
             </Button>
             <Button onClick={() => setShowConfirmModal(false)} variant="secondary">
               No, Continue Session
@@ -401,32 +472,26 @@ export const CountDownClock = ({ task, onComplete }: CountDownClockProps) => {
                 View Task Log
               </Button>
             </div>
-            <Button
-              onClick={() => {
-                if (task.id) {
-                  setShowModal(false);
+            {/*<Button*/}
+            {/*  onClick={() => {*/}
+            {/*    if (task.id) {*/}
+            {/*      setShowModal(false);*/}
 
-                  router.push(`/planet?finished=${task.id}`);
-                } else {
-                  toast.error("Missing task ID");
-                }
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white"
+            {/*      router.push(`/planet?finished=${task.id}`);*/}
+            {/*    } else {*/}
+            {/*      toast.error("Missing task ID");*/}
+            {/*    }*/}
+            {/*  }}*/}
+            {/*  className="bg-green-500 hover:bg-green-600 text-white"*/}
+            {/*>*/}
+            {/*  Add Bonus Item to My Planet*/}
+            {/*</Button>*/}
+            <Button
+              onClick={handleShare}
+              className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 transition-all"
             >
               Share and Add Bonus Item to My Planet
             </Button>
-            <button
-              onClick={() => {
-                if (task.id) {
-                  openPostModal({});
-                } else {
-                  alert("Missing task ID");
-                }
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 transition-all"
-            >
-              Share the Achievement
-            </button>
           </div>
         </DialogContent>
       </Dialog>
