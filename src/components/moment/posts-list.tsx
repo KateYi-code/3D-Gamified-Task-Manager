@@ -106,7 +106,7 @@ export const PostsList = ({ userIds }: Props) => {
 
         <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
           <div className="w-full h-full">
-            <PlanetView id={params.id} />
+            <PlanetView params={{ id: params.id }} />
           </div>
         </div>
       </div>

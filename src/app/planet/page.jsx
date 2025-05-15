@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react'
 import * as THREE from 'three'
@@ -716,7 +717,7 @@ const PlanetContent = ({ id }) => {
   )
 }
 
-const Planet = ({ id }) => {
+const Planet = ({ params }) => {
   return (
     <Suspense fallback={
       <div className="h-screen flex items-center justify-center">
@@ -726,7 +727,7 @@ const Planet = ({ id }) => {
         </div>
       </div>
     }>
-      <PlanetContent id={id} />
+      <PlanetContent id={params?.id} />
     </Suspense>
   )
 }
