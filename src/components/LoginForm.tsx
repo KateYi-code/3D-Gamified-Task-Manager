@@ -36,6 +36,11 @@ export function LoginForm() {
     <div className="max-w-md mx-auto p-6 bg-background rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Login</h2>
 
+      <div className="text-gray-500 mb-6">
+        <p>For demonstration of the APP, please use</p>
+        <p>Email: <strong>demo@demo.com</strong></p>
+        <p>Password: <strong>demodemo</strong></p>
+      </div>
       {serverError && (
         <div className="mb-4 p-3 bg-red-100 text-destructive rounded-md">{serverError}</div>
       )}
