@@ -20,8 +20,9 @@ const PlanetView = dynamic(() => import("@/app/planet/page"), {
 
 interface Props {
   userIds?: string[];
+  showPlanet?: boolean;
 }
-export const PostsList = ({ userIds }: Props) => {
+export const PostsList = ({ userIds, showPlanet = true }: Props) => {
   const params = useParams();
   const { user, loading: userLoading } = useAuth();
   const [page, setPage] = useState<PageRequest>({
@@ -104,11 +105,13 @@ export const PostsList = ({ userIds }: Props) => {
           </If>
         </div>
 
-        <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
-          <div className="w-full h-full">
-            <PlanetView params={{ id: params.id }} />
+        {showPlanet && (
+          <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
+            <div className="w-full h-full">
+              <PlanetView params={{ id: params.id }} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
