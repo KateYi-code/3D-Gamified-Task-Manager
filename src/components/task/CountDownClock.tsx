@@ -32,10 +32,7 @@ import { cn } from "@/lib/utils";
 import { Task } from "@prisma/client";
 
 interface CountDownClockProps {
-  task: Task & {
-    startAt?: Date;
-    finishAt?: Date;
-  };
+  task: Task;
   onComplete?: () => void;
   shouldRedirectToPlanet?: boolean;
 }

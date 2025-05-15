@@ -76,9 +76,6 @@ export const TaskItem: FC<Props> = ({ task, onUpdateTaskStatus }) => {
                   <FaPlay />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>Start Task</p>
-              </TooltipContent>
             </Tooltip>
           </div>
         </If>
