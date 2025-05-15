@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   // themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
   // authors: [{ name: "David" }],
-  icons: [{ rel: "icon", url: "/pwa/favicon.png" }],
+  icons: [{ rel: "icon", url: "/pwa/favicon.png?v=xxx" }],
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <meta name="apple-mobile-web-app-title" content="Focus Timer" />
-        <link rel="apple-touch-icon" href="/pwa/favicon.png" />
+        <link rel="apple-touch-icon" href="/pwa/favicon.png?v=xxx" />
       </head>
       <body className="max-h-screen min-h-screen bg-background">
         <ThemeProvider

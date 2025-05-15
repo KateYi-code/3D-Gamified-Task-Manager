@@ -40,8 +40,7 @@ export default function ClockPage() {
 
   return (
     <div className="p-6 flex flex-col items-center space-y-6">
-      <h4 className="mb-1 text-gray-700 font-bold">Ongoing Task: </h4>
-      <h1 className="text-3xl font-bold text-center">{task.title}</h1>
+      <h4 className="mb-1 text-gray-700 font-bold">Ongoing Task: {task.title} </h4>
       <CountDownClock task={task} />
     </div>
 );
