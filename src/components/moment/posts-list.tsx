@@ -64,7 +64,7 @@ export const PostsList = ({ userIds }: Props) => {
   }
 
   return (
-    <div className="flex flex-row gap-4 mt-6 px-4 w-full">
+    <div className="flex flex-col items-center mt-6 self-center px-4 md:w-[800px] lg:w-[1000px] xl:w-[1200px] pb-20 sm:pb-0 w-full">
       <div className="flex flex-col items-center flex-1">
         {detailPostModal}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -102,7 +102,7 @@ export const PostsList = ({ userIds }: Props) => {
           </div>
         </If>
       </div>
-      
+
       <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
         <div className="w-full h-full">
           <PlanetView id={params.id} />

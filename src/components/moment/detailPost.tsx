@@ -75,7 +75,6 @@ export default function DetailPost(props: Props) {
         <div>
           <span>Complete Time: {new Date(post.updatedAt).toLocaleString()}</span>
           <h2>Task Title: {task?.title} </h2>
-          <p>Task Description: {task?.description}</p>
         </div>
         <div className="grid grid-cols-2 gap-2.5 mt-2.5">
           {post.images?.map((src, index) => (
