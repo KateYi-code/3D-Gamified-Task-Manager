@@ -43,7 +43,7 @@ export const CountDownClock = ({ task, onComplete, shouldRedirectToPlanet = true
   const router = useRouter();
   const totalInitialTime = (() => {
     if (task.taskDuration) {
-      return task.taskDuration;
+      return task.taskDuration*60;
     }
     return 1500;
   })();
