@@ -18,8 +18,8 @@ function initThree(containerRef){
 
   let ratio = containerRef.current.clientWidth / containerRef.current.clientHeight
   camera = new THREE.PerspectiveCamera(50,ratio,0.1,2000)
-  camera.position.z = 45
-  camera.position.y = 45
+  camera.position.z = 35
+  camera.position.y = 35
   // camera.lookAt(new THREE.Vector3(99, 99, 99))
   // scene.add(camera)
 
@@ -50,7 +50,7 @@ function initThree(containerRef){
   controls.enablePan = false
   controls.target.set(0, 0, 0)
 
-  const initialCameraPosition = new THREE.Vector3(0, 45, 45)
+  const initialCameraPosition = new THREE.Vector3(0, 35, 35)
 
   const originalUpdate = controls.update
   controls.update = function () {
@@ -60,13 +60,16 @@ function initThree(containerRef){
     const maxDist = controls.maxDistance
     const t = (distance - minDist) / (maxDist - minDist)
 
-    if (distance < minDist) return
+    if (distance < minDist) {
+      const direction = camera.position.clone().sub(center).normalize()
+      camera.position.copy(center.clone().add(direction.multiplyScalar(minDist)))
+    }
 
     const cameraToCenter = new THREE.Vector3().subVectors(center, camera.position).normalize()
     const planetRadius = 15
 
     const surfacePoint = cameraToCenter.clone().multiplyScalar(planetRadius)
-    const horizontalOffset = new THREE.Vector3(cameraToCenter.x, 0, cameraToCenter.z).normalize().multiplyScalar(20)
+    const horizontalOffset = new THREE.Vector3(cameraToCenter.x, 0, cameraToCenter.z).normalize().multiplyScalar(15)
     const lookAtPoint = surfacePoint.clone().add(horizontalOffset)
 
     let smoothT
