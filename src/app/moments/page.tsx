@@ -9,7 +9,7 @@ export default function MomentsPage() {
       <div className="md:w-[800px] lg:w-[1000px] xl:w-[1200px]">
         <CreatePostButton className={"mt-6 mr-6"} />
       </div>
-      <PostsList />
+      <PostsList showPlanet={false} />
     </div>
   );
 }

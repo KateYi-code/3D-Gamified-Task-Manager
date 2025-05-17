@@ -20,8 +20,9 @@ const PlanetView = dynamic(() => import("@/app/planet/page"), {
 
 interface Props {
   userIds?: string[];
+  showPlanet?: boolean;
 }
-export const PostsList = ({ userIds }: Props) => {
+export const PostsList = ({ userIds, showPlanet = true }: Props) => {
   const params = useParams();
   const { user, loading: userLoading } = useAuth();
   const [page, setPage] = useState<PageRequest>({
@@ -68,7 +69,7 @@ export const PostsList = ({ userIds }: Props) => {
       <div className="flex w-full gap-8">
         <div className="flex flex-col items-center flex-1">
           {detailPostModal}
-          <div className="grid grid-cols-1 gap-4 w-full">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${showPlanet ? 'lg:grid-cols-2' : 'lg:grid-cols-3'} gap-4 w-full`}>
             {posts?.items?.map((post) => (
               <div key={`${post.id}`} className="flex flex-col md:max-h-[400px] md:min-h-[400px]">
                 <SinglePost
@@ -104,11 +105,13 @@ export const PostsList = ({ userIds }: Props) => {
           </If>
         </div>
 
-        <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
-          <div className="w-full h-full">
-            <PlanetView id={params.id} />
+        {showPlanet && (
+          <div className="hidden lg:block w-[600px] h-[600px] sticky top-4 rounded-lg overflow-hidden bg-background border">
+            <div className="w-full h-full">
+              <PlanetView params={{ id: params.id }} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

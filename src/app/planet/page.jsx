@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 import { useEffect, useRef, useState, Suspense, useCallback } from 'react'
 import * as THREE from 'three'
@@ -34,6 +35,7 @@ const PlanetContent = ({ id }) => {
   const placedRef = useRef(false)
   const hasLoadedRef = useRef(false)
   const objectsRef = useRef(new Map())
+  const atmosphereRef = useRef()
 
   const [placed, setPlaced] = useState(false)
   const [error, setError] = useState(null)
@@ -42,6 +44,7 @@ const PlanetContent = ({ id }) => {
   const [taskInfo, setTaskInfo] = useState(null)
   const [rewardOptions, setRewardOptions] = useState([])
   const [selectedReward, setSelectedReward] = useState(null)
+  const rewardPreviewRefs = useRef(new Map())
 
   const dragging = useRef(false)
   const dragMode = useRef('')
@@ -200,6 +203,27 @@ const PlanetContent = ({ id }) => {
     }
   }
 
+  const atmosphereVertexShader = `
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      vPosition = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `
+
+  const atmosphereFragmentShader = `
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    
+    void main() {
+      float intensity = pow(0.45 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+      gl_FragColor = vec4(1.0, 1.0, 1.0, 0.7) * intensity;
+    }
+  `
+
   useEffect(() => {
     if (!user || loading) return
     if (hasLoadedRef.current) return
@@ -215,6 +239,18 @@ const PlanetContent = ({ id }) => {
       const group = new THREE.Group()
       group.add(model)
       scene.add(group)
+
+      const atmosphereGeometry = new THREE.SphereGeometry(12.1, 44, 44)
+      const atmosphereMaterial = new THREE.ShaderMaterial({
+        vertexShader: atmosphereVertexShader,
+        fragmentShader: atmosphereFragmentShader,
+        transparent: true,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending
+      })
+      const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
+      group.add(atmosphere)
+      atmosphereRef.current = atmosphere
 
       model.traverse((child) => {
         if (child.isMesh) {
@@ -469,6 +505,155 @@ const PlanetContent = ({ id }) => {
     })
   }
 
+  const initRewardPreviews = async () => {
+    if (!rewardOptions.length) return
+
+    for (const model of rewardOptions) {
+      const container = document.getElementById(`preview-${model}`)
+      if (!container) continue
+
+      const previewScene = new THREE.Scene()
+      const previewCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
+      const previewRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+      const containerWidth = container.clientWidth
+      const containerHeight = container.clientHeight
+      previewRenderer.setSize(containerWidth, containerHeight)
+      previewRenderer.setClearColor(0x000000, 0)
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+      previewScene.add(ambientLight)
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 8)
+      directionalLight.position.set(5, 5, 5)
+      previewScene.add(directionalLight)
+
+      const scale = Math.min(containerWidth, containerHeight) / 300
+      const loadedModel = await modelLoader(`/decorations/${model}`, { s: [scale, scale, scale] })
+      
+      loadedModel.position.set(0, 0, 0)
+      loadedModel.rotation.set(0, Math.PI / 4, 0)
+      
+      previewScene.add(loadedModel)
+      
+      previewCamera.position.z = 4
+      previewCamera.position.y = 1.5
+      previewCamera.lookAt(0, 0, 0)
+      
+      previewRenderer.render(previewScene, previewCamera)
+      container.appendChild(previewRenderer.domElement)
+      
+      rewardPreviewRefs.current.set(model, {
+        scene: previewScene,
+        camera: previewCamera,
+        renderer: previewRenderer,
+        model: loadedModel
+      })
+
+      const animate = () => {
+        if (!rewardPreviewRefs.current.has(model)) return
+        
+        const { scene, camera, renderer, model: previewModel } = rewardPreviewRefs.current.get(model)
+        if (previewModel) {
+          previewModel.rotation.y += 0.005
+        }
+        renderer.render(scene, camera)
+        requestAnimationFrame(animate)
+      }
+      animate()
+    }
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      rewardPreviewRefs.current.forEach(({ renderer, scene, camera, model }, modelName) => {
+        const container = document.getElementById(`preview-${modelName}`)
+        if (!container) return
+
+        const containerWidth = container.clientWidth
+        const containerHeight = container.clientHeight
+        
+        renderer.setSize(containerWidth, containerHeight)
+        camera.aspect = containerWidth / containerHeight
+        camera.updateProjectionMatrix()
+        
+        const scale = Math.min(containerWidth, containerHeight) / 300
+        model.scale.set(scale, scale, scale)
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      rewardPreviewRefs.current.forEach(({ renderer, scene }) => {
+        renderer.dispose()
+        scene.traverse((object) => {
+          if (object.isMesh) {
+            object.geometry.dispose()
+            if (object.material) {
+              if (Array.isArray(object.material)) {
+                object.material.forEach(material => material.dispose())
+              } else {
+                object.material.dispose()
+              }
+            }
+          }
+        })
+      })
+      rewardPreviewRefs.current.clear()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (rewardOptions.length > 0) {
+      initRewardPreviews()
+    }
+  }, [rewardOptions])
+
+  const lastInteractionTime = useRef(Date.now())
+  const isAutoRotating = useRef(false)
+  const autoRotateSpeed = 0.00015
+  const idleTimeout = 8000
+
+  const updateLastInteractionTime = () => {
+    lastInteractionTime.current = Date.now()
+    isAutoRotating.current = false
+  }
+
+  const checkAutoRotate = () => {
+    const now = Date.now()
+    if (now - lastInteractionTime.current > idleTimeout && !isAutoRotating.current) {
+      isAutoRotating.current = true
+    }
+  }
+
+  useEffect(() => {
+    let animationFrameId
+
+    const animate = () => {
+      checkAutoRotate()
+      
+      if (isAutoRotating.current && planetGroupRef.current) {
+        planetGroupRef.current.rotation.y += autoRotateSpeed
+        if (atmosphereRef.current) {
+          atmosphereRef.current.rotation.y += autoRotateSpeed
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (!targetUserId || loading) return
     const dom = containerRef.current
@@ -480,6 +665,7 @@ const PlanetContent = ({ id }) => {
         return
       }
 
+      updateLastInteractionTime()
       dragging.current = true
       lastMouse.current = { x: event.clientX || event.touches[0].clientX, y: event.clientY || event.touches[0].clientY }
 
@@ -522,6 +708,10 @@ const PlanetContent = ({ id }) => {
         return
       }
 
+      if (dragging.current) {
+        updateLastInteractionTime()
+      }
+
       if (!dragging.current || dragMode.current !== 'planet' || !planetGroupRef.current) return
       const width = containerRef.current.clientWidth
       const height = containerRef.current.clientHeight
@@ -560,6 +750,7 @@ const PlanetContent = ({ id }) => {
 
       dragging.current = false
       dragMode.current = ''
+      updateLastInteractionTime()
 
       if (controlsRef.current) {
         controlsRef.current.enabled = true
@@ -651,7 +842,7 @@ const PlanetContent = ({ id }) => {
       )}
 
       {finishedTaskId && !selectedReward && !placed && (
-        <div className="opacity-85 absolute bottom-[6%] left-1/2 -translate-x-1/2 bg-black/60 p-4 rounded-xl shadow-lg z-10 flex flex-col gap-3 min-w-[280px] max-w-[90vw]">
+        <div className="opacity-85 absolute bottom-[6%] left-1/2 -translate-x-1/2 bg-black/60 p-4 rounded-xl shadow-lg z-10 flex flex-col gap-3 w-[95vw] max-w-[500px]">
           {taskInfo && (
             <div className="text-center mb-4">
               <h2 className="text-white text-xl font-semibold mb-2">Congratulations!</h2>
@@ -666,9 +857,10 @@ const PlanetContent = ({ id }) => {
               <button
                 key={index}
                 onClick={() => handleRewardSelection(model)}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-colors"
+                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-colors flex flex-col items-center"
               >
-                {model.replace('.fbx', '')}
+                <div id={`preview-${model}`} className="w-full aspect-square mb-2" />
+                <span className="text-sm sm:text-base">{model.replace('.fbx', '')}</span>
               </button>
             ))}
           </div>
@@ -716,7 +908,7 @@ const PlanetContent = ({ id }) => {
   )
 }
 
-const Planet = ({ id }) => {
+const Planet = ({ params }) => {
   return (
     <Suspense fallback={
       <div className="h-screen flex items-center justify-center">
@@ -726,7 +918,7 @@ const Planet = ({ id }) => {
         </div>
       </div>
     }>
-      <PlanetContent id={id} />
+      <PlanetContent id={params?.id} />
     </Suspense>
   )
 }
